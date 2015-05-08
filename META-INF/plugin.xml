@@ -21,11 +21,11 @@
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
        on how to target different products -->
 
-  <depends>com.jetbrains.php</depends>
-
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
     <fileTypeFactory implementation="com.aopphp.go.GoAopFileTypeFactory"/>
+
+    <lang.parserDefinition language="Go! AOP Pointcut query" implementationClass="com.aopphp.go.PointcutQueryParserDefinition"/>
   </extensions>
 
   <application-components>
@@ -39,5 +39,8 @@
   <actions>
     <!-- Add your actions here -->
   </actions>
+
+  <depends>com.jetbrains.php</depends>
+  <depends>com.intellij.modules.platform</depends>
 
 </idea-plugin>
