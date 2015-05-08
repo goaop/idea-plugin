@@ -10,7 +10,7 @@ public class GoAopFileType extends LanguageFileType {
     public static final GoAopFileType INSTANCE = new GoAopFileType();
 
     private GoAopFileType() {
-        super(GoAopLanguage.INSTANCE);
+        super(PointcutQueryLanguage.INSTANCE);
     }
 
     @NotNull

@@ -1,0 +1,100 @@
+{
+  parserClass="com.aopphp.go.parser.PointcutParser"
+  parserUtilClass="com.aopphp.go.parser.PointcutParserUtil"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix=""
+  psiImplClassSuffix="Impl"
+  psiPackage="com.aopphp.go.psi"
+  psiImplPackage="com.aopphp.go.psi.impl"
+
+  elementTypeHolderClass="com.aopphp.go.psi.PointcutTypes"
+  elementTypeClass="com.aopphp.go.psi.PointcutElementType"
+  tokenTypeClass="com.aopphp.go.psi.PointcutTokenType"
+
+  tokens=[
+    nsSeparator='\'
+    annotation='@'
+    comment='regexp://.*'
+    namePart='regexp:[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
+    string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
+  ]
+}
+
+singlePointcut ::=
+    accessPointcut
+  | annotatedAccessPointcut
+  | executionPointcut
+  | annotatedExecutionPointcut
+  | withinPointcut
+  | annotatedWithinPointcut
+  | initializationPointcut
+  | staticInitializationPointcut
+  | cflowbelowPointcut
+  | dynamicExecutionPointcut
+  | pointcutReference;
+
+accessPointcut ::= access '(' propertyAccessReference ')'
+
+executionPointcut ::=
+    execution '(' methodExecutionReference ')'
+  | execution '(' functionExecutionReference ')'
+
+withinPointcut ::= within '(' classFilter ')'
+
+annotatedAccessPointcut ::= annotation access '(' namespaceName ')'
+
+annotatedExecutionPointcut ::= annotation execution '(' namespaceName ')'
+
+annotatedWithinPointcut ::= annotation within '(' namespaceName ')'
+
+initializationPointcut ::= initialization '(' classFilter ')'
+
+staticInitializationPointcut ::= staticinitialization '(' classFilter ')'
+
+cflowbelowPointcut ::= cflowbelow '(' executionPointcut ')'
+
+dynamicExecutionPointcut ::= dynamic '(' memberReference '(' argumentList ')' ')'
+
+pointcutReference ::= namespaceName '->' namePatternPart;
+
+propertyAccessReference ::= memberReference;
+
+methodExecutionReference ::= (memberReference '(' argumentList ')');
+
+functionExecutionReference ::= (namespacePattern nsSeparator namePatternPart '(' argumentList ')');
+
+memberReference ::= (memberModifiers classFilter memberAccessType namePatternPart);
+
+classFilter ::=
+    namespacePattern
+  | namespacePattern '+';
+
+argumentList ::= '*';
+
+memberAccessType ::= '::'|'->';
+
+namespacePattern ::=
+    '**'
+  | namePatternPart
+  | namePatternPart nsSeparator namespacePattern
+  | namePatternPart nsSeparator '**';
+
+namePatternPart ::=
+    '*'
+  | '*' namePatternPart
+  | namePart
+  | namePart namePatternPart
+  | namePart '|' namePatternPart;
+
+namespaceName ::=
+    namePart
+  | namePart nsSeparator namespaceName;
+
+memberModifiers ::=
+    memberModifier '|' memberModifiers
+  | memberModifier ' ' memberModifiers
+  | memberModifier;
+
+memberModifier ::= public|protected|private|final;
