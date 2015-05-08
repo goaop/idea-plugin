@@ -22,6 +22,7 @@
     staticAccess='::'
     asterisk='*'
     doubleAsterisk='**'
+    subclassFilter='+'
     comment='regexp://.*'
     namePart='regexp:[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
     string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
@@ -41,7 +42,7 @@ singlePointcut ::=
   | dynamicExecutionPointcut
   | pointcutReference;
 
-accessPointcut ::= access '(' propertyAccessReference ')'
+accessPointcut ::= access '(' memberReference ')'
 
 executionPointcut ::=
     execution '(' methodExecutionReference ')'
@@ -49,57 +50,46 @@ executionPointcut ::=
 
 withinPointcut ::= within '(' classFilter ')'
 
-annotatedAccessPointcut ::= annotation access '(' namespaceName ')'
+annotatedAccessPointcut ::= (annotation access '(' namespaceName ')')
 
-annotatedExecutionPointcut ::= annotation execution '(' namespaceName ')'
+annotatedExecutionPointcut ::= (annotation execution '(' namespaceName ')')
 
-annotatedWithinPointcut ::= annotation within '(' namespaceName ')'
+annotatedWithinPointcut ::= (annotation within '(' namespaceName ')')
 
-initializationPointcut ::= initialization '(' classFilter ')'
+initializationPointcut ::= (initialization '(' classFilter ')')
 
-staticInitializationPointcut ::= staticinitialization '(' classFilter ')'
+staticInitializationPointcut ::= (staticinitialization '(' classFilter ')')
 
-cflowbelowPointcut ::= cflowbelow '(' executionPointcut ')'
+cflowbelowPointcut ::= (cflowbelow '(' executionPointcut ')');
 
-dynamicExecutionPointcut ::= dynamic '(' memberReference '(' argumentList ')' ')'
+dynamicExecutionPointcut ::= (dynamic '(' memberReference '(' argumentList ')' ')');
 
-pointcutReference ::= namespaceName '->' namePatternPart;
-
-propertyAccessReference ::= memberReference;
+pointcutReference ::= (namespaceName '->' namePatternPart);
 
 methodExecutionReference ::= (memberReference '(' argumentList ')');
 
-functionExecutionReference ::= (namespacePattern nsSeparator namePatternPart '(' argumentList ')');
+functionExecutionReference ::= (namespacePattern '\' namePatternPart '(' argumentList ')');
 
 memberReference ::= (memberModifiers classFilter memberAccessType namePatternPart);
 
-classFilter ::=
-    namespacePattern
-  | namespacePattern '+';
+classFilter ::= namespacePattern '+'?;
 
 argumentList ::= '*';
 
-memberAccessType ::= '::'|'->';
+memberAccessType ::= ['::'|'->'];
 
 namespacePattern ::=
     '**'
-  | namePatternPart
-  | namePatternPart nsSeparator namespacePattern
-  | namePatternPart nsSeparator '**';
+  | namePatternPart ('\' namespacePattern)*
+  | namePatternPart '\' '**';
 
 namePatternPart ::=
-    '*'
-  | '*' namePatternPart
-  | namePart
-  | namePart namePatternPart
+    '*' namePatternPart*
+  | namePart namePatternPart*
   | namePart '|' namePatternPart;
 
-namespaceName ::=
-    namePart
-  | namePart nsSeparator namespaceName;
+namespaceName ::= namePart ('\' namespaceName)*
 
-memberModifiers ::=
-    memberModifier '|' memberModifiers
-  | { memberModifier };
+memberModifiers ::= memberModifier ([' ' | "|"] memberModifier)*
 
-memberModifier ::= public|protected|private|final;
+memberModifier ::= 'public'|'protected'|'private'|'final';

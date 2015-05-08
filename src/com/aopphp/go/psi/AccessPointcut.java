@@ -8,6 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface AccessPointcut extends PsiElement {
 
   @NotNull
-  PropertyAccessReference getPropertyAccessReference();
+  MemberReference getMemberReference();
 
 }

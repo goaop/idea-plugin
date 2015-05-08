@@ -24,8 +24,8 @@ public class AccessPointcutImpl extends ASTWrapperPsiElement implements AccessPo
 
   @Override
   @NotNull
-  public PropertyAccessReference getPropertyAccessReference() {
-    return findNotNullChildByClass(PropertyAccessReference.class);
+  public MemberReference getMemberReference() {
+    return findNotNullChildByClass(MemberReference.class);
   }
 
 }

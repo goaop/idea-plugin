@@ -7,8 +7,8 @@ import com.intellij.psi.PsiElement;
 
 public interface NamespaceName extends PsiElement {
 
-  @Nullable
-  NamespaceName getNamespaceName();
+  @NotNull
+  List<NamespaceName> getNamespaceNameList();
 
   @NotNull
   PsiElement getNamePart();

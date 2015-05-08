@@ -10,7 +10,7 @@ public interface NamespacePattern extends PsiElement {
   @Nullable
   NamePatternPart getNamePatternPart();
 
-  @Nullable
-  NamespacePattern getNamespacePattern();
+  @NotNull
+  List<NamespacePattern> getNamespacePatternList();
 
 }

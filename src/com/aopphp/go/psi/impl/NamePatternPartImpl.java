@@ -23,9 +23,9 @@ public class NamePatternPartImpl extends ASTWrapperPsiElement implements NamePat
   }
 
   @Override
-  @Nullable
-  public NamePatternPart getNamePatternPart() {
-    return findChildByClass(NamePatternPart.class);
+  @NotNull
+  public List<NamePatternPart> getNamePatternPartList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, NamePatternPart.class);
   }
 
   @Override

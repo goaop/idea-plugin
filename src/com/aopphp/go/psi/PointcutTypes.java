@@ -28,7 +28,6 @@ public interface PointcutTypes {
   IElementType NAMESPACE_PATTERN = new PointcutElementType("NAMESPACE_PATTERN");
   IElementType NAME_PATTERN_PART = new PointcutElementType("NAME_PATTERN_PART");
   IElementType POINTCUT_REFERENCE = new PointcutElementType("POINTCUT_REFERENCE");
-  IElementType PROPERTY_ACCESS_REFERENCE = new PointcutElementType("PROPERTY_ACCESS_REFERENCE");
   IElementType STATIC_INITIALIZATION_POINTCUT = new PointcutElementType("STATIC_INITIALIZATION_POINTCUT");
   IElementType WITHIN_POINTCUT = new PointcutElementType("WITHIN_POINTCUT");
 
@@ -40,19 +39,16 @@ public interface PointcutTypes {
   IElementType DOUBLEASTERISK = new PointcutTokenType("**");
   IElementType DYNAMIC = new PointcutTokenType("dynamic");
   IElementType EXECUTION = new PointcutTokenType("execution");
-  IElementType FINAL = new PointcutTokenType("final");
   IElementType INITIALIZATION = new PointcutTokenType("initialization");
   IElementType LP = new PointcutTokenType("(");
   IElementType NAMEPART = new PointcutTokenType("namePart");
   IElementType NSSEPARATOR = new PointcutTokenType("\\");
   IElementType OBJECTACCESS = new PointcutTokenType("->");
-  IElementType PRIVATE = new PointcutTokenType("private");
-  IElementType PROTECTED = new PointcutTokenType("protected");
-  IElementType PUBLIC = new PointcutTokenType("public");
   IElementType RP = new PointcutTokenType(")");
   IElementType STATICACCESS = new PointcutTokenType("::");
   IElementType STATICINITIALIZATION = new PointcutTokenType("staticinitialization");
   IElementType STRING = new PointcutTokenType("string");
+  IElementType SUBCLASSFILTER = new PointcutTokenType("+");
   IElementType WITHIN = new PointcutTokenType("within");
 
   class Factory {
@@ -117,9 +113,6 @@ public interface PointcutTypes {
       }
       else if (type == POINTCUT_REFERENCE) {
         return new PointcutReferenceImpl(node);
-      }
-      else if (type == PROPERTY_ACCESS_REFERENCE) {
-        return new PropertyAccessReferenceImpl(node);
       }
       else if (type == STATIC_INITIALIZATION_POINTCUT) {
         return new StaticInitializationPointcutImpl(node);

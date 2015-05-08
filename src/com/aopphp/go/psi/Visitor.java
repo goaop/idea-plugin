@@ -87,10 +87,6 @@ public class Visitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitPropertyAccessReference(@NotNull PropertyAccessReference o) {
-    visitPsiElement(o);
-  }
-
   public void visitStaticInitializationPointcut(@NotNull StaticInitializationPointcut o) {
     visitPsiElement(o);
   }

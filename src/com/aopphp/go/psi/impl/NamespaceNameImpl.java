@@ -23,9 +23,9 @@ public class NamespaceNameImpl extends ASTWrapperPsiElement implements Namespace
   }
 
   @Override
-  @Nullable
-  public NamespaceName getNamespaceName() {
-    return findChildByClass(NamespaceName.class);
+  @NotNull
+  public List<NamespaceName> getNamespaceNameList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, NamespaceName.class);
   }
 
   @Override

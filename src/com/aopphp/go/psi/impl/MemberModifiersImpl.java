@@ -24,14 +24,8 @@ public class MemberModifiersImpl extends ASTWrapperPsiElement implements MemberM
 
   @Override
   @NotNull
-  public MemberModifier getMemberModifier() {
-    return findNotNullChildByClass(MemberModifier.class);
-  }
-
-  @Override
-  @Nullable
-  public MemberModifiers getMemberModifiers() {
-    return findChildByClass(MemberModifiers.class);
+  public List<MemberModifier> getMemberModifierList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, MemberModifier.class);
   }
 
 }

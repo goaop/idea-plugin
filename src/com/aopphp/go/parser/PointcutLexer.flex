@@ -38,6 +38,7 @@ STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
   "::"                      { return com.aopphp.go.psi.PointcutTypes.STATICACCESS; }
   "*"                       { return com.aopphp.go.psi.PointcutTypes.ASTERISK; }
   "**"                      { return com.aopphp.go.psi.PointcutTypes.DOUBLEASTERISK; }
+  "+"                       { return com.aopphp.go.psi.PointcutTypes.SUBCLASSFILTER; }
   "access"                  { return com.aopphp.go.psi.PointcutTypes.ACCESS; }
   "execution"               { return com.aopphp.go.psi.PointcutTypes.EXECUTION; }
   "within"                  { return com.aopphp.go.psi.PointcutTypes.WITHIN; }
@@ -45,10 +46,6 @@ STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
   "staticinitialization"    { return com.aopphp.go.psi.PointcutTypes.STATICINITIALIZATION; }
   "cflowbelow"              { return com.aopphp.go.psi.PointcutTypes.CFLOWBELOW; }
   "dynamic"                 { return com.aopphp.go.psi.PointcutTypes.DYNAMIC; }
-  "public"                  { return com.aopphp.go.psi.PointcutTypes.PUBLIC; }
-  "protected"               { return com.aopphp.go.psi.PointcutTypes.PROTECTED; }
-  "private"                 { return com.aopphp.go.psi.PointcutTypes.PRIVATE; }
-  "final"                   { return com.aopphp.go.psi.PointcutTypes.FINAL; }
 
   {COMMENT}                 { return com.aopphp.go.psi.PointcutTypes.COMMENT; }
   {NAMEPART}                { return com.aopphp.go.psi.PointcutTypes.NAMEPART; }

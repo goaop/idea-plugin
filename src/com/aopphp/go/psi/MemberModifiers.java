@@ -8,9 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface MemberModifiers extends PsiElement {
 
   @NotNull
-  MemberModifier getMemberModifier();
-
-  @Nullable
-  MemberModifiers getMemberModifiers();
+  List<MemberModifier> getMemberModifierList();
 
 }
