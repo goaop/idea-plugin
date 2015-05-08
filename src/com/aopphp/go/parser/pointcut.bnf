@@ -16,6 +16,12 @@
   tokens=[
     nsSeparator='\'
     annotation='@'
+    lp='('
+    rp=')'
+    objectAccess='->'
+    staticAccess='::'
+    asterisk='*'
+    doubleAsterisk='**'
     comment='regexp://.*'
     namePart='regexp:[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
     string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
@@ -94,7 +100,6 @@ namespaceName ::=
 
 memberModifiers ::=
     memberModifier '|' memberModifiers
-  | memberModifier ' ' memberModifiers
-  | memberModifier;
+  | { memberModifier };
 
 memberModifier ::= public|protected|private|final;

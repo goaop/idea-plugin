@@ -109,9 +109,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, ACCESS);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && propertyAccessReference(b, l + 1);
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
     exit_section_(b, m, ACCESS_POINTCUT, r);
     return r;
   }
@@ -124,9 +124,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeTokens(b, 0, ANNOTATION, ACCESS);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && namespaceName(b, l + 1);
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
     exit_section_(b, m, ANNOTATED_ACCESS_POINTCUT, r);
     return r;
   }
@@ -139,9 +139,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeTokens(b, 0, ANNOTATION, EXECUTION);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && namespaceName(b, l + 1);
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
     exit_section_(b, m, ANNOTATED_EXECUTION_POINTCUT, r);
     return r;
   }
@@ -154,9 +154,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeTokens(b, 0, ANNOTATION, WITHIN);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && namespaceName(b, l + 1);
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
     exit_section_(b, m, ANNOTATED_WITHIN_POINTCUT, r);
     return r;
   }
@@ -165,10 +165,11 @@ public class PointcutParser implements PsiParser {
   // '*'
   public static boolean argumentList(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "argumentList")) return false;
+    if (!nextTokenIs(b, ASTERISK)) return false;
     boolean r;
-    Marker m = enter_section_(b, l, _NONE_, "<argument list>");
-    r = consumeToken(b, "*");
-    exit_section_(b, l, m, ARGUMENT_LIST, r, false, null);
+    Marker m = enter_section_(b);
+    r = consumeToken(b, ASTERISK);
+    exit_section_(b, m, ARGUMENT_LIST, r);
     return r;
   }
 
@@ -180,9 +181,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, CFLOWBELOW);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && executionPointcut(b, l + 1);
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
     exit_section_(b, m, CFLOWBELOW_POINTCUT, r);
     return r;
   }
@@ -219,12 +220,12 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, DYNAMIC);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && memberReference(b, l + 1);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && argumentList(b, l + 1);
-    r = r && consumeToken(b, ")");
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, RP);
     exit_section_(b, m, DYNAMIC_EXECUTION_POINTCUT, r);
     return r;
   }
@@ -249,9 +250,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, EXECUTION);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && methodExecutionReference(b, l + 1);
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -262,9 +263,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, EXECUTION);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && functionExecutionReference(b, l + 1);
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -278,9 +279,9 @@ public class PointcutParser implements PsiParser {
     r = namespacePattern(b, l + 1);
     r = r && consumeToken(b, NSSEPARATOR);
     r = r && namePatternPart(b, l + 1);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && argumentList(b, l + 1);
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
     exit_section_(b, l, m, FUNCTION_EXECUTION_REFERENCE, r, false, null);
     return r;
   }
@@ -293,9 +294,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, INITIALIZATION);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && classFilter(b, l + 1);
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
     exit_section_(b, m, INITIALIZATION_POINTCUT, r);
     return r;
   }
@@ -304,10 +305,11 @@ public class PointcutParser implements PsiParser {
   // '::'|'->'
   public static boolean memberAccessType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "memberAccessType")) return false;
+    if (!nextTokenIs(b, "<member access type>", OBJECTACCESS, STATICACCESS)) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<member access type>");
-    r = consumeToken(b, "::");
-    if (!r) r = consumeToken(b, "->");
+    r = consumeToken(b, STATICACCESS);
+    if (!r) r = consumeToken(b, OBJECTACCESS);
     exit_section_(b, l, m, MEMBER_ACCESS_TYPE, r, false, null);
     return r;
   }
@@ -386,9 +388,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<method execution reference>");
     r = memberReference(b, l + 1);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && argumentList(b, l + 1);
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
     exit_section_(b, l, m, METHOD_EXECUTION_REFERENCE, r, false, null);
     return r;
   }
@@ -401,9 +403,10 @@ public class PointcutParser implements PsiParser {
   //   | namePart '|' namePatternPart
   public static boolean namePatternPart(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "namePatternPart")) return false;
+    if (!nextTokenIs(b, "<name pattern part>", ASTERISK, NAMEPART)) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<name pattern part>");
-    r = consumeToken(b, "*");
+    r = consumeToken(b, ASTERISK);
     if (!r) r = namePatternPart_1(b, l + 1);
     if (!r) r = consumeToken(b, NAMEPART);
     if (!r) r = namePatternPart_3(b, l + 1);
@@ -417,7 +420,7 @@ public class PointcutParser implements PsiParser {
     if (!recursion_guard_(b, l, "namePatternPart_1")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, "*");
+    r = consumeToken(b, ASTERISK);
     r = r && namePatternPart(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
@@ -480,7 +483,7 @@ public class PointcutParser implements PsiParser {
     if (!recursion_guard_(b, l, "namespacePattern")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<namespace pattern>");
-    r = consumeToken(b, "**");
+    r = consumeToken(b, DOUBLEASTERISK);
     if (!r) r = namePatternPart(b, l + 1);
     if (!r) r = namespacePattern_2(b, l + 1);
     if (!r) r = namespacePattern_3(b, l + 1);
@@ -507,7 +510,7 @@ public class PointcutParser implements PsiParser {
     Marker m = enter_section_(b);
     r = namePatternPart(b, l + 1);
     r = r && consumeToken(b, NSSEPARATOR);
-    r = r && consumeToken(b, "**");
+    r = r && consumeToken(b, DOUBLEASTERISK);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -520,7 +523,7 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = namespaceName(b, l + 1);
-    r = r && consumeToken(b, "->");
+    r = r && consumeToken(b, OBJECTACCESS);
     r = r && namePatternPart(b, l + 1);
     exit_section_(b, m, POINTCUT_REFERENCE, r);
     return r;
@@ -576,9 +579,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, STATICINITIALIZATION);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && classFilter(b, l + 1);
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
     exit_section_(b, m, STATIC_INITIALIZATION_POINTCUT, r);
     return r;
   }
@@ -591,9 +594,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, WITHIN);
-    r = r && consumeToken(b, "(");
+    r = r && consumeToken(b, LP);
     r = r && classFilter(b, l + 1);
-    r = r && consumeToken(b, ")");
+    r = r && consumeToken(b, RP);
     exit_section_(b, m, WITHIN_POINTCUT, r);
     return r;
   }

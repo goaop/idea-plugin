@@ -34,17 +34,23 @@ public interface PointcutTypes {
 
   IElementType ACCESS = new PointcutTokenType("access");
   IElementType ANNOTATION = new PointcutTokenType("@");
+  IElementType ASTERISK = new PointcutTokenType("*");
   IElementType CFLOWBELOW = new PointcutTokenType("cflowbelow");
   IElementType COMMENT = new PointcutTokenType("comment");
+  IElementType DOUBLEASTERISK = new PointcutTokenType("**");
   IElementType DYNAMIC = new PointcutTokenType("dynamic");
   IElementType EXECUTION = new PointcutTokenType("execution");
   IElementType FINAL = new PointcutTokenType("final");
   IElementType INITIALIZATION = new PointcutTokenType("initialization");
+  IElementType LP = new PointcutTokenType("(");
   IElementType NAMEPART = new PointcutTokenType("namePart");
   IElementType NSSEPARATOR = new PointcutTokenType("\\");
+  IElementType OBJECTACCESS = new PointcutTokenType("->");
   IElementType PRIVATE = new PointcutTokenType("private");
   IElementType PROTECTED = new PointcutTokenType("protected");
   IElementType PUBLIC = new PointcutTokenType("public");
+  IElementType RP = new PointcutTokenType(")");
+  IElementType STATICACCESS = new PointcutTokenType("::");
   IElementType STATICINITIALIZATION = new PointcutTokenType("staticinitialization");
   IElementType STRING = new PointcutTokenType("string");
   IElementType WITHIN = new PointcutTokenType("within");

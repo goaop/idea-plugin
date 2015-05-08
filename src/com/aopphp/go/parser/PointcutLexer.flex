@@ -32,6 +32,12 @@ STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 
   "\\"                      { return com.aopphp.go.psi.PointcutTypes.NSSEPARATOR; }
   "@"                       { return com.aopphp.go.psi.PointcutTypes.ANNOTATION; }
+  "("                       { return com.aopphp.go.psi.PointcutTypes.LP; }
+  ")"                       { return com.aopphp.go.psi.PointcutTypes.RP; }
+  "->"                      { return com.aopphp.go.psi.PointcutTypes.OBJECTACCESS; }
+  "::"                      { return com.aopphp.go.psi.PointcutTypes.STATICACCESS; }
+  "*"                       { return com.aopphp.go.psi.PointcutTypes.ASTERISK; }
+  "**"                      { return com.aopphp.go.psi.PointcutTypes.DOUBLEASTERISK; }
   "access"                  { return com.aopphp.go.psi.PointcutTypes.ACCESS; }
   "execution"               { return com.aopphp.go.psi.PointcutTypes.EXECUTION; }
   "within"                  { return com.aopphp.go.psi.PointcutTypes.WITHIN; }
