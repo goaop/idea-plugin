@@ -26,6 +26,7 @@
     <fileTypeFactory implementation="com.aopphp.go.GoAopFileTypeFactory"/>
 
     <lang.parserDefinition language="Go! AOP Pointcut query" implementationClass="com.aopphp.go.PointcutQueryParserDefinition"/>
+    <lang.syntaxHighlighterFactory key="Go! AOP Pointcut query" implementationClass="com.aopphp.go.PointcutQuerySyntaxHighlighterFactory"/>
   </extensions>
 
   <application-components>
