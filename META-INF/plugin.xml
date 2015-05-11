@@ -1,19 +1,42 @@
 <idea-plugin version="2">
   <id>com.aopphp.go.framework</id>
   <name>Go! AOP Framework</name>
-  <version>1.0</version>
+  <version>0.1</version>
   <vendor email="lisachenko.it@gmail.com" url="http://go.aopphp.com">Go! AOP Framework</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+
+<h1>Go! AOP Plugin</h1>
+<br>
+<a href="https://github.com/lisachenko/idea-go-aop-plugin">GitHub</a> | <a href="https://github.com/lisachenko/idea-go-aop-plugin/issues">Issues</a><br>
+<br>
+
+<h2>Installation</h2>
+<ul>
+  <li>Open "Settings > "Plugins", select "Browse Repositories" and type "Go! AOP"</li>
+  <li>Install it and <a href="http://plugins.jetbrains.com/plugin/7320">PHP Annotations Plugin</a>, then restart your IDE</li>
+</ul>
+
+<h2>Features</h2>
+<ul>
+  <li>Go! AOP pointcut syntax highlighting and parsing</li>
+</ul>
+
+<h2>Todo</h2>
+<ul>
+  <li>Pointcut analyser</li>
+  <li>Completion contributor</li>
+  <li>Inject pointcut syntax into the annotations and PointcutBuilder methods</li>
+</ul>
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
-    ]]>
-  </change-notes>
+
+<h2>0.1</h2>
+<ul>
+    <li>Initial version with simple pointcut parser and highlighter</li>
+</ul>
+  ]]></change-notes>
 
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
   <idea-version since-build="131"/>
