@@ -22,11 +22,12 @@
        on how to target different products -->
 
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
     <fileTypeFactory implementation="com.aopphp.go.GoAopFileTypeFactory"/>
 
     <lang.parserDefinition language="Go! AOP Pointcut query" implementationClass="com.aopphp.go.PointcutQueryParserDefinition"/>
     <lang.syntaxHighlighterFactory key="Go! AOP Pointcut query" implementationClass="com.aopphp.go.PointcutQuerySyntaxHighlighterFactory"/>
+
+    <colorSettingsPage implementation="com.aopphp.go.PointcutQueryColorSettingsPage"/>
   </extensions>
 
   <application-components>

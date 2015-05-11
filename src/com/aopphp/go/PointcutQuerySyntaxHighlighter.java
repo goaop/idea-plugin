@@ -28,8 +28,8 @@ public class PointcutQuerySyntaxHighlighter extends SyntaxHighlighterBase {
             createTextAttributesKey("GO_POINTCUT_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT);
     public static final TextAttributesKey PARENTHESIS =
             createTextAttributesKey("GO_POINTCUT_PARENTHESIS", DefaultLanguageHighlighterColors.PARENTHESES);
-    public static final TextAttributesKey CLASS_REFERENCE =
-            createTextAttributesKey("GO_POINTCUT_CLASS_REFERENCE", DefaultLanguageHighlighterColors.CLASS_REFERENCE);
+    public static final TextAttributesKey METHOD_REFERENCE =
+            createTextAttributesKey("GO_POINTCUT_METHOD_REFERENCE", DefaultLanguageHighlighterColors.INSTANCE_METHOD);
 
     static final TextAttributesKey BAD_CHARACTER = createTextAttributesKey("GO_POINTCUT_BAD_CHARACTER",
             new TextAttributes(JBColor.RED, null, null, null, Font.BOLD));
@@ -39,7 +39,7 @@ public class PointcutQuerySyntaxHighlighter extends SyntaxHighlighterBase {
     private static final TextAttributesKey[] KEY_KEYS = new TextAttributesKey[]{KEYWORD};
     private static final TextAttributesKey[] COMMENT_KEYS = new TextAttributesKey[]{COMMENT};
     private static final TextAttributesKey[] PARENTHESIS_KEYS = new TextAttributesKey[]{PARENTHESIS};
-    private static final TextAttributesKey[] CLASS_REFERENCE_KEYS = new TextAttributesKey[]{CLASS_REFERENCE};
+    private static final TextAttributesKey[] METHOD_REFERENCE_KEYS = new TextAttributesKey[]{METHOD_REFERENCE};
     private static final TextAttributesKey[] EMPTY_KEYS = new TextAttributesKey[0];
 
     @NotNull
@@ -69,7 +69,7 @@ public class PointcutQuerySyntaxHighlighter extends SyntaxHighlighterBase {
             || tokenType.equals(PointcutTypes.RP)) {
             return PARENTHESIS_KEYS;
         } else if (tokenType.equals(PointcutTypes.MEMBER_MODIFIERS)) {
-            return KEY_KEYS;
+            return METHOD_REFERENCE_KEYS;
         } else if (tokenType.equals(PointcutTypes.COMMENT)) {
             return COMMENT_KEYS;
         } else if (tokenType.equals(TokenType.BAD_CHARACTER)) {
