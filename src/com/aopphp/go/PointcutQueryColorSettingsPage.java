@@ -16,7 +16,7 @@ public class PointcutQueryColorSettingsPage implements ColorSettingsPage {
             new AttributesDescriptor("Keyword", PointcutQuerySyntaxHighlighter.KEYWORD),
             new AttributesDescriptor("Separator", PointcutQuerySyntaxHighlighter.SEPARATOR),
             new AttributesDescriptor("Comment", PointcutQuerySyntaxHighlighter.COMMENT),
-            new AttributesDescriptor("Method reference", PointcutQuerySyntaxHighlighter.METHOD_REFERENCE),
+            new AttributesDescriptor("Member modifier", PointcutQuerySyntaxHighlighter.MEMBER_MODIFIER),
             new AttributesDescriptor("Parenthesis", PointcutQuerySyntaxHighlighter.PARENTHESIS),
     };
 

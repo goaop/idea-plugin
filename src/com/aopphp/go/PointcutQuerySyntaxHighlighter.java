@@ -28,8 +28,8 @@ public class PointcutQuerySyntaxHighlighter extends SyntaxHighlighterBase {
             createTextAttributesKey("GO_POINTCUT_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT);
     public static final TextAttributesKey PARENTHESIS =
             createTextAttributesKey("GO_POINTCUT_PARENTHESIS", DefaultLanguageHighlighterColors.PARENTHESES);
-    public static final TextAttributesKey METHOD_REFERENCE =
-            createTextAttributesKey("GO_POINTCUT_METHOD_REFERENCE", DefaultLanguageHighlighterColors.INSTANCE_METHOD);
+    public static final TextAttributesKey MEMBER_MODIFIER =
+            createTextAttributesKey("GO_POINTCUT_MEMBER_MODIFIER", DefaultLanguageHighlighterColors.STRING);
 
     static final TextAttributesKey BAD_CHARACTER = createTextAttributesKey("GO_POINTCUT_BAD_CHARACTER",
             new TextAttributes(JBColor.RED, null, null, null, Font.BOLD));
@@ -39,7 +39,7 @@ public class PointcutQuerySyntaxHighlighter extends SyntaxHighlighterBase {
     private static final TextAttributesKey[] KEY_KEYS = new TextAttributesKey[]{KEYWORD};
     private static final TextAttributesKey[] COMMENT_KEYS = new TextAttributesKey[]{COMMENT};
     private static final TextAttributesKey[] PARENTHESIS_KEYS = new TextAttributesKey[]{PARENTHESIS};
-    private static final TextAttributesKey[] METHOD_REFERENCE_KEYS = new TextAttributesKey[]{METHOD_REFERENCE};
+    private static final TextAttributesKey[] MEMBER_MODIFIER_KEYS = new TextAttributesKey[]{MEMBER_MODIFIER};
     private static final TextAttributesKey[] EMPTY_KEYS = new TextAttributesKey[0];
 
     @NotNull
@@ -68,8 +68,11 @@ public class PointcutQuerySyntaxHighlighter extends SyntaxHighlighterBase {
         } else if (tokenType.equals(PointcutTypes.LP)
             || tokenType.equals(PointcutTypes.RP)) {
             return PARENTHESIS_KEYS;
-        } else if (tokenType.equals(PointcutTypes.MEMBER_MODIFIERS)) {
-            return METHOD_REFERENCE_KEYS;
+        } else if (tokenType.equals(PointcutTypes.PRIVATE)
+            || tokenType.equals(PointcutTypes.PROTECTED)
+            || tokenType.equals(PointcutTypes.PUBLIC)
+            || tokenType.equals(PointcutTypes.FINAL)) {
+            return MEMBER_MODIFIER_KEYS;
         } else if (tokenType.equals(PointcutTypes.COMMENT)) {
             return COMMENT_KEYS;
         } else if (tokenType.equals(TokenType.BAD_CHARACTER)) {

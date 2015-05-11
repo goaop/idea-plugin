@@ -24,7 +24,6 @@ WHITE_SPACE=({LINE_WS}|{EOL})+
 
 COMMENT="//".*
 NAMEPART=[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*
-STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 
 %%
 <YYINITIAL> {
@@ -46,10 +45,13 @@ STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
   "staticinitialization"    { return com.aopphp.go.psi.PointcutTypes.STATICINITIALIZATION; }
   "cflowbelow"              { return com.aopphp.go.psi.PointcutTypes.CFLOWBELOW; }
   "dynamic"                 { return com.aopphp.go.psi.PointcutTypes.DYNAMIC; }
+  "private"                 { return com.aopphp.go.psi.PointcutTypes.PRIVATE; }
+  "protected"               { return com.aopphp.go.psi.PointcutTypes.PROTECTED; }
+  "public"                  { return com.aopphp.go.psi.PointcutTypes.PUBLIC; }
+  "final"                   { return com.aopphp.go.psi.PointcutTypes.FINAL; }
 
   {COMMENT}                 { return com.aopphp.go.psi.PointcutTypes.COMMENT; }
   {NAMEPART}                { return com.aopphp.go.psi.PointcutTypes.NAMEPART; }
-  {STRING}                  { return com.aopphp.go.psi.PointcutTypes.STRING; }
 
   [^] { return com.intellij.psi.TokenType.BAD_CHARACTER; }
 }

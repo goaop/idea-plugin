@@ -315,15 +315,15 @@ public class PointcutParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // 'public'|'protected'|'private'|'final'
+  // private|protected|public|final
   public static boolean memberModifier(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "memberModifier")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<member modifier>");
-    r = consumeToken(b, "public");
-    if (!r) r = consumeToken(b, "protected");
-    if (!r) r = consumeToken(b, "private");
-    if (!r) r = consumeToken(b, "final");
+    r = consumeToken(b, PRIVATE);
+    if (!r) r = consumeToken(b, PROTECTED);
+    if (!r) r = consumeToken(b, PUBLIC);
+    if (!r) r = consumeToken(b, FINAL);
     exit_section_(b, l, m, MEMBER_MODIFIER, r, false, null);
     return r;
   }
