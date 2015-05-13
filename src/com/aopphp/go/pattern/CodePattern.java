@@ -22,4 +22,8 @@ public class CodePattern {
                 psiElement(PointcutTypes.NAMEPART).
                 withLanguage(PointcutQueryLanguage.INSTANCE);
     }
+
+    public static ElementPattern<PsiElement> insidePointcutLanguage() {
+        return PlatformPatterns.psiElement().withLanguage(PointcutQueryLanguage.INSTANCE);
+    }
 }
