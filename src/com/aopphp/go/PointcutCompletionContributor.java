@@ -10,7 +10,7 @@ public class PointcutCompletionContributor extends CompletionContributor {
     public PointcutCompletionContributor() {
         extend(
             CompletionType.BASIC,
-            CodePattern.getNamePartAfterLpAndAnnotation(),
+            CodePattern.insideAnnotationPointcut(),
             new DoctrineAnnotationCompletionProvider()
         );
 

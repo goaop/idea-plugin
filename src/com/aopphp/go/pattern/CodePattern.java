@@ -1,6 +1,9 @@
 package com.aopphp.go.pattern;
 
 import com.aopphp.go.PointcutQueryLanguage;
+import com.aopphp.go.psi.AnnotatedAccessPointcut;
+import com.aopphp.go.psi.AnnotatedExecutionPointcut;
+import com.aopphp.go.psi.AnnotatedWithinPointcut;
 import com.aopphp.go.psi.PointcutTypes;
 import com.intellij.patterns.ElementPattern;
 import com.intellij.patterns.PlatformPatterns;
@@ -17,10 +20,12 @@ public class CodePattern {
      *  \@access(<className>)
      *  \@within(<className>)
      */
-    public static ElementPattern<PsiElement> getNamePartAfterLpAndAnnotation() {
-        return PlatformPatterns.
-                psiElement(PointcutTypes.NAMEPART).
-                withLanguage(PointcutQueryLanguage.INSTANCE);
+    public static ElementPattern<PsiElement> insideAnnotationPointcut() {
+        return PlatformPatterns.or(
+                PlatformPatterns.psiElement(PointcutTypes.NAMEPART).withSuperParent(2, AnnotatedExecutionPointcut.class),
+                PlatformPatterns.psiElement(PointcutTypes.NAMEPART).withSuperParent(2, AnnotatedAccessPointcut.class),
+                PlatformPatterns.psiElement(PointcutTypes.NAMEPART).withSuperParent(2, AnnotatedWithinPointcut.class)
+        );
     }
 
     public static ElementPattern<PsiElement> insidePointcutLanguage() {
