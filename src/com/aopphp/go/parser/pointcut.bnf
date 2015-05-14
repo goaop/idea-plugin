@@ -9,6 +9,7 @@
   psiPackage="com.aopphp.go.psi"
   psiImplPackage="com.aopphp.go.psi.impl"
 
+  elementTypePrefix="com.aopphp.go.psi.PointcutTypes."
   elementTypeHolderClass="com.aopphp.go.psi.PointcutTypes"
   elementTypeClass="com.aopphp.go.psi.PointcutElementType"
   tokenTypeClass="com.aopphp.go.psi.PointcutTokenType"
