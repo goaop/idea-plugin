@@ -37,11 +37,17 @@ public class PointcutParser implements PsiParser {
     else if (t == ARGUMENT_LIST) {
       r = argumentList(b, 0);
     }
+    else if (t == BRAKED_EXPRESSION) {
+      r = brakedExpression(b, 0);
+    }
     else if (t == CFLOWBELOW_POINTCUT) {
       r = cflowbelowPointcut(b, 0);
     }
     else if (t == CLASS_FILTER) {
       r = classFilter(b, 0);
+    }
+    else if (t == CONJUGATED_EXPRESSION) {
+      r = conjugatedExpression(b, 0);
     }
     else if (t == DYNAMIC_EXECUTION_POINTCUT) {
       r = dynamicExecutionPointcut(b, 0);
@@ -79,8 +85,17 @@ public class PointcutParser implements PsiParser {
     else if (t == NAMESPACE_PATTERN) {
       r = namespacePattern(b, 0);
     }
+    else if (t == NEGATED_EXPRESSION) {
+      r = negatedExpression(b, 0);
+    }
+    else if (t == POINTCUT_EXPRESSION) {
+      r = pointcutExpression(b, 0);
+    }
     else if (t == POINTCUT_REFERENCE) {
       r = pointcutReference(b, 0);
+    }
+    else if (t == SINGLE_POINTCUT) {
+      r = singlePointcut(b, 0);
     }
     else if (t == STATIC_INITIALIZATION_POINTCUT) {
       r = staticInitializationPointcut(b, 0);
@@ -95,7 +110,7 @@ public class PointcutParser implements PsiParser {
   }
 
   protected boolean parse_root_(IElementType t, PsiBuilder b, int l) {
-    return singlePointcut(b, l + 1);
+    return pointcutFile(b, l + 1);
   }
 
   /* ********************************************************** */
@@ -171,6 +186,31 @@ public class PointcutParser implements PsiParser {
   }
 
   /* ********************************************************** */
+  // singlePointcut
+  //   | '(' pointcutExpression ')'
+  public static boolean brakedExpression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "brakedExpression")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, "<braked expression>");
+    r = singlePointcut(b, l + 1);
+    if (!r) r = brakedExpression_1(b, l + 1);
+    exit_section_(b, l, m, BRAKED_EXPRESSION, r, false, null);
+    return r;
+  }
+
+  // '(' pointcutExpression ')'
+  private static boolean brakedExpression_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "brakedExpression_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, LP);
+    r = r && pointcutExpression(b, l + 1);
+    r = r && consumeToken(b, RP);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // cflowbelow '(' executionPointcut ')'
   public static boolean cflowbelowPointcut(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "cflowbelowPointcut")) return false;
@@ -202,6 +242,31 @@ public class PointcutParser implements PsiParser {
     if (!recursion_guard_(b, l, "classFilter_1")) return false;
     consumeToken(b, SUBCLASSFILTER);
     return true;
+  }
+
+  /* ********************************************************** */
+  // (negatedExpression '&&' conjugatedExpression)
+  //   | negatedExpression
+  public static boolean conjugatedExpression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "conjugatedExpression")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, "<conjugated expression>");
+    r = conjugatedExpression_0(b, l + 1);
+    if (!r) r = negatedExpression(b, l + 1);
+    exit_section_(b, l, m, CONJUGATED_EXPRESSION, r, false, null);
+    return r;
+  }
+
+  // negatedExpression '&&' conjugatedExpression
+  private static boolean conjugatedExpression_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "conjugatedExpression_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = negatedExpression(b, l + 1);
+    r = r && consumeToken(b, CONJUNCTION);
+    r = r && conjugatedExpression(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */
@@ -581,6 +646,61 @@ public class PointcutParser implements PsiParser {
   }
 
   /* ********************************************************** */
+  // brakedExpression
+  //   | '!' brakedExpression
+  public static boolean negatedExpression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "negatedExpression")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, "<negated expression>");
+    r = brakedExpression(b, l + 1);
+    if (!r) r = negatedExpression_1(b, l + 1);
+    exit_section_(b, l, m, NEGATED_EXPRESSION, r, false, null);
+    return r;
+  }
+
+  // '!' brakedExpression
+  private static boolean negatedExpression_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "negatedExpression_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, NEGATION);
+    r = r && brakedExpression(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // (conjugatedExpression '||' pointcutExpression)
+  //   | conjugatedExpression
+  public static boolean pointcutExpression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "pointcutExpression")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, "<pointcut expression>");
+    r = pointcutExpression_0(b, l + 1);
+    if (!r) r = conjugatedExpression(b, l + 1);
+    exit_section_(b, l, m, POINTCUT_EXPRESSION, r, false, null);
+    return r;
+  }
+
+  // conjugatedExpression '||' pointcutExpression
+  private static boolean pointcutExpression_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "pointcutExpression_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = conjugatedExpression(b, l + 1);
+    r = r && consumeToken(b, DISJUNCTION);
+    r = r && pointcutExpression(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // pointcutExpression
+  static boolean pointcutFile(PsiBuilder b, int l) {
+    return pointcutExpression(b, l + 1);
+  }
+
+  /* ********************************************************** */
   // namespaceName '->' namePatternPart
   public static boolean pointcutReference(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "pointcutReference")) return false;
@@ -606,10 +726,10 @@ public class PointcutParser implements PsiParser {
   //   | cflowbelowPointcut
   //   | dynamicExecutionPointcut
   //   | pointcutReference
-  static boolean singlePointcut(PsiBuilder b, int l) {
+  public static boolean singlePointcut(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "singlePointcut")) return false;
     boolean r;
-    Marker m = enter_section_(b);
+    Marker m = enter_section_(b, l, _NONE_, "<single pointcut>");
     r = accessPointcut(b, l + 1);
     if (!r) r = annotatedAccessPointcut(b, l + 1);
     if (!r) r = executionPointcut(b, l + 1);
@@ -621,7 +741,7 @@ public class PointcutParser implements PsiParser {
     if (!r) r = cflowbelowPointcut(b, l + 1);
     if (!r) r = dynamicExecutionPointcut(b, l + 1);
     if (!r) r = pointcutReference(b, l + 1);
-    exit_section_(b, m, null, r);
+    exit_section_(b, l, m, SINGLE_POINTCUT, r, false, null);
     return r;
   }
 

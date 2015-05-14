@@ -21,12 +21,33 @@
     objectAccess='->'
     staticAccess='::'
     asterisk='*'
+    negation='!'
+    conjunction='&&'
+    disjunction='||'
     doubleAsterisk='**'
     subclassFilter='+'
     comment='regexp://.*'
     namePart='regexp:[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
   ]
 }
+pointcutFile ::= pointcutExpression;
+
+pointcutExpression ::=
+    (conjugatedExpression '||' pointcutExpression)
+  | conjugatedExpression;
+
+conjugatedExpression ::=
+    (negatedExpression '&&' conjugatedExpression)
+  | negatedExpression;
+
+negatedExpression ::=
+    brakedExpression
+  | '!' brakedExpression;
+
+brakedExpression ::=
+    singlePointcut
+  | '(' pointcutExpression ')';
+
 
 singlePointcut ::=
     accessPointcut

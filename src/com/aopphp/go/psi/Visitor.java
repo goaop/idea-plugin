@@ -27,11 +27,19 @@ public class Visitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitBrakedExpression(@NotNull BrakedExpression o) {
+    visitPsiElement(o);
+  }
+
   public void visitCflowbelowPointcut(@NotNull CflowbelowPointcut o) {
     visitPsiElement(o);
   }
 
   public void visitClassFilter(@NotNull ClassFilter o) {
+    visitPsiElement(o);
+  }
+
+  public void visitConjugatedExpression(@NotNull ConjugatedExpression o) {
     visitPsiElement(o);
   }
 
@@ -83,7 +91,19 @@ public class Visitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitNegatedExpression(@NotNull NegatedExpression o) {
+    visitPsiElement(o);
+  }
+
+  public void visitPointcutExpression(@NotNull PointcutExpression o) {
+    visitPsiElement(o);
+  }
+
   public void visitPointcutReference(@NotNull PointcutReference o) {
+    visitPsiElement(o);
+  }
+
+  public void visitSinglePointcut(@NotNull SinglePointcut o) {
     visitPsiElement(o);
   }
 

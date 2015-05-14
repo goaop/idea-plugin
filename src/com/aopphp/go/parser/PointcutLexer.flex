@@ -36,6 +36,9 @@ NAMEPART=[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*
   "->"                      { return com.aopphp.go.psi.PointcutTypes.OBJECTACCESS; }
   "::"                      { return com.aopphp.go.psi.PointcutTypes.STATICACCESS; }
   "*"                       { return com.aopphp.go.psi.PointcutTypes.ASTERISK; }
+  "!"                       { return com.aopphp.go.psi.PointcutTypes.NEGATION; }
+  "&&"                      { return com.aopphp.go.psi.PointcutTypes.CONJUNCTION; }
+  "||"                      { return com.aopphp.go.psi.PointcutTypes.DISJUNCTION; }
   "**"                      { return com.aopphp.go.psi.PointcutTypes.DOUBLEASTERISK; }
   "+"                       { return com.aopphp.go.psi.PointcutTypes.SUBCLASSFILTER; }
   "access"                  { return com.aopphp.go.psi.PointcutTypes.ACCESS; }

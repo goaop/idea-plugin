@@ -13,8 +13,10 @@ public interface PointcutTypes {
   IElementType ANNOTATED_EXECUTION_POINTCUT = new PointcutElementType("ANNOTATED_EXECUTION_POINTCUT");
   IElementType ANNOTATED_WITHIN_POINTCUT = new PointcutElementType("ANNOTATED_WITHIN_POINTCUT");
   IElementType ARGUMENT_LIST = new PointcutElementType("ARGUMENT_LIST");
+  IElementType BRAKED_EXPRESSION = new PointcutElementType("BRAKED_EXPRESSION");
   IElementType CFLOWBELOW_POINTCUT = new PointcutElementType("CFLOWBELOW_POINTCUT");
   IElementType CLASS_FILTER = new PointcutElementType("CLASS_FILTER");
+  IElementType CONJUGATED_EXPRESSION = new PointcutElementType("CONJUGATED_EXPRESSION");
   IElementType DYNAMIC_EXECUTION_POINTCUT = new PointcutElementType("DYNAMIC_EXECUTION_POINTCUT");
   IElementType EXECUTION_POINTCUT = new PointcutElementType("EXECUTION_POINTCUT");
   IElementType FUNCTION_EXECUTION_REFERENCE = new PointcutElementType("FUNCTION_EXECUTION_REFERENCE");
@@ -27,7 +29,10 @@ public interface PointcutTypes {
   IElementType NAMESPACE_NAME = new PointcutElementType("NAMESPACE_NAME");
   IElementType NAMESPACE_PATTERN = new PointcutElementType("NAMESPACE_PATTERN");
   IElementType NAME_PATTERN_PART = new PointcutElementType("NAME_PATTERN_PART");
+  IElementType NEGATED_EXPRESSION = new PointcutElementType("NEGATED_EXPRESSION");
+  IElementType POINTCUT_EXPRESSION = new PointcutElementType("POINTCUT_EXPRESSION");
   IElementType POINTCUT_REFERENCE = new PointcutElementType("POINTCUT_REFERENCE");
+  IElementType SINGLE_POINTCUT = new PointcutElementType("SINGLE_POINTCUT");
   IElementType STATIC_INITIALIZATION_POINTCUT = new PointcutElementType("STATIC_INITIALIZATION_POINTCUT");
   IElementType WITHIN_POINTCUT = new PointcutElementType("WITHIN_POINTCUT");
 
@@ -36,6 +41,8 @@ public interface PointcutTypes {
   IElementType ASTERISK = new PointcutTokenType("*");
   IElementType CFLOWBELOW = new PointcutTokenType("cflowbelow");
   IElementType COMMENT = new PointcutTokenType("comment");
+  IElementType CONJUNCTION = new PointcutTokenType("&&");
+  IElementType DISJUNCTION = new PointcutTokenType("||");
   IElementType DOUBLEASTERISK = new PointcutTokenType("**");
   IElementType DYNAMIC = new PointcutTokenType("dynamic");
   IElementType EXECUTION = new PointcutTokenType("execution");
@@ -43,6 +50,7 @@ public interface PointcutTypes {
   IElementType INITIALIZATION = new PointcutTokenType("initialization");
   IElementType LP = new PointcutTokenType("(");
   IElementType NAMEPART = new PointcutTokenType("namePart");
+  IElementType NEGATION = new PointcutTokenType("!");
   IElementType NSSEPARATOR = new PointcutTokenType("\\");
   IElementType OBJECTACCESS = new PointcutTokenType("->");
   IElementType PRIVATE = new PointcutTokenType("private");
@@ -72,11 +80,17 @@ public interface PointcutTypes {
       else if (type == ARGUMENT_LIST) {
         return new ArgumentListImpl(node);
       }
+      else if (type == BRAKED_EXPRESSION) {
+        return new BrakedExpressionImpl(node);
+      }
       else if (type == CFLOWBELOW_POINTCUT) {
         return new CflowbelowPointcutImpl(node);
       }
       else if (type == CLASS_FILTER) {
         return new ClassFilterImpl(node);
+      }
+      else if (type == CONJUGATED_EXPRESSION) {
+        return new ConjugatedExpressionImpl(node);
       }
       else if (type == DYNAMIC_EXECUTION_POINTCUT) {
         return new DynamicExecutionPointcutImpl(node);
@@ -114,8 +128,17 @@ public interface PointcutTypes {
       else if (type == NAME_PATTERN_PART) {
         return new NamePatternPartImpl(node);
       }
+      else if (type == NEGATED_EXPRESSION) {
+        return new NegatedExpressionImpl(node);
+      }
+      else if (type == POINTCUT_EXPRESSION) {
+        return new PointcutExpressionImpl(node);
+      }
       else if (type == POINTCUT_REFERENCE) {
         return new PointcutReferenceImpl(node);
+      }
+      else if (type == SINGLE_POINTCUT) {
+        return new SinglePointcutImpl(node);
       }
       else if (type == STATIC_INITIALIZATION_POINTCUT) {
         return new StaticInitializationPointcutImpl(node);
