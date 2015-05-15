@@ -9,17 +9,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 
-public class PointcutKeywordCompletionProvider extends CompletionProvider<CompletionParameters>
+public class MemberModifierCompletionProvider extends CompletionProvider<CompletionParameters>
 {
-    private static final String[] POINTCUT_TYPES = new String[]{
-        "execution",
-        "access",
-        "within",
-        "initialization",
-        "staticinitialization",
-    };
-
-    private static final PointcutKeywordInsertHandler keywordInsertionHandler = PointcutKeywordInsertHandler.getInstance();
+    private static final String[] MEMBER_MODIFIERS = new String[]{"public", "protected", "private", "final"};
 
     @Override
     protected void addCompletions(
@@ -31,10 +23,10 @@ public class PointcutKeywordCompletionProvider extends CompletionProvider<Comple
         if (psiElement == null) {
             return;
         }
-
-        for (String keyword : POINTCUT_TYPES) {
+        
+        for (String keyword : MEMBER_MODIFIERS) {
             LookupElementBuilder lookupElement = LookupElementBuilder.create(keyword);
-            lookupElement = lookupElement.withBoldness(true).withInsertHandler(keywordInsertionHandler);
+            lookupElement = lookupElement.withBoldness(true);
             result.addElement(lookupElement);
         }
     }
