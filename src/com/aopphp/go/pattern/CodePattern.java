@@ -37,6 +37,7 @@ public class CodePattern extends PlatformPatterns {
                 psiElement(PointcutTypes.PROTECTED),
                 psiElement(PointcutTypes.PUBLIC),
                 psiElement(PointcutTypes.FINAL),
+                psiElement(PointcutTypes.ALTERNATION),
                 psiElement().whitespace()
             ),
             or(

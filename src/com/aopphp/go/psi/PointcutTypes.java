@@ -37,6 +37,7 @@ public interface PointcutTypes {
   IElementType WITHIN_POINTCUT = new PointcutElementType("WITHIN_POINTCUT");
 
   IElementType ACCESS = new PointcutTokenType("access");
+  IElementType ALTERNATION = new PointcutTokenType("|");
   IElementType ANNOTATION = new PointcutTokenType("@");
   IElementType ASTERISK = new PointcutTokenType("*");
   IElementType CFLOWBELOW = new PointcutTokenType("cflowbelow");

@@ -441,7 +441,7 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, " ");
-    if (!r) r = consumeToken(b, "|");
+    if (!r) r = consumeToken(b, ALTERNATION);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -542,7 +542,7 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, NAMEPART);
-    r = r && consumeToken(b, "|");
+    r = r && consumeToken(b, ALTERNATION);
     r = r && namePatternPart(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
