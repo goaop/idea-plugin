@@ -54,6 +54,7 @@
 
     <completion.contributor language="Go! AOP Pointcut query" implementationClass="com.aopphp.go.PointcutCompletionContributor"/>
     <lang.braceMatcher language="Go! AOP Pointcut query" implementationClass="com.aopphp.go.PointcutQueryPairedBraceMatcher"/>
+    <languageInjector implementation="com.aopphp.go.injector.PointcutQueryLanguageInjector"/>
   </extensions>
 
   <application-components>
