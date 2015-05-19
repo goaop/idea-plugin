@@ -35,9 +35,9 @@ public class PointcutQueryLanguageInjector implements LanguageInjector {
         boolean enableInjection = isInjectionIntoAnnotation(host);
         enableInjection |= isInjectionIntoPointcutBuilder(host);
 
-        if (enableInjection) {
+        if (enableInjection && host.getTextLength() > 1) {
             TextRange rangeInsideHost = new TextRange(1, host.getTextLength() - 1);
-            injectionPlacesRegistrar.addPlace(PointcutQueryLanguage.INSTANCE, rangeInsideHost, "", "");
+            injectionPlacesRegistrar.addPlace(PointcutQueryLanguage.INSTANCE, rangeInsideHost, null, null);
         }
     }
 
