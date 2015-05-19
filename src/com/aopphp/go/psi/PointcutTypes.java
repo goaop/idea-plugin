@@ -57,6 +57,7 @@ public interface PointcutTypes {
   IElementType PRIVATE = new PointcutTokenType("private");
   IElementType PROTECTED = new PointcutTokenType("protected");
   IElementType PUBLIC = new PointcutTokenType("public");
+  IElementType REFERENCE = new PointcutTokenType("$this");
   IElementType RP = new PointcutTokenType(")");
   IElementType STATICACCESS = new PointcutTokenType("::");
   IElementType STATICINITIALIZATION = new PointcutTokenType("staticinitialization");

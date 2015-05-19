@@ -30,12 +30,6 @@ public class FunctionExecutionReferenceImpl extends ASTWrapperPsiElement impleme
 
   @Override
   @NotNull
-  public NamePatternPart getNamePatternPart() {
-    return findNotNullChildByClass(NamePatternPart.class);
-  }
-
-  @Override
-  @NotNull
   public NamespacePattern getNamespacePattern() {
     return findNotNullChildByClass(NamespacePattern.class);
   }

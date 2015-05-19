@@ -10,7 +10,7 @@ public interface PointcutReference extends PsiElement {
   @NotNull
   NamePatternPart getNamePatternPart();
 
-  @NotNull
+  @Nullable
   NamespaceName getNamespaceName();
 
 }

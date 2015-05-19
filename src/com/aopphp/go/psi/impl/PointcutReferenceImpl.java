@@ -29,9 +29,9 @@ public class PointcutReferenceImpl extends ASTWrapperPsiElement implements Point
   }
 
   @Override
-  @NotNull
+  @Nullable
   public NamespaceName getNamespaceName() {
-    return findNotNullChildByClass(NamespaceName.class);
+    return findChildByClass(NamespaceName.class);
   }
 
 }

@@ -11,9 +11,6 @@ public interface FunctionExecutionReference extends PsiElement {
   ArgumentList getArgumentList();
 
   @NotNull
-  NamePatternPart getNamePatternPart();
-
-  @NotNull
   NamespacePattern getNamespacePattern();
 
 }

@@ -42,6 +42,7 @@ NAMEPART=[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*
   "||"                      { return com.aopphp.go.psi.PointcutTypes.DISJUNCTION; }
   "**"                      { return com.aopphp.go.psi.PointcutTypes.DOUBLEASTERISK; }
   "+"                       { return com.aopphp.go.psi.PointcutTypes.SUBCLASSFILTER; }
+  "$this"                   { return com.aopphp.go.psi.PointcutTypes.REFERENCE; }
   "access"                  { return com.aopphp.go.psi.PointcutTypes.ACCESS; }
   "execution"               { return com.aopphp.go.psi.PointcutTypes.EXECUTION; }
   "within"                  { return com.aopphp.go.psi.PointcutTypes.WITHIN; }

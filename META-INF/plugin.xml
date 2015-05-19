@@ -26,12 +26,16 @@
 <ul>
   <li>Pointcut analyser</li>
   <li>Completion contributor</li>
-  <li>Inject pointcut syntax into the annotations and PointcutBuilder methods</li>
 </ul>
     ]]></description>
 
   <change-notes><![CDATA[
 
+<h2>0.1.1</h2>
+<ul>
+    <li>Automatic pointcut query language injection into an annotations and pointcut query builder methods</li>
+    <li>Updated grammar with fixes for '$this' in pointcut references. Fix for function matching pointcut grammar.
+</ul>
 <h2>0.1.0</h2>
 <ul>
     <li>Initial version with simple pointcut parser and highlighter</li>
