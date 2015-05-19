@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.aopphp.go.framework</id>
   <name>Go! AOP Framework</name>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <vendor email="lisachenko.it@gmail.com" url="http://go.aopphp.com">Go! AOP Framework</vendor>
 
   <description><![CDATA[
