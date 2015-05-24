@@ -23,7 +23,7 @@ import java.io.Reader;
 
 public class PointcutQueryParserDefinition implements ParserDefinition{
     public static final TokenSet WHITE_SPACES = TokenSet.create(TokenType.WHITE_SPACE);
-    public static final TokenSet COMMENTS = TokenSet.create(PointcutTypes.COMMENT);
+    public static final TokenSet COMMENTS = TokenSet.create(PointcutTypes.T_COMMENT);
 
     public static final IFileElementType FILE = new IFileElementType(Language.<PointcutQueryLanguage>findInstance(PointcutQueryLanguage.class));
 

@@ -5,6 +5,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface NamespaceName extends PsiElement {
+public interface NamespacePatternPart extends PsiElement {
+
+  @Nullable
+  NamePatternPart getNamePatternPart();
 
 }

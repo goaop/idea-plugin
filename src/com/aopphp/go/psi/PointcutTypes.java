@@ -28,6 +28,8 @@ public interface PointcutTypes {
   IElementType METHOD_EXECUTION_REFERENCE = new PointcutElementType("METHOD_EXECUTION_REFERENCE");
   IElementType NAMESPACE_NAME = new PointcutElementType("NAMESPACE_NAME");
   IElementType NAMESPACE_PATTERN = new PointcutElementType("NAMESPACE_PATTERN");
+  IElementType NAMESPACE_PATTERN_PART = new PointcutElementType("NAMESPACE_PATTERN_PART");
+  IElementType NAME_PATTERN = new PointcutElementType("NAME_PATTERN");
   IElementType NAME_PATTERN_PART = new PointcutElementType("NAME_PATTERN_PART");
   IElementType NEGATED_EXPRESSION = new PointcutElementType("NEGATED_EXPRESSION");
   IElementType POINTCUT_EXPRESSION = new PointcutElementType("POINTCUT_EXPRESSION");
@@ -37,31 +39,31 @@ public interface PointcutTypes {
   IElementType WITHIN_POINTCUT = new PointcutElementType("WITHIN_POINTCUT");
 
   IElementType ACCESS = new PointcutTokenType("access");
-  IElementType ALTERNATION = new PointcutTokenType("|");
-  IElementType ANNOTATION = new PointcutTokenType("@");
-  IElementType ASTERISK = new PointcutTokenType("*");
   IElementType CFLOWBELOW = new PointcutTokenType("cflowbelow");
-  IElementType COMMENT = new PointcutTokenType("comment");
-  IElementType CONJUNCTION = new PointcutTokenType("&&");
-  IElementType DISJUNCTION = new PointcutTokenType("||");
-  IElementType DOUBLEASTERISK = new PointcutTokenType("**");
   IElementType DYNAMIC = new PointcutTokenType("dynamic");
   IElementType EXECUTION = new PointcutTokenType("execution");
   IElementType FINAL = new PointcutTokenType("final");
   IElementType INITIALIZATION = new PointcutTokenType("initialization");
-  IElementType LP = new PointcutTokenType("(");
-  IElementType NAMEPART = new PointcutTokenType("namePart");
-  IElementType NEGATION = new PointcutTokenType("!");
-  IElementType NSSEPARATOR = new PointcutTokenType("\\");
-  IElementType OBJECTACCESS = new PointcutTokenType("->");
   IElementType PRIVATE = new PointcutTokenType("private");
   IElementType PROTECTED = new PointcutTokenType("protected");
   IElementType PUBLIC = new PointcutTokenType("public");
-  IElementType REFERENCE = new PointcutTokenType("$this");
-  IElementType RP = new PointcutTokenType(")");
-  IElementType STATICACCESS = new PointcutTokenType("::");
   IElementType STATICINITIALIZATION = new PointcutTokenType("staticinitialization");
-  IElementType SUBCLASSFILTER = new PointcutTokenType("+");
+  IElementType T_ALTERNATION = new PointcutTokenType("|");
+  IElementType T_ANNOTATION = new PointcutTokenType("@");
+  IElementType T_ASTERISK = new PointcutTokenType("*");
+  IElementType T_COMMENT = new PointcutTokenType("T_COMMENT");
+  IElementType T_DOUBLE_ASTERISK = new PointcutTokenType("**");
+  IElementType T_LEFT_PAREN = new PointcutTokenType("(");
+  IElementType T_LOGICAL_AND = new PointcutTokenType("&&");
+  IElementType T_LOGICAL_OR = new PointcutTokenType("||");
+  IElementType T_NAME_PART = new PointcutTokenType("T_NAME_PART");
+  IElementType T_NEGATION = new PointcutTokenType("!");
+  IElementType T_NS_SEPARATOR = new PointcutTokenType("\\");
+  IElementType T_OBJECT_ACCESS = new PointcutTokenType("->");
+  IElementType T_RIGHT_PAREN = new PointcutTokenType(")");
+  IElementType T_STATIC_ACCESS = new PointcutTokenType("::");
+  IElementType T_SUBNAMESPACE_SIGN = new PointcutTokenType("+");
+  IElementType T_THIS = new PointcutTokenType("$this");
   IElementType WITHIN = new PointcutTokenType("within");
 
   class Factory {
@@ -126,6 +128,12 @@ public interface PointcutTypes {
       }
       else if (type == NAMESPACE_PATTERN) {
         return new NamespacePatternImpl(node);
+      }
+      else if (type == NAMESPACE_PATTERN_PART) {
+        return new NamespacePatternPartImpl(node);
+      }
+      else if (type == NAME_PATTERN) {
+        return new NamePatternImpl(node);
       }
       else if (type == NAME_PATTERN_PART) {
         return new NamePatternPartImpl(node);

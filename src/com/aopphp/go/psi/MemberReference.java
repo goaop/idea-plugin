@@ -17,6 +17,6 @@ public interface MemberReference extends PsiElement {
   MemberModifiers getMemberModifiers();
 
   @NotNull
-  NamePatternPart getNamePatternPart();
+  NamePattern getNamePattern();
 
 }

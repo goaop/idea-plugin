@@ -7,10 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface NamespacePattern extends PsiElement {
 
-  @Nullable
-  NamePatternPart getNamePatternPart();
-
   @NotNull
-  List<NamespacePattern> getNamespacePatternList();
+  List<NamespacePatternPart> getNamespacePatternPartList();
 
 }

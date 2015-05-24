@@ -42,8 +42,8 @@ public class MemberReferenceImpl extends ASTWrapperPsiElement implements MemberR
 
   @Override
   @NotNull
-  public NamePatternPart getNamePatternPart() {
-    return findNotNullChildByClass(NamePatternPart.class);
+  public NamePattern getNamePattern() {
+    return findNotNullChildByClass(NamePattern.class);
   }
 
 }

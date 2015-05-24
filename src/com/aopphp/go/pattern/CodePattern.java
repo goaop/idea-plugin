@@ -19,9 +19,9 @@ public class CodePattern extends PlatformPatterns {
      */
     public static ElementPattern<PsiElement> insideAnnotationPointcut() {
         return or(
-            psiElement(PointcutTypes.NAMEPART).withSuperParent(2, AnnotatedExecutionPointcut.class),
-            psiElement(PointcutTypes.NAMEPART).withSuperParent(2, AnnotatedAccessPointcut.class),
-            psiElement(PointcutTypes.NAMEPART).withSuperParent(2, AnnotatedWithinPointcut.class)
+            psiElement(PointcutTypes.T_NAME_PART).withSuperParent(2, AnnotatedExecutionPointcut.class),
+            psiElement(PointcutTypes.T_NAME_PART).withSuperParent(2, AnnotatedAccessPointcut.class),
+            psiElement(PointcutTypes.T_NAME_PART).withSuperParent(2, AnnotatedWithinPointcut.class)
         );
     }
 
@@ -32,12 +32,12 @@ public class CodePattern extends PlatformPatterns {
     public static ElementPattern<PsiElement> startOfMemberModifiers() {
         return psiElement().afterLeafSkipping(
             or(
-                psiElement(PointcutTypes.LP),
+                psiElement(PointcutTypes.T_LEFT_PAREN),
                 psiElement(PointcutTypes.PRIVATE),
                 psiElement(PointcutTypes.PROTECTED),
                 psiElement(PointcutTypes.PUBLIC),
                 psiElement(PointcutTypes.FINAL),
-                psiElement(PointcutTypes.ALTERNATION),
+                psiElement(PointcutTypes.T_ALTERNATION),
                 psiElement().whitespace()
             ),
             or(

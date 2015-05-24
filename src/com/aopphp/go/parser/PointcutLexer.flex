@@ -19,30 +19,30 @@ import static com.aopphp.go.psi.PointcutTypes.*;
 %unicode
 
 EOL="\r"|"\n"|"\r\n"
-LINE_WS=[\ \t\f]
-WHITE_SPACE=({LINE_WS}|{EOL})+
+T_COMMENT="//".*
+T_LINE_WS=[\ \t\f]
+T_NAME_PART=[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*
+WHITE_SPACE=({T_LINE_WS}|{EOL})+
 
-COMMENT="//".*
-NAMEPART=[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*
 
 %%
 <YYINITIAL> {
   {WHITE_SPACE}             { return com.intellij.psi.TokenType.WHITE_SPACE; }
 
-  "\\"                      { return com.aopphp.go.psi.PointcutTypes.NSSEPARATOR; }
-  "@"                       { return com.aopphp.go.psi.PointcutTypes.ANNOTATION; }
-  "("                       { return com.aopphp.go.psi.PointcutTypes.LP; }
-  ")"                       { return com.aopphp.go.psi.PointcutTypes.RP; }
-  "->"                      { return com.aopphp.go.psi.PointcutTypes.OBJECTACCESS; }
-  "::"                      { return com.aopphp.go.psi.PointcutTypes.STATICACCESS; }
-  "*"                       { return com.aopphp.go.psi.PointcutTypes.ASTERISK; }
-  "|"                       { return com.aopphp.go.psi.PointcutTypes.ALTERNATION; }
-  "!"                       { return com.aopphp.go.psi.PointcutTypes.NEGATION; }
-  "&&"                      { return com.aopphp.go.psi.PointcutTypes.CONJUNCTION; }
-  "||"                      { return com.aopphp.go.psi.PointcutTypes.DISJUNCTION; }
-  "**"                      { return com.aopphp.go.psi.PointcutTypes.DOUBLEASTERISK; }
-  "+"                       { return com.aopphp.go.psi.PointcutTypes.SUBCLASSFILTER; }
-  "$this"                   { return com.aopphp.go.psi.PointcutTypes.REFERENCE; }
+  "\\"                      { return com.aopphp.go.psi.PointcutTypes.T_NS_SEPARATOR; }
+  "@"                       { return com.aopphp.go.psi.PointcutTypes.T_ANNOTATION; }
+  "("                       { return com.aopphp.go.psi.PointcutTypes.T_LEFT_PAREN; }
+  ")"                       { return com.aopphp.go.psi.PointcutTypes.T_RIGHT_PAREN; }
+  "->"                      { return com.aopphp.go.psi.PointcutTypes.T_OBJECT_ACCESS; }
+  "::"                      { return com.aopphp.go.psi.PointcutTypes.T_STATIC_ACCESS; }
+  "*"                       { return com.aopphp.go.psi.PointcutTypes.T_ASTERISK; }
+  "|"                       { return com.aopphp.go.psi.PointcutTypes.T_ALTERNATION; }
+  "!"                       { return com.aopphp.go.psi.PointcutTypes.T_NEGATION; }
+  "&&"                      { return com.aopphp.go.psi.PointcutTypes.T_LOGICAL_AND; }
+  "||"                      { return com.aopphp.go.psi.PointcutTypes.T_LOGICAL_OR; }
+  "**"                      { return com.aopphp.go.psi.PointcutTypes.T_DOUBLE_ASTERISK; }
+  "+"                       { return com.aopphp.go.psi.PointcutTypes.T_SUBNAMESPACE_SIGN; }
+  "$this"                   { return com.aopphp.go.psi.PointcutTypes.T_THIS; }
   "access"                  { return com.aopphp.go.psi.PointcutTypes.ACCESS; }
   "execution"               { return com.aopphp.go.psi.PointcutTypes.EXECUTION; }
   "within"                  { return com.aopphp.go.psi.PointcutTypes.WITHIN; }
@@ -55,8 +55,8 @@ NAMEPART=[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*
   "public"                  { return com.aopphp.go.psi.PointcutTypes.PUBLIC; }
   "final"                   { return com.aopphp.go.psi.PointcutTypes.FINAL; }
 
-  {COMMENT}                 { return com.aopphp.go.psi.PointcutTypes.COMMENT; }
-  {NAMEPART}                { return com.aopphp.go.psi.PointcutTypes.NAMEPART; }
+  {T_COMMENT}               { return com.aopphp.go.psi.PointcutTypes.T_COMMENT; }
+  {T_NAME_PART}             { return com.aopphp.go.psi.PointcutTypes.T_NAME_PART; }
 
   [^] { return com.intellij.psi.TokenType.BAD_CHARACTER; }
 }

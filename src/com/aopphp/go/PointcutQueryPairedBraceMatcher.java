@@ -12,7 +12,11 @@ import org.jetbrains.annotations.Nullable;
 
 public class PointcutQueryPairedBraceMatcher extends PairedBraceMatcherAdapter
 {
-    private static final BracePair[] PAIRS = { new BracePair(PointcutTypes.LP, PointcutTypes.RP, false)};
+    private static final BracePair[] PAIRS = { new BracePair(
+        PointcutTypes.T_LEFT_PAREN,
+        PointcutTypes.T_RIGHT_PAREN,
+        false)
+    };
 
     public PointcutQueryPairedBraceMatcher() {
         super(new PointcutPairedBraceMatcher(), PointcutQueryLanguage.INSTANCE);

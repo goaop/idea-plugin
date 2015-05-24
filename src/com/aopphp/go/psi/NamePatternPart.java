@@ -7,10 +7,4 @@ import com.intellij.psi.PsiElement;
 
 public interface NamePatternPart extends PsiElement {
 
-  @NotNull
-  List<NamePatternPart> getNamePatternPartList();
-
-  @Nullable
-  PsiElement getNamePart();
-
 }

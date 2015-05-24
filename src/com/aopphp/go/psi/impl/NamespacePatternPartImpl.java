@@ -11,21 +11,21 @@ import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
 
-public class NamespacePatternImpl extends ASTWrapperPsiElement implements NamespacePattern {
+public class NamespacePatternPartImpl extends ASTWrapperPsiElement implements NamespacePatternPart {
 
-  public NamespacePatternImpl(ASTNode node) {
+  public NamespacePatternPartImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof Visitor) ((Visitor)visitor).visitNamespacePattern(this);
+    if (visitor instanceof Visitor) ((Visitor)visitor).visitNamespacePatternPart(this);
     else super.accept(visitor);
   }
 
   @Override
-  @NotNull
-  public List<NamespacePatternPart> getNamespacePatternPartList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, NamespacePatternPart.class);
+  @Nullable
+  public NamePatternPart getNamePatternPart() {
+    return findChildByClass(NamePatternPart.class);
   }
 
 }

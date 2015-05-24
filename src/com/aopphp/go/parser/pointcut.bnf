@@ -1,6 +1,5 @@
 {
   parserClass="com.aopphp.go.parser.PointcutParser"
-  parserUtilClass="com.aopphp.go.parser.PointcutParserUtil"
 
   extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
 
@@ -14,22 +13,23 @@
   tokenTypeClass="com.aopphp.go.psi.PointcutTokenType"
 
   tokens=[
-    nsSeparator='\'
-    annotation='@'
-    lp='('
-    rp=')'
-    objectAccess='->'
-    staticAccess='::'
-    asterisk='*'
-    alternation='|'
-    negation='!'
-    conjunction='&&'
-    disjunction='||'
-    doubleAsterisk='**'
-    subclassFilter='+'
-    reference='$this'
-    comment='regexp://.*'
-    namePart='regexp:[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
+    T_NS_SEPARATOR='\'
+    T_ANNOTATION='@'
+    T_LEFT_PAREN='('
+    T_RIGHT_PAREN=')'
+    T_OBJECT_ACCESS='->'
+    T_STATIC_ACCESS='::'
+    T_ASTERISK='*'
+    T_ALTERNATION='|'
+    T_NEGATION='!'
+    T_LOGICAL_AND='&&'
+    T_LOGICAL_OR='||'
+    T_DOUBLE_ASTERISK='**'
+    T_SUBNAMESPACE_SIGN='+'
+    T_THIS='$this'
+    T_COMMENT='regexp://.*'
+    T_LINE_WS='regexp:[\ \t\f]'
+    T_NAME_PART='regexp:[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
   ]
 }
 pointcutFile ::= pointcutExpression;
@@ -72,11 +72,11 @@ executionPointcut ::=
 
 withinPointcut ::= within '(' classFilter ')'
 
-annotatedAccessPointcut ::= (annotation access '(' namespaceName ')')
+annotatedAccessPointcut ::= ('@' access '(' namespaceName ')')
 
-annotatedExecutionPointcut ::= (annotation execution '(' namespaceName ')')
+annotatedExecutionPointcut ::= ('@' execution '(' namespaceName ')')
 
-annotatedWithinPointcut ::= (annotation within '(' namespaceName ')')
+annotatedWithinPointcut ::= ('@' within '(' namespaceName ')')
 
 initializationPointcut ::= (initialization '(' classFilter ')')
 
@@ -92,7 +92,7 @@ methodExecutionReference ::= (memberReference '(' argumentList ')');
 
 functionExecutionReference ::= (namespacePattern '(' argumentList ')');
 
-memberReference ::= (memberModifiers classFilter memberAccessType namePatternPart);
+memberReference ::= (memberModifiers classFilter memberAccessType namePattern);
 
 classFilter ::= namespacePattern '+'?;
 
@@ -100,18 +100,20 @@ argumentList ::= '*';
 
 memberAccessType ::= ['::'|'->'];
 
-namespacePattern ::=
-    '**'
-  | namePatternPart ('\' namespacePattern)*
-  | namePatternPart '\' '**';
+namespacePattern ::= ('\'? namespacePatternPart)+;
 
-namePatternPart ::=
-    '*' namePatternPart*
-  | namePart '|' namePatternPart+
-  | namePart namePatternPart*
+namePattern ::=
+    namePatternPart '|' namePatternPart
+  | namePatternPart;
 
-namespaceName ::= namePart ('\' namespaceName)*
+namespacePatternPart ::= namePatternPart|'**';
 
-memberModifiers ::= memberModifier ([' ' | '|'] memberModifier)*
+namePatternPart ::= (namePatternItem+);
+
+private namePatternItem ::= '*'|T_NAME_PART;
+
+namespaceName ::= ('\'? T_NAME_PART)+
+
+memberModifiers ::= (memberModifier '|'?)+
 
 memberModifier ::= private|protected|public|final

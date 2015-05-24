@@ -79,6 +79,10 @@ public class Visitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitNamePattern(@NotNull NamePattern o) {
+    visitPsiElement(o);
+  }
+
   public void visitNamePatternPart(@NotNull NamePatternPart o) {
     visitPsiElement(o);
   }
@@ -88,6 +92,10 @@ public class Visitor extends PsiElementVisitor {
   }
 
   public void visitNamespacePattern(@NotNull NamespacePattern o) {
+    visitPsiElement(o);
+  }
+
+  public void visitNamespacePatternPart(@NotNull NamespacePatternPart o) {
     visitPsiElement(o);
   }
 

@@ -51,11 +51,11 @@ public class PointcutQuerySyntaxHighlighter extends SyntaxHighlighterBase {
     @NotNull
     @Override
     public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
-        if (tokenType.equals(PointcutTypes.NSSEPARATOR)
-            || tokenType.equals(PointcutTypes.ASTERISK)
-            || tokenType.equals(PointcutTypes.STATICACCESS)
-            || tokenType.equals(PointcutTypes.OBJECTACCESS)
-            || tokenType.equals(PointcutTypes.SUBCLASSFILTER)) {
+        if (tokenType.equals(PointcutTypes.T_NS_SEPARATOR)
+            || tokenType.equals(PointcutTypes.T_ASTERISK)
+            || tokenType.equals(PointcutTypes.T_STATIC_ACCESS)
+            || tokenType.equals(PointcutTypes.T_OBJECT_ACCESS)
+            || tokenType.equals(PointcutTypes.T_SUBNAMESPACE_SIGN)) {
             return SEPARATOR_KEYS;
         } else if (tokenType.equals(PointcutTypes.ACCESS)
             || tokenType.equals(PointcutTypes.EXECUTION)
@@ -65,15 +65,15 @@ public class PointcutQuerySyntaxHighlighter extends SyntaxHighlighterBase {
             || tokenType.equals(PointcutTypes.CFLOWBELOW)
             || tokenType.equals(PointcutTypes.DYNAMIC)) {
             return KEY_KEYS;
-        } else if (tokenType.equals(PointcutTypes.LP)
-            || tokenType.equals(PointcutTypes.RP)) {
+        } else if (tokenType.equals(PointcutTypes.T_LEFT_PAREN)
+            || tokenType.equals(PointcutTypes.T_RIGHT_PAREN)) {
             return PARENTHESIS_KEYS;
         } else if (tokenType.equals(PointcutTypes.PRIVATE)
             || tokenType.equals(PointcutTypes.PROTECTED)
             || tokenType.equals(PointcutTypes.PUBLIC)
             || tokenType.equals(PointcutTypes.FINAL)) {
             return MEMBER_MODIFIER_KEYS;
-        } else if (tokenType.equals(PointcutTypes.COMMENT)) {
+        } else if (tokenType.equals(PointcutTypes.T_COMMENT)) {
             return COMMENT_KEYS;
         } else if (tokenType.equals(TokenType.BAD_CHARACTER)) {
             return BAD_CHAR_KEYS;

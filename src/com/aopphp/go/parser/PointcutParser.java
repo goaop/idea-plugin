@@ -4,7 +4,7 @@ package com.aopphp.go.parser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
 import static com.aopphp.go.psi.PointcutTypes.*;
-import static com.aopphp.go.parser.PointcutParserUtil.*;
+import static com.intellij.lang.parser.GeneratedParserUtilBase.*;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.tree.TokenSet;
@@ -76,6 +76,9 @@ public class PointcutParser implements PsiParser {
     else if (t == METHOD_EXECUTION_REFERENCE) {
       r = methodExecutionReference(b, 0);
     }
+    else if (t == NAME_PATTERN) {
+      r = namePattern(b, 0);
+    }
     else if (t == NAME_PATTERN_PART) {
       r = namePatternPart(b, 0);
     }
@@ -84,6 +87,9 @@ public class PointcutParser implements PsiParser {
     }
     else if (t == NAMESPACE_PATTERN) {
       r = namespacePattern(b, 0);
+    }
+    else if (t == NAMESPACE_PATTERN_PART) {
+      r = namespacePatternPart(b, 0);
     }
     else if (t == NEGATED_EXPRESSION) {
       r = negatedExpression(b, 0);
@@ -121,54 +127,57 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, ACCESS);
-    r = r && consumeToken(b, LP);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && memberReference(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, ACCESS_POINTCUT, r);
     return r;
   }
 
   /* ********************************************************** */
-  // annotation access '(' namespaceName ')'
+  // '@' access '(' namespaceName ')'
   public static boolean annotatedAccessPointcut(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "annotatedAccessPointcut")) return false;
-    if (!nextTokenIs(b, ANNOTATION)) return false;
+    if (!nextTokenIs(b, T_ANNOTATION)) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, ANNOTATION, ACCESS);
-    r = r && consumeToken(b, LP);
+    r = consumeToken(b, T_ANNOTATION);
+    r = r && consumeToken(b, ACCESS);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && namespaceName(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, ANNOTATED_ACCESS_POINTCUT, r);
     return r;
   }
 
   /* ********************************************************** */
-  // annotation execution '(' namespaceName ')'
+  // '@' execution '(' namespaceName ')'
   public static boolean annotatedExecutionPointcut(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "annotatedExecutionPointcut")) return false;
-    if (!nextTokenIs(b, ANNOTATION)) return false;
+    if (!nextTokenIs(b, T_ANNOTATION)) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, ANNOTATION, EXECUTION);
-    r = r && consumeToken(b, LP);
+    r = consumeToken(b, T_ANNOTATION);
+    r = r && consumeToken(b, EXECUTION);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && namespaceName(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, ANNOTATED_EXECUTION_POINTCUT, r);
     return r;
   }
 
   /* ********************************************************** */
-  // annotation within '(' namespaceName ')'
+  // '@' within '(' namespaceName ')'
   public static boolean annotatedWithinPointcut(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "annotatedWithinPointcut")) return false;
-    if (!nextTokenIs(b, ANNOTATION)) return false;
+    if (!nextTokenIs(b, T_ANNOTATION)) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, ANNOTATION, WITHIN);
-    r = r && consumeToken(b, LP);
+    r = consumeToken(b, T_ANNOTATION);
+    r = r && consumeToken(b, WITHIN);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && namespaceName(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, ANNOTATED_WITHIN_POINTCUT, r);
     return r;
   }
@@ -177,10 +186,10 @@ public class PointcutParser implements PsiParser {
   // '*'
   public static boolean argumentList(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "argumentList")) return false;
-    if (!nextTokenIs(b, ASTERISK)) return false;
+    if (!nextTokenIs(b, T_ASTERISK)) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, ASTERISK);
+    r = consumeToken(b, T_ASTERISK);
     exit_section_(b, m, ARGUMENT_LIST, r);
     return r;
   }
@@ -203,9 +212,9 @@ public class PointcutParser implements PsiParser {
     if (!recursion_guard_(b, l, "brakedExpression_1")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, LP);
+    r = consumeToken(b, T_LEFT_PAREN);
     r = r && pointcutExpression(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -218,9 +227,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, CFLOWBELOW);
-    r = r && consumeToken(b, LP);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && executionPointcut(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, CFLOWBELOW_POINTCUT, r);
     return r;
   }
@@ -240,7 +249,7 @@ public class PointcutParser implements PsiParser {
   // '+'?
   private static boolean classFilter_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "classFilter_1")) return false;
-    consumeToken(b, SUBCLASSFILTER);
+    consumeToken(b, T_SUBNAMESPACE_SIGN);
     return true;
   }
 
@@ -263,7 +272,7 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = negatedExpression(b, l + 1);
-    r = r && consumeToken(b, CONJUNCTION);
+    r = r && consumeToken(b, T_LOGICAL_AND);
     r = r && conjugatedExpression(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
@@ -277,12 +286,12 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, DYNAMIC);
-    r = r && consumeToken(b, LP);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && memberReference(b, l + 1);
-    r = r && consumeToken(b, LP);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && argumentList(b, l + 1);
-    r = r && consumeToken(b, RP);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, DYNAMIC_EXECUTION_POINTCUT, r);
     return r;
   }
@@ -307,9 +316,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, EXECUTION);
-    r = r && consumeToken(b, LP);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && methodExecutionReference(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -320,9 +329,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, EXECUTION);
-    r = r && consumeToken(b, LP);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && functionExecutionReference(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -334,9 +343,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<function execution reference>");
     r = namespacePattern(b, l + 1);
-    r = r && consumeToken(b, LP);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && argumentList(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, l, m, FUNCTION_EXECUTION_REFERENCE, r, false, null);
     return r;
   }
@@ -349,9 +358,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, INITIALIZATION);
-    r = r && consumeToken(b, LP);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && classFilter(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, INITIALIZATION_POINTCUT, r);
     return r;
   }
@@ -371,8 +380,8 @@ public class PointcutParser implements PsiParser {
     if (!recursion_guard_(b, l, "memberAccessType_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, STATICACCESS);
-    if (!r) r = consumeToken(b, OBJECTACCESS);
+    r = consumeToken(b, T_STATIC_ACCESS);
+    if (!r) r = consumeToken(b, T_OBJECT_ACCESS);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -392,60 +401,42 @@ public class PointcutParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // memberModifier ([' ' | '|'] memberModifier)*
+  // (memberModifier '|'?)+
   public static boolean memberModifiers(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "memberModifiers")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<member modifiers>");
-    r = memberModifier(b, l + 1);
-    r = r && memberModifiers_1(b, l + 1);
+    r = memberModifiers_0(b, l + 1);
+    int c = current_position_(b);
+    while (r) {
+      if (!memberModifiers_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "memberModifiers", c)) break;
+      c = current_position_(b);
+    }
     exit_section_(b, l, m, MEMBER_MODIFIERS, r, false, null);
     return r;
   }
 
-  // ([' ' | '|'] memberModifier)*
-  private static boolean memberModifiers_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "memberModifiers_1")) return false;
-    int c = current_position_(b);
-    while (true) {
-      if (!memberModifiers_1_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "memberModifiers_1", c)) break;
-      c = current_position_(b);
-    }
-    return true;
-  }
-
-  // [' ' | '|'] memberModifier
-  private static boolean memberModifiers_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "memberModifiers_1_0")) return false;
+  // memberModifier '|'?
+  private static boolean memberModifiers_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "memberModifiers_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = memberModifiers_1_0_0(b, l + 1);
-    r = r && memberModifier(b, l + 1);
+    r = memberModifier(b, l + 1);
+    r = r && memberModifiers_0_1(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
-  // [' ' | '|']
-  private static boolean memberModifiers_1_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "memberModifiers_1_0_0")) return false;
-    memberModifiers_1_0_0_0(b, l + 1);
+  // '|'?
+  private static boolean memberModifiers_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "memberModifiers_0_1")) return false;
+    consumeToken(b, T_ALTERNATION);
     return true;
-  }
-
-  // ' ' | '|'
-  private static boolean memberModifiers_1_0_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "memberModifiers_1_0_0_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, " ");
-    if (!r) r = consumeToken(b, ALTERNATION);
-    exit_section_(b, m, null, r);
-    return r;
   }
 
   /* ********************************************************** */
-  // memberModifiers classFilter memberAccessType namePatternPart
+  // memberModifiers classFilter memberAccessType namePattern
   public static boolean memberReference(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "memberReference")) return false;
     boolean r;
@@ -453,7 +444,7 @@ public class PointcutParser implements PsiParser {
     r = memberModifiers(b, l + 1);
     r = r && classFilter(b, l + 1);
     r = r && memberAccessType(b, l + 1);
-    r = r && namePatternPart(b, l + 1);
+    r = r && namePattern(b, l + 1);
     exit_section_(b, l, m, MEMBER_REFERENCE, r, false, null);
     return r;
   }
@@ -465,197 +456,150 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<method execution reference>");
     r = memberReference(b, l + 1);
-    r = r && consumeToken(b, LP);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && argumentList(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, l, m, METHOD_EXECUTION_REFERENCE, r, false, null);
     return r;
   }
 
   /* ********************************************************** */
-  // '*' namePatternPart*
-  //   | namePart '|' namePatternPart+
-  //   | namePart namePatternPart*
+  // namePatternPart '|' namePatternPart
+  //   | namePatternPart
+  public static boolean namePattern(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namePattern")) return false;
+    if (!nextTokenIs(b, "<name pattern>", T_ASTERISK, T_NAME_PART)) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, "<name pattern>");
+    r = namePattern_0(b, l + 1);
+    if (!r) r = namePatternPart(b, l + 1);
+    exit_section_(b, l, m, NAME_PATTERN, r, false, null);
+    return r;
+  }
+
+  // namePatternPart '|' namePatternPart
+  private static boolean namePattern_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namePattern_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = namePatternPart(b, l + 1);
+    r = r && consumeToken(b, T_ALTERNATION);
+    r = r && namePatternPart(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // '*'|T_NAME_PART
+  static boolean namePatternItem(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namePatternItem")) return false;
+    if (!nextTokenIs(b, "", T_ASTERISK, T_NAME_PART)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, T_ASTERISK);
+    if (!r) r = consumeToken(b, T_NAME_PART);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // namePatternItem+
   public static boolean namePatternPart(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "namePatternPart")) return false;
-    if (!nextTokenIs(b, "<name pattern part>", ASTERISK, NAMEPART)) return false;
+    if (!nextTokenIs(b, "<name pattern part>", T_ASTERISK, T_NAME_PART)) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<name pattern part>");
-    r = namePatternPart_0(b, l + 1);
-    if (!r) r = namePatternPart_1(b, l + 1);
-    if (!r) r = namePatternPart_2(b, l + 1);
+    r = namePatternItem(b, l + 1);
+    int c = current_position_(b);
+    while (r) {
+      if (!namePatternItem(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "namePatternPart", c)) break;
+      c = current_position_(b);
+    }
     exit_section_(b, l, m, NAME_PATTERN_PART, r, false, null);
     return r;
   }
 
-  // '*' namePatternPart*
-  private static boolean namePatternPart_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namePatternPart_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, ASTERISK);
-    r = r && namePatternPart_0_1(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // namePatternPart*
-  private static boolean namePatternPart_0_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namePatternPart_0_1")) return false;
-    int c = current_position_(b);
-    while (true) {
-      if (!namePatternPart(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "namePatternPart_0_1", c)) break;
-      c = current_position_(b);
-    }
-    return true;
-  }
-
-  // namePart '|' namePatternPart+
-  private static boolean namePatternPart_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namePatternPart_1")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, NAMEPART);
-    r = r && consumeToken(b, ALTERNATION);
-    r = r && namePatternPart_1_2(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // namePatternPart+
-  private static boolean namePatternPart_1_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namePatternPart_1_2")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = namePatternPart(b, l + 1);
-    int c = current_position_(b);
-    while (r) {
-      if (!namePatternPart(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "namePatternPart_1_2", c)) break;
-      c = current_position_(b);
-    }
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // namePart namePatternPart*
-  private static boolean namePatternPart_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namePatternPart_2")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, NAMEPART);
-    r = r && namePatternPart_2_1(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // namePatternPart*
-  private static boolean namePatternPart_2_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namePatternPart_2_1")) return false;
-    int c = current_position_(b);
-    while (true) {
-      if (!namePatternPart(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "namePatternPart_2_1", c)) break;
-      c = current_position_(b);
-    }
-    return true;
-  }
-
   /* ********************************************************** */
-  // namePart ('\' namespaceName)*
+  // ('\'? T_NAME_PART)+
   public static boolean namespaceName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "namespaceName")) return false;
-    if (!nextTokenIs(b, NAMEPART)) return false;
+    if (!nextTokenIs(b, "<namespace name>", T_NS_SEPARATOR, T_NAME_PART)) return false;
     boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, NAMEPART);
-    r = r && namespaceName_1(b, l + 1);
-    exit_section_(b, m, NAMESPACE_NAME, r);
+    Marker m = enter_section_(b, l, _NONE_, "<namespace name>");
+    r = namespaceName_0(b, l + 1);
+    int c = current_position_(b);
+    while (r) {
+      if (!namespaceName_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "namespaceName", c)) break;
+      c = current_position_(b);
+    }
+    exit_section_(b, l, m, NAMESPACE_NAME, r, false, null);
     return r;
   }
 
-  // ('\' namespaceName)*
-  private static boolean namespaceName_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namespaceName_1")) return false;
-    int c = current_position_(b);
-    while (true) {
-      if (!namespaceName_1_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "namespaceName_1", c)) break;
-      c = current_position_(b);
-    }
-    return true;
-  }
-
-  // '\' namespaceName
-  private static boolean namespaceName_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namespaceName_1_0")) return false;
+  // '\'? T_NAME_PART
+  private static boolean namespaceName_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namespaceName_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, NSSEPARATOR);
-    r = r && namespaceName(b, l + 1);
+    r = namespaceName_0_0(b, l + 1);
+    r = r && consumeToken(b, T_NAME_PART);
     exit_section_(b, m, null, r);
     return r;
   }
 
+  // '\'?
+  private static boolean namespaceName_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namespaceName_0_0")) return false;
+    consumeToken(b, T_NS_SEPARATOR);
+    return true;
+  }
+
   /* ********************************************************** */
-  // '**'
-  //   | namePatternPart ('\' namespacePattern)*
-  //   | namePatternPart '\' '**'
+  // ('\'? namespacePatternPart)+
   public static boolean namespacePattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "namespacePattern")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<namespace pattern>");
-    r = consumeToken(b, DOUBLEASTERISK);
-    if (!r) r = namespacePattern_1(b, l + 1);
-    if (!r) r = namespacePattern_2(b, l + 1);
+    r = namespacePattern_0(b, l + 1);
+    int c = current_position_(b);
+    while (r) {
+      if (!namespacePattern_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "namespacePattern", c)) break;
+      c = current_position_(b);
+    }
     exit_section_(b, l, m, NAMESPACE_PATTERN, r, false, null);
     return r;
   }
 
-  // namePatternPart ('\' namespacePattern)*
-  private static boolean namespacePattern_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namespacePattern_1")) return false;
+  // '\'? namespacePatternPart
+  private static boolean namespacePattern_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namespacePattern_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = namePatternPart(b, l + 1);
-    r = r && namespacePattern_1_1(b, l + 1);
+    r = namespacePattern_0_0(b, l + 1);
+    r = r && namespacePatternPart(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
-  // ('\' namespacePattern)*
-  private static boolean namespacePattern_1_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namespacePattern_1_1")) return false;
-    int c = current_position_(b);
-    while (true) {
-      if (!namespacePattern_1_1_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "namespacePattern_1_1", c)) break;
-      c = current_position_(b);
-    }
+  // '\'?
+  private static boolean namespacePattern_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namespacePattern_0_0")) return false;
+    consumeToken(b, T_NS_SEPARATOR);
     return true;
   }
 
-  // '\' namespacePattern
-  private static boolean namespacePattern_1_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namespacePattern_1_1_0")) return false;
+  /* ********************************************************** */
+  // namePatternPart|'**'
+  public static boolean namespacePatternPart(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namespacePatternPart")) return false;
     boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, NSSEPARATOR);
-    r = r && namespacePattern(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // namePatternPart '\' '**'
-  private static boolean namespacePattern_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namespacePattern_2")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    Marker m = enter_section_(b, l, _NONE_, "<namespace pattern part>");
     r = namePatternPart(b, l + 1);
-    r = r && consumeToken(b, NSSEPARATOR);
-    r = r && consumeToken(b, DOUBLEASTERISK);
-    exit_section_(b, m, null, r);
+    if (!r) r = consumeToken(b, T_DOUBLE_ASTERISK);
+    exit_section_(b, l, m, NAMESPACE_PATTERN_PART, r, false, null);
     return r;
   }
 
@@ -677,7 +621,7 @@ public class PointcutParser implements PsiParser {
     if (!recursion_guard_(b, l, "negatedExpression_1")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, NEGATION);
+    r = consumeToken(b, T_NEGATION);
     r = r && brakedExpression(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
@@ -702,7 +646,7 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = conjugatedExpression(b, l + 1);
-    r = r && consumeToken(b, DISJUNCTION);
+    r = r && consumeToken(b, T_LOGICAL_OR);
     r = r && pointcutExpression(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
@@ -721,7 +665,7 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<pointcut reference>");
     r = pointcutReference_0(b, l + 1);
-    r = r && consumeToken(b, OBJECTACCESS);
+    r = r && consumeToken(b, T_OBJECT_ACCESS);
     r = r && namePatternPart(b, l + 1);
     exit_section_(b, l, m, POINTCUT_REFERENCE, r, false, null);
     return r;
@@ -740,7 +684,7 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = namespaceName(b, l + 1);
-    if (!r) r = consumeToken(b, REFERENCE);
+    if (!r) r = consumeToken(b, T_THIS);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -784,9 +728,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, STATICINITIALIZATION);
-    r = r && consumeToken(b, LP);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && classFilter(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, STATIC_INITIALIZATION_POINTCUT, r);
     return r;
   }
@@ -799,9 +743,9 @@ public class PointcutParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, WITHIN);
-    r = r && consumeToken(b, LP);
+    r = r && consumeToken(b, T_LEFT_PAREN);
     r = r && classFilter(b, l + 1);
-    r = r && consumeToken(b, RP);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, WITHIN_POINTCUT, r);
     return r;
   }

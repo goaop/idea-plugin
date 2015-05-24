@@ -22,16 +22,4 @@ public class NamespaceNameImpl extends ASTWrapperPsiElement implements Namespace
     else super.accept(visitor);
   }
 
-  @Override
-  @NotNull
-  public List<NamespaceName> getNamespaceNameList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, NamespaceName.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getNamePart() {
-    return findNotNullChildByType(NAMEPART);
-  }
-
 }
