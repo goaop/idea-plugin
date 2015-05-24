@@ -7,4 +7,6 @@ import com.intellij.psi.PsiElement;
 
 public interface NamespaceName extends PsiElement {
 
+  String getFQN();
+
 }
