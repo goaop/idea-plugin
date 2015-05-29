@@ -60,6 +60,8 @@
     <lang.braceMatcher language="Go! AOP Pointcut query" implementationClass="com.aopphp.go.PointcutQueryPairedBraceMatcher"/>
     <languageInjector implementation="com.aopphp.go.injector.PointcutQueryLanguageInjector"/>
     <annotator language="Go! AOP Pointcut query" implementationClass="com.aopphp.go.annotator.DoctrineAnnotator"/>
+
+    <fileBasedIndex implementation="com.aopphp.go.stubs.indexes.AnnotationPointcutExpressionStubIndex"/>
   </extensions>
 
   <application-components>
