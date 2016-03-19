@@ -1,15 +1,20 @@
-package com.aopphp.go.stubs.indexes;
+package com.aopphp.go.index;
 
+import com.aopphp.go.psi.PointcutElementFactory;
+import com.aopphp.go.psi.PointcutExpression;
 import com.aopphp.go.psi.impl.PointcutQueryUtil;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.php.lang.documentation.phpdoc.psi.tags.PhpDocTag;
 import com.jetbrains.php.lang.psi.PhpFile;
+import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.jetbrains.php.lang.psi.stubs.indexes.PhpConstantNameIndex;
 import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +24,10 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Map;
 
-public class AnnotationPointcutExpressionStubIndex extends FileBasedIndexExtension<String, String> {
+/**
+ * This index collects all pointcuts from the annotations in PHP files
+ */
+public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<String, String> {
 
     public static final ID<String, String> KEY = ID.create("com.aopphp.go.annotation.pointcuts");
     private final KeyDescriptor<String> myKeyDescriptor = new EnumeratorStringDescriptor();
@@ -118,12 +126,25 @@ public class AnnotationPointcutExpressionStubIndex extends FileBasedIndexExtensi
             }
 
             String annotationFqnName = PointcutQueryUtil.getClassNameReference(phpDocTag, this.fileImports);
-            if(annotationFqnName != null && annotationFqnName.startsWith("\\Go\\Lang\\Annotation\\")) {
+            if(annotationFqnName == null || !annotationFqnName.startsWith("\\Go\\Lang\\Annotation\\")) {
+                return;
+            }
+
+            StringLiteralExpression expression = PsiTreeUtil.findChildOfType(phpDocTag, StringLiteralExpression.class);
+            if (expression == null) {
+                return;
+            }
+            String unquotedExpression = StringUtil.trimEnd(expression.getText(), "\"").substring(1);
+
+            PointcutExpression pointcutExpression = PointcutElementFactory.createPointcut(
+                phpDocTag.getProject(),
+                unquotedExpression
+            );
+
+            if (pointcutExpression != null) {
                 map.put(phpDocTag.getText(), annotationFqnName);
-                // TODO: extract and store pointcut expressions
             }
         }
-
     }
 }
 
