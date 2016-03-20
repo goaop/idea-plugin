@@ -1,8 +1,12 @@
 package com.aopphp.go.index;
 
+import com.aopphp.go.pointcut.AnnotationPointcut;
+import com.aopphp.go.pointcut.KindFilter;
+import com.aopphp.go.pointcut.Pointcut;
 import com.aopphp.go.psi.PointcutElementFactory;
 import com.aopphp.go.psi.PointcutExpression;
 import com.aopphp.go.psi.impl.PointcutQueryUtil;
+import com.google.common.collect.Sets;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -12,40 +16,40 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
+import com.jetbrains.php.lang.documentation.phpdoc.psi.PhpDocComment;
 import com.jetbrains.php.lang.documentation.phpdoc.psi.tags.PhpDocTag;
 import com.jetbrains.php.lang.psi.PhpFile;
+import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.jetbrains.php.lang.psi.stubs.indexes.PhpConstantNameIndex;
 import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
 
 /**
  * This index collects all pointcuts from the annotations in PHP files
  */
-public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<String, String> {
+public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<String, Pointcut> {
 
-    public static final ID<String, String> KEY = ID.create("com.aopphp.go.annotation.pointcuts");
-    private final KeyDescriptor<String> myKeyDescriptor = new EnumeratorStringDescriptor();
+    public static final ID<String, Pointcut> KEY = ID.create("com.aopphp.go.annotation.pointcuts");
+    private final KeyDescriptor<String> keyDescriptor = new EnumeratorStringDescriptor();
 
     @NotNull
     @Override
-    public ID<String, String> getName() {
+    public ID<String, Pointcut> getName() {
         return KEY;
     }
 
     @NotNull
     @Override
-    public DataIndexer<String, String, FileContent> getIndexer() {
-        return new DataIndexer<String, String, FileContent>() {
+    public DataIndexer<String, Pointcut, FileContent> getIndexer() {
+        return new DataIndexer<String, Pointcut, FileContent>() {
             @NotNull
             @Override
-            public Map<String, String> map(@NotNull FileContent inputData) {
-                final Map<String, String> map = new THashMap<String, String>();
+            public Map<String, Pointcut> map(@NotNull FileContent inputData) {
+                final Map<String, Pointcut> map = new THashMap<String, Pointcut>();
 
                 PsiFile psiFile = inputData.getPsiFile();
                 if(!(psiFile instanceof PhpFile)) {
@@ -62,21 +66,40 @@ public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<S
     @NotNull
     @Override
     public KeyDescriptor<String> getKeyDescriptor() {
-        return this.myKeyDescriptor;
+        return this.keyDescriptor;
     }
 
     @NotNull
     @Override
-    public DataExternalizer<String> getValueExternalizer() {
-        return new DataExternalizer<String>() {
+    public DataExternalizer<Pointcut> getValueExternalizer() {
+        return new DataExternalizer<Pointcut>() {
             @Override
-            public void save(@NotNull DataOutput out, String value) throws IOException {
-                out.writeUTF(value);
+            public void save(@NotNull DataOutput out, Pointcut value) throws IOException {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                ObjectOutput output          = new ObjectOutputStream(stream);
+                output.writeObject(value);
+
+                out.writeInt(stream.size());
+                out.write(stream.toByteArray());
             }
 
             @Override
-            public String read(@NotNull DataInput in) throws IOException {
-                return in.readUTF();
+            public Pointcut read(@NotNull DataInput in) throws IOException {
+                int bufferSize = in.readInt();
+                byte[] buffer  = new byte[bufferSize];
+                in.readFully(buffer, 0, bufferSize);
+
+                ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
+                ObjectInput input           = new ObjectInputStream(stream);
+
+                Pointcut pointcut = null;
+                try {
+                    pointcut = (Pointcut) input.readObject();
+                } catch (ClassNotFoundException e) {
+                    // nothing here, just ignore
+                }
+
+                return pointcut;
             }
         };
     }
@@ -99,10 +122,9 @@ public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<S
 
     private static class DocTagRecursiveElementVisitor extends PsiRecursiveElementWalkingVisitor {
 
-        private final Map<String, String> map;
-        private Map<String, String> fileImports;
+        private final Map<String, Pointcut> map;
 
-        public DocTagRecursiveElementVisitor(Map<String, String> map) {
+        public DocTagRecursiveElementVisitor(Map<String, Pointcut> map) {
             this.map = map;
         }
 
@@ -116,20 +138,12 @@ public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<S
 
         public void visitPhpDocTag(PhpDocTag phpDocTag) {
 
-            // init file imports
-            if(this.fileImports == null) {
-                this.fileImports = PointcutQueryUtil.getFileUseImports(phpDocTag.getContainingFile());
-            }
-
-            if(this.fileImports.size() == 0) {
-                return;
-            }
-
-            String annotationFqnName = PointcutQueryUtil.getClassNameReference(phpDocTag, this.fileImports);
+            String annotationFqnName = PointcutQueryUtil.getClassNameReference(phpDocTag);
             if(annotationFqnName == null || !annotationFqnName.startsWith("\\Go\\Lang\\Annotation\\")) {
                 return;
             }
 
+            // searching for the concrete textual pointcut definition
             StringLiteralExpression expression = PsiTreeUtil.findChildOfType(phpDocTag, StringLiteralExpression.class);
             if (expression == null) {
                 return;
@@ -141,9 +155,27 @@ public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<S
                 unquotedExpression
             );
 
-            if (pointcutExpression != null) {
-                map.put(phpDocTag.getText(), annotationFqnName);
+            if (pointcutExpression == null) {
+                return;
             }
+
+            // | - PhpDocComment
+            // |   | - PhpDocTag
+            // |
+            // | - PhpNamedElement
+
+            PsiElement docComment = PsiTreeUtil.getParentOfType(phpDocTag, PhpDocComment.class);
+            if (docComment == null) {
+                return;
+            }
+            PhpNamedElement phpNamedElement = PsiTreeUtil.getNextSiblingOfType(docComment, PhpNamedElement.class);
+            if (phpNamedElement == null) {
+                return;
+            }
+
+            // TODO: here we should ask a real pointcut from the pointcut expression
+            Pointcut pointcut = new AnnotationPointcut(Sets.newHashSet(KindFilter.KIND_METHOD), annotationFqnName);
+            map.put(phpNamedElement.getFQN(), pointcut);
         }
     }
 }
