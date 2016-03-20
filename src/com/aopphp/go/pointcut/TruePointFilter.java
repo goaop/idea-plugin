@@ -6,21 +6,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Canonical PointFilter instance that matches all points.
+ */
 public class TruePointFilter implements PointFilter
 {
     private static Set<KindFilter> KIND_ALL = new HashSet<KindFilter>(Arrays.asList(KindFilter.values())) ;
 
-    private static TruePointFilter instance = null;
+    public final static PointFilter INSTANCE = new TruePointFilter();
     private TruePointFilter() {};
-
-    public static PointFilter getInstance()
-    {
-        if (instance == null) {
-            instance = new TruePointFilter();
-        }
-
-        return instance;
-    }
 
     @Override
     public boolean matches(PhpNamedElement element) {
