@@ -7,7 +7,7 @@
   psiImplClassSuffix="Impl"
   psiPackage="com.aopphp.go.psi"
   psiImplPackage="com.aopphp.go.psi.impl"
-  psiImplUtilClass="com.aopphp.go.psi.PointcutQueryUtil"
+  psiImplUtilClass="com.aopphp.go.psi.impl.PointcutQueryPsiUtil"
 
   elementTypeHolderClass="com.aopphp.go.psi.PointcutTypes"
   elementTypeClass="com.aopphp.go.psi.PointcutElementType"

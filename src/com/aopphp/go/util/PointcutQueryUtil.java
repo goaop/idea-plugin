@@ -1,6 +1,5 @@
-package com.aopphp.go.psi.impl;
+package com.aopphp.go.util;
 
-import com.aopphp.go.psi.NamespaceName;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
@@ -13,22 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PointcutQueryUtil {
-
-    /**
-     * Returns an absolute FQN for namespace name node
-     *
-     * @param namespaceName Namespace holder
-     * @return Fully-qualified namespace
-     */
-    public static String getFQN(NamespaceName namespaceName) {
-        String fqn = "";
-        if (namespaceName.getText().charAt(0) != '\\') {
-            fqn = "\\";
-        }
-        fqn += namespaceName.getText();
-
-        return fqn;
-    }
 
     /**
      * Returns a map with php use imports
@@ -66,7 +49,7 @@ public class PointcutQueryUtil {
 
     @Nullable
     public static String getClassNameReference(PhpDocTag phpDocTag) {
-        return getClassNameReference(phpDocTag, PointcutQueryUtil.getFileUseImports(phpDocTag.getContainingFile()));
+        return getClassNameReference(phpDocTag, getFileUseImports(phpDocTag.getContainingFile()));
     }
 
     @Nullable

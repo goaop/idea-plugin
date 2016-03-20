@@ -23,7 +23,7 @@ public class NamespaceNameImpl extends ASTWrapperPsiElement implements Namespace
   }
 
   public String getFQN() {
-    return PointcutQueryUtil.getFQN(this);
+    return PointcutQueryPsiUtil.getFQN(this);
   }
 
 }

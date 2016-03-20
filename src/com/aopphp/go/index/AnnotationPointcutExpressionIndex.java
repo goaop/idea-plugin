@@ -5,7 +5,7 @@ import com.aopphp.go.pointcut.KindFilter;
 import com.aopphp.go.pointcut.Pointcut;
 import com.aopphp.go.psi.PointcutElementFactory;
 import com.aopphp.go.psi.PointcutExpression;
-import com.aopphp.go.psi.impl.PointcutQueryUtil;
+import com.aopphp.go.util.PointcutQueryUtil;
 import com.google.common.collect.Sets;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
