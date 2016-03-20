@@ -99,7 +99,7 @@ classFilter ::= namespacePattern '+'?;
 
 argumentList ::= '*';
 
-memberAccessType ::= ['::'|'->'];
+memberAccessType ::= ['::'|'->'] {methods=[getMemberAccessType]};
 
 namespacePattern ::= ('\'? namespacePatternPart)+;
 
@@ -115,6 +115,6 @@ private namePatternItem ::= '*'|T_NAME_PART;
 
 namespaceName ::= ('\'? T_NAME_PART)+ {methods=[getFQN]}
 
-memberModifiers ::= (memberModifier '|'?)+
+memberModifiers ::= (memberModifier '|'?)+ {methods=[getMemberAccessMatcher]}
 
-memberModifier ::= private|protected|public|final
+memberModifier ::= private|protected|public|final {methods=[getMemberAccess]}
