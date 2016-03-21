@@ -89,4 +89,16 @@ public class PointcutQueryPsiUtil {
 
         return PhpModifier.State.STATIC;
     }
+
+    /**
+     * Returns a member type/state matcher
+     * @param element Current element
+     * @return filter for element type (static/dynamic)
+     */
+    public static MemberStateMatcherFilter getMemberAccessTypeMatcher(MemberAccessType element)
+    {
+        PhpModifier.State memberAccessType = getMemberAccessType(element);
+
+        return new MemberStateMatcherFilter(memberAccessType);
+    }
 }

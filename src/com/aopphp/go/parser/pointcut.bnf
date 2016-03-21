@@ -99,7 +99,7 @@ classFilter ::= namespacePattern '+'? {methods=[getClassFilterMatcher]};
 
 argumentList ::= '*';
 
-memberAccessType ::= ['::'|'->'] {methods=[getMemberAccessType]};
+memberAccessType ::= ['::'|'->'] {methods=[getMemberAccessType getMemberAccessTypeMatcher]};
 
 namespacePattern ::= ('\'? namespacePatternPart)+;
 
