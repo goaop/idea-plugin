@@ -11,10 +11,15 @@ import java.util.Set;
  */
 public class TruePointFilter implements PointFilter
 {
-    private static Set<KindFilter> KIND_ALL = new HashSet<KindFilter>(Arrays.asList(KindFilter.values())) ;
+    private static final Set<KindFilter> KIND_ALL = new HashSet<KindFilter>(Arrays.asList(KindFilter.values())) ;
 
-    public final static PointFilter INSTANCE = new TruePointFilter();
+    private static final TruePointFilter INSTANCE = new TruePointFilter();
     private TruePointFilter() {};
+
+    public static PointFilter getInstance()
+    {
+        return INSTANCE;
+    }
 
     @Override
     public boolean matches(PhpNamedElement element) {
