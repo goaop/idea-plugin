@@ -1,12 +1,10 @@
 package com.aopphp.go.psi.impl;
 
-import com.aopphp.go.pointcut.MemberAccessMatcherFilter;
-import com.aopphp.go.psi.MemberAccessType;
-import com.aopphp.go.psi.MemberModifier;
-import com.aopphp.go.psi.MemberModifiers;
-import com.aopphp.go.psi.NamespaceName;
+import com.aopphp.go.pointcut.*;
+import com.aopphp.go.psi.*;
 import com.jetbrains.php.lang.psi.elements.PhpModifier;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +28,26 @@ public class PointcutQueryPsiUtil {
         fqn += namespaceName.getText();
 
         return fqn;
+    }
+
+    /**
+     * Returns a class filter matcher for given class pattern
+     *
+     * @param element Instance of ClassFilter PSI
+     * @return instance of point filter for the class
+     */
+    public static PointFilter getClassFilterMatcher(ClassFilter element) {
+        String namespacePattern     = element.getNamespacePattern().getText();
+        PointFilter truePointFilter = TruePointFilter.getInstance();
+
+        if (namespacePattern.equals("**")) {
+            return truePointFilter;
+        }
+        if (element.getLastChild().getText().equals("+")) {
+            return new InheritanceClassFilter(namespacePattern);
+        }
+
+        return new SignaturePointcut(Collections.singleton(KindFilter.KIND_CLASS), namespacePattern, truePointFilter);
     }
 
     /**

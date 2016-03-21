@@ -95,7 +95,7 @@ functionExecutionReference ::= (namespacePattern '(' argumentList ')');
 
 memberReference ::= (memberModifiers classFilter memberAccessType namePattern);
 
-classFilter ::= namespacePattern '+'?;
+classFilter ::= namespacePattern '+'? {methods=[getClassFilterMatcher]};
 
 argumentList ::= '*';
 
