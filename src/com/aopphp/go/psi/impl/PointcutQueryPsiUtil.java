@@ -31,6 +31,20 @@ public class PointcutQueryPsiUtil {
     }
 
     /**
+     * Prepares a value object from parts
+     *
+     * @param element Current element
+     */
+    public static ClassMemberReference getClassMemberReference(MemberReference element) {
+        return new ClassMemberReference(
+            element.getClassFilter().getClassFilterMatcher(),
+            element.getMemberModifiers().getMemberAccessMatcher(),
+            element.getMemberAccessType().getMemberAccessTypeMatcher(),
+            element.getNamePattern().getText()
+        );
+    }
+
+    /**
      * Returns a class filter matcher for given class pattern
      *
      * @param element Instance of ClassFilter PSI

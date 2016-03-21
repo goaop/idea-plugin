@@ -93,7 +93,7 @@ methodExecutionReference ::= (memberReference '(' argumentList ')');
 
 functionExecutionReference ::= (namespacePattern '(' argumentList ')');
 
-memberReference ::= (memberModifiers classFilter memberAccessType namePattern);
+memberReference ::= (memberModifiers classFilter memberAccessType namePattern) {methods=[getClassMemberReference]};
 
 classFilter ::= namespacePattern '+'? {methods=[getClassFilterMatcher]};
 
