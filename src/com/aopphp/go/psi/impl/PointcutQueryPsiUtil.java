@@ -7,7 +7,6 @@ import com.jetbrains.php.lang.psi.elements.PhpModifier;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Utility class with miscellaneous PSI methods implementation
@@ -28,6 +27,71 @@ public class PointcutQueryPsiUtil {
         fqn += namespaceName.getText();
 
         return fqn;
+    }
+
+    public static Pointcut compile(PointcutExpression element) {
+        PointcutExpression innerExpression = element.getPointcutExpression();
+        Pointcut pointcut = resolveConjugatedExpression(element.getConjugatedExpression());
+
+        if (innerExpression != null) {
+            Pointcut secondPointcut = compile(innerExpression);
+            pointcut = new OrPointcut(pointcut, secondPointcut);
+        }
+
+        return pointcut;
+    }
+
+    public static Pointcut resolveConjugatedExpression(ConjugatedExpression element) {
+        ConjugatedExpression innerExpression = element.getConjugatedExpression();
+        Pointcut pointcut = resolveNegatedExpression(element.getNegatedExpression());
+
+        if (innerExpression != null) {
+            Pointcut secondPointcut = resolveConjugatedExpression(innerExpression);
+            pointcut = new AndPointcut(pointcut, secondPointcut);
+        }
+
+        return pointcut;
+    }
+
+    public static Pointcut resolveNegatedExpression(NegatedExpression element) {
+        Pointcut pointcut = resolveBrakedExpression(element.getBrakedExpression());
+
+        if (element.getFirstChild().getText().equals("!")) {
+            pointcut = new NotPointcut(pointcut);
+        }
+
+        return pointcut;
+    }
+
+    public static Pointcut resolveBrakedExpression(BrakedExpression element) {
+        PointcutExpression pointcutExpression = element.getPointcutExpression();
+        if (pointcutExpression != null) {
+            return compile(pointcutExpression);
+        }
+
+        return resolveSinglePointcut(element.getSinglePointcut());
+    }
+
+    public static Pointcut resolveSinglePointcut(SinglePointcut element) {
+        AnnotatedExecutionPointcut annotatedExecutionPointcut = element.getAnnotatedExecutionPointcut();
+        if (annotatedExecutionPointcut != null) {
+            String annotationName = annotatedExecutionPointcut.getNamespaceName().getFQN();
+            return new AnnotationPointcut(Collections.singleton(KindFilter.KIND_METHOD), annotationName);
+        }
+
+        AnnotatedAccessPointcut annotatedAccessPointcut = element.getAnnotatedAccessPointcut();
+        if (annotatedAccessPointcut != null) {
+            String annotationName = annotatedAccessPointcut.getNamespaceName().getFQN();
+            return new AnnotationPointcut(Collections.singleton(KindFilter.KIND_PROPERTY), annotationName);
+        }
+
+        AnnotatedWithinPointcut annotatedWithinPointcut = element.getAnnotatedWithinPointcut();
+        if (annotatedWithinPointcut != null) {
+            String annotationName = annotatedWithinPointcut.getNamespaceName().getFQN();
+            return new AnnotationPointcut(Collections.singleton(KindFilter.KIND_CLASS), annotationName);
+        }
+
+        return null;
     }
 
     /**

@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
+import com.aopphp.go.pointcut.Pointcut;
 
 public class NegatedExpressionImpl extends ASTWrapperPsiElement implements NegatedExpression {
 
@@ -26,6 +27,10 @@ public class NegatedExpressionImpl extends ASTWrapperPsiElement implements Negat
   @NotNull
   public BrakedExpression getBrakedExpression() {
     return findNotNullChildByClass(BrakedExpression.class);
+  }
+
+  public Pointcut resolveNegatedExpression() {
+    return PointcutQueryPsiUtil.resolveNegatedExpression(this);
   }
 
 }

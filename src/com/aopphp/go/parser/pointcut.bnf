@@ -37,19 +37,19 @@ pointcutFile ::= pointcutExpression;
 
 pointcutExpression ::=
     (conjugatedExpression '||' pointcutExpression)
-  | conjugatedExpression;
+  | conjugatedExpression {methods=[compile]};
 
 conjugatedExpression ::=
     (negatedExpression '&&' conjugatedExpression)
-  | negatedExpression;
+  | negatedExpression {methods=[resolveConjugatedExpression]};
 
 negatedExpression ::=
     brakedExpression
-  | '!' brakedExpression;
+  | '!' brakedExpression {methods=[resolveNegatedExpression]};
 
 brakedExpression ::=
     singlePointcut
-  | '(' pointcutExpression ')';
+  | '(' pointcutExpression ')' {methods=[resolveBrakedExpression]};
 
 
 singlePointcut ::=
@@ -63,7 +63,7 @@ singlePointcut ::=
   | staticInitializationPointcut
   | cflowbelowPointcut
   | dynamicExecutionPointcut
-  | pointcutReference;
+  | pointcutReference {methods=[resolveSinglePointcut]};
 
 accessPointcut ::= access '(' memberReference ')'
 

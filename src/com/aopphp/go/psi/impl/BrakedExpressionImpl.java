@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
+import com.aopphp.go.pointcut.Pointcut;
 
 public class BrakedExpressionImpl extends ASTWrapperPsiElement implements BrakedExpression {
 
@@ -32,6 +33,10 @@ public class BrakedExpressionImpl extends ASTWrapperPsiElement implements Braked
   @Nullable
   public SinglePointcut getSinglePointcut() {
     return findChildByClass(SinglePointcut.class);
+  }
+
+  public Pointcut resolveBrakedExpression() {
+    return PointcutQueryPsiUtil.resolveBrakedExpression(this);
   }
 
 }

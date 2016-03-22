@@ -1,12 +1,9 @@
 package com.aopphp.go.index;
 
-import com.aopphp.go.pointcut.AnnotationPointcut;
-import com.aopphp.go.pointcut.KindFilter;
 import com.aopphp.go.pointcut.Pointcut;
 import com.aopphp.go.psi.PointcutElementFactory;
 import com.aopphp.go.psi.PointcutExpression;
 import com.aopphp.go.util.PointcutQueryUtil;
-import com.google.common.collect.Sets;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -173,8 +170,7 @@ public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<S
                 return;
             }
 
-            // TODO: here we should ask a real pointcut from the pointcut expression
-            Pointcut pointcut = new AnnotationPointcut(Sets.newHashSet(KindFilter.KIND_METHOD), annotationFqnName);
+            Pointcut pointcut = pointcutExpression.compile();
             map.put(phpNamedElement.getFQN(), pointcut);
         }
     }

@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
+import com.aopphp.go.pointcut.Pointcut;
 
 public class SinglePointcutImpl extends ASTWrapperPsiElement implements SinglePointcut {
 
@@ -86,6 +87,10 @@ public class SinglePointcutImpl extends ASTWrapperPsiElement implements SinglePo
   @Nullable
   public WithinPointcut getWithinPointcut() {
     return findChildByClass(WithinPointcut.class);
+  }
+
+  public Pointcut resolveSinglePointcut() {
+    return PointcutQueryPsiUtil.resolveSinglePointcut(this);
   }
 
 }
