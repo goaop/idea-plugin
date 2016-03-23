@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public class AnnotationPointcut implements Pointcut
 {
-    private PointFilter classFilter = null;
+    private PointFilter classFilter = TruePointFilter.getInstance();
     private Set<KindFilter> filterKind;
 
     /**
@@ -55,7 +55,8 @@ public class AnnotationPointcut implements Pointcut
             if (annotationReference == null || annotationReference.getPresentableFQN() == null) {
                 continue;
             }
-            if (annotationReference.getPresentableFQN().equals(expectedClass)) {
+            String fqn = annotationReference.getFQN();
+            if (fqn != null && fqn.equals(expectedClass)) {
                 return true;
             };
         }
