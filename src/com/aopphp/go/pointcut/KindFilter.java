@@ -1,9 +1,11 @@
 package com.aopphp.go.pointcut;
 
+import java.io.Serializable;
+
 /**
  * Enumeration of all possible PointFilter kinds
  */
-public enum KindFilter {
+public enum KindFilter implements Serializable {
     KIND_METHOD,
     KIND_PROPERTY,
     KIND_CLASS,

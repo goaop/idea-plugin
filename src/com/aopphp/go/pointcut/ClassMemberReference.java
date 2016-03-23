@@ -1,9 +1,11 @@
 package com.aopphp.go.pointcut;
 
+import java.io.Serializable;
+
 /**
  * Data transfer object for storing a reference to the class member (property or method)
  */
-public class ClassMemberReference {
+public class ClassMemberReference implements Serializable {
 
     private final PointFilter classFilter;
     private final MemberAccessMatcherFilter visibilityFilter;
