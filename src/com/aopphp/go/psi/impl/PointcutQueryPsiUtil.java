@@ -3,10 +3,12 @@ package com.aopphp.go.psi.impl;
 import com.aopphp.go.pointcut.*;
 import com.aopphp.go.psi.*;
 import com.jetbrains.php.lang.psi.elements.PhpModifier;
+import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Utility class with miscellaneous PSI methods implementation
@@ -91,7 +93,22 @@ public class PointcutQueryPsiUtil {
             return new AnnotationPointcut(Collections.singleton(KindFilter.KIND_CLASS), annotationName);
         }
 
-        return null;
+        return new Pointcut() {
+            @Override
+            public PointFilter getClassFilter() {
+                return TruePointFilter.getInstance();
+            }
+
+            @Override
+            public boolean matches(PhpNamedElement element) {
+                return false;
+            }
+
+            @Override
+            public Set<KindFilter> getKind() {
+                return Collections.singleton(KindFilter.KIND_METHOD);
+            }
+        };
     }
 
     /**
