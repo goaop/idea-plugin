@@ -20,7 +20,7 @@ import java.util.List;
 public class PointcutAdvisor {
 
 
-    public static Collection<PhpNamedElement> getMatchedAdvices(PhpNamedElement element) {
+    public static List<PhpNamedElement> getMatchedAdvices(PhpNamedElement element) {
         final FileBasedIndex fileBasedIndex = FileBasedIndex.getInstance();
         final ID<String, Pointcut> index    = AnnotationPointcutExpressionIndex.KEY;
         ArrayList<PhpNamedElement> result   = new ArrayList<>();
