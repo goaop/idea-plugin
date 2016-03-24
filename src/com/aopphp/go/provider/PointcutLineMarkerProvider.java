@@ -8,8 +8,10 @@ import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.php.lang.lexer.PhpTokenTypes;
+import com.jetbrains.php.lang.psi.elements.Field;
 import com.jetbrains.php.lang.psi.elements.Method;
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +32,13 @@ public class PointcutLineMarkerProvider extends RelatedItemLineMarkerProvider {
         if (node == null) {
             return;
         }
-        if (node.getElementType() == PhpTokenTypes.IDENTIFIER && element.getParent() instanceof Method) {
+        IElementType elementType = node.getElementType();
+        PsiElement parent        = element.getParent();
+
+        boolean isPhpClassMethod = (elementType == PhpTokenTypes.IDENTIFIER) && parent instanceof Method;
+        boolean isPhpClassField  = (elementType == PhpTokenTypes.VARIABLE) && parent instanceof Field;
+
+        if (isPhpClassMethod || isPhpClassField) {
             Method classMethod = PsiTreeUtil.getParentOfType(element, Method.class);
             List<PhpNamedElement> matchedAdvices = PointcutAdvisor.getMatchedAdvices(classMethod);
             if (matchedAdvices.size() > 0) {
