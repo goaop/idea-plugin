@@ -38,7 +38,7 @@ public class TruePointcut implements Pointcut
 
     @Override
     public boolean matches(PhpNamedElement element) {
-        return false;
+        return true;
     }
 
     @Override
