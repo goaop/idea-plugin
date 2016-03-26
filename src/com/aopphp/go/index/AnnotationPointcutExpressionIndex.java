@@ -161,17 +161,18 @@ public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<S
             // |
             // | - PhpNamedElement
 
-            PsiElement docComment = PsiTreeUtil.getParentOfType(phpDocTag, PhpDocComment.class);
+            PhpDocComment docComment = PsiTreeUtil.getParentOfType(phpDocTag, PhpDocComment.class);
             if (docComment == null) {
                 return;
             }
-            PhpNamedElement phpNamedElement = PsiTreeUtil.getNextSiblingOfType(docComment, PhpNamedElement.class);
-            if (phpNamedElement == null) {
+
+            PsiElement phpNamedElement = docComment.getOwner();
+            if (phpNamedElement == null || !(phpNamedElement instanceof PhpNamedElement)) {
                 return;
             }
 
             Pointcut pointcut = pointcutExpression.compile();
-            map.put(phpNamedElement.getFQN(), pointcut);
+            map.put(((PhpNamedElement)phpNamedElement).getFQN(), pointcut);
         }
     }
 }

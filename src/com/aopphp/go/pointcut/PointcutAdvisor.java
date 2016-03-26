@@ -54,8 +54,9 @@ public class PointcutAdvisor {
 
             if (pointcut.matches(element)) {
                 int dot = signature.lastIndexOf('.');
-                String className  = signature.substring(0, dot);
-                String methodName = signature.substring(dot + 1);
+                String className   = signature.substring(0, dot);
+                String elementName = signature.substring(dot + 1);
+                boolean isField    = elementName.startsWith("$");
 
                 Collection<PhpClass> adviceClasses = phpIndex.getClassesByFQN(className);
                 if (adviceClasses.size() == 0) {
@@ -63,10 +64,14 @@ public class PointcutAdvisor {
                 }
 
                 PhpClass adviceClass = adviceClasses.iterator().next();
-                Method adviceMethod  = adviceClass.findMethodByName(methodName);
-
-                if (adviceMethod != null) {
-                    result.add(adviceMethod);
+                PhpNamedElement adviceElement = null;
+                if (!isField) {
+                    adviceElement = adviceClass.findMethodByName(elementName);
+                } else {
+                    adviceElement = adviceClass.findOwnFieldByName(elementName.substring(1), false);
+                }
+                if (adviceElement != null) {
+                    result.add(adviceElement);
                 };
             }
         }
