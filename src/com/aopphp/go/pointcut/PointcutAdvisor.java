@@ -11,6 +11,7 @@ import com.jetbrains.php.lang.psi.elements.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Pointcut advisor class matches all available pointcuts for given element and returns a links to advices
@@ -41,7 +42,7 @@ public class PointcutAdvisor {
                     continue;
                 };
             }
-            if (pointcut.matches(element)) {
+            if (canMatchElement(element, pointcut.getKind()) && pointcut.matches(element)) {
                 int dot = signature.lastIndexOf('.');
                 String className  = signature.substring(0, dot);
                 String methodName = signature.substring(dot + 1);
@@ -61,5 +62,29 @@ public class PointcutAdvisor {
         }
 
         return result;
+    }
+
+    /**
+     * Checks if filter kind matches instance of concrete element
+     *
+     * @param element PHP element to check
+     * @param filterKind Pointcut filter kind
+     *
+     * @return true if pointcut can match this named element
+     */
+    private static boolean canMatchElement(PhpNamedElement element, Set<KindFilter> filterKind) {
+        if (element instanceof Method) {
+            return filterKind.contains(KindFilter.KIND_METHOD);
+        }
+
+        if (element instanceof Field) {
+            return filterKind.contains(KindFilter.KIND_PROPERTY);
+        }
+
+        if (element instanceof PhpClass) {
+            return filterKind.contains(KindFilter.KIND_CLASS);
+        }
+
+        return false;
     }
 }

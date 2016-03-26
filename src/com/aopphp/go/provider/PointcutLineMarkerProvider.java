@@ -13,6 +13,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.php.lang.lexer.PhpTokenTypes;
 import com.jetbrains.php.lang.psi.elements.Field;
 import com.jetbrains.php.lang.psi.elements.Method;
+import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,9 +37,10 @@ public class PointcutLineMarkerProvider extends RelatedItemLineMarkerProvider {
         PsiElement parent        = element.getParent();
 
         boolean isPhpClassMethod = (elementType == PhpTokenTypes.IDENTIFIER) && parent instanceof Method;
+        boolean isPhpClass       = (elementType == PhpTokenTypes.IDENTIFIER) && parent instanceof PhpClass;
         boolean isPhpClassField  = (elementType == PhpTokenTypes.VARIABLE) && parent instanceof Field;
 
-        if (isPhpClassMethod || isPhpClassField) {
+        if (isPhpClass || isPhpClassMethod || isPhpClassField) {
             PhpNamedElement classMember = PsiTreeUtil.getParentOfType(element, PhpNamedElement.class);
             List<PhpNamedElement> matchedAdvices = PointcutAdvisor.getMatchedAdvices(classMember);
             if (matchedAdvices.size() > 0) {
