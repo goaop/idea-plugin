@@ -6,9 +6,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.FileBasedIndex;
 import com.intellij.util.indexing.ID;
 import com.jetbrains.php.PhpIndex;
-import com.jetbrains.php.lang.psi.elements.Method;
-import com.jetbrains.php.lang.psi.elements.PhpClass;
-import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
+import com.jetbrains.php.lang.psi.elements.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +31,17 @@ public class PointcutAdvisor {
 
         for (String signature : allPointcutElements) {
             List<Pointcut> values = fileBasedIndex.getValues(index, signature, globalSearchScope);
-            if (values.size() > 0 && values.get(0).matches(element)) {
+            if (values.size() == 0) {
+                continue;
+            }
+            Pointcut pointcut = values.get(0);
+            // For class members we should also check the pointcut class filter first
+            if (element instanceof PhpClassMember) {
+                if (!pointcut.getClassFilter().matches(((PhpClassMember) element).getContainingClass())) {
+                    continue;
+                };
+            }
+            if (pointcut.matches(element)) {
                 int dot = signature.lastIndexOf('.');
                 String className  = signature.substring(0, dot);
                 String methodName = signature.substring(dot + 1);

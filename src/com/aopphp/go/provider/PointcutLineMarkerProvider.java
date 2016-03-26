@@ -39,8 +39,8 @@ public class PointcutLineMarkerProvider extends RelatedItemLineMarkerProvider {
         boolean isPhpClassField  = (elementType == PhpTokenTypes.VARIABLE) && parent instanceof Field;
 
         if (isPhpClassMethod || isPhpClassField) {
-            Method classMethod = PsiTreeUtil.getParentOfType(element, Method.class);
-            List<PhpNamedElement> matchedAdvices = PointcutAdvisor.getMatchedAdvices(classMethod);
+            PhpNamedElement classMember = PsiTreeUtil.getParentOfType(element, PhpNamedElement.class);
+            List<PhpNamedElement> matchedAdvices = PointcutAdvisor.getMatchedAdvices(classMember);
             if (matchedAdvices.size() > 0) {
                 NavigationGutterIconBuilder<PsiElement> builder = null;
 
