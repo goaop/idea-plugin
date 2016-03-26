@@ -36,13 +36,23 @@ public class PointcutAdvisor {
                 continue;
             }
             Pointcut pointcut = values.get(0);
+            if (!canMatchElement(element, pointcut.getKind())) {
+                continue;
+            }
+            PhpNamedElement parentElement = null;
             // For class members we should also check the pointcut class filter first
             if (element instanceof PhpClassMember) {
-                if (!pointcut.getClassFilter().matches(((PhpClassMember) element).getContainingClass())) {
-                    continue;
-                };
+                parentElement = ((PhpClassMember) element).getContainingClass();
+            } else if (element instanceof PhpClass) {
+                parentElement = element;
             }
-            if (canMatchElement(element, pointcut.getKind()) && pointcut.matches(element)) {
+            // Pre-check for parent element (typically, this will be a class for methods and properties)
+            PointFilter classFilter = pointcut.getClassFilter();
+            if (!canMatchElement(parentElement, classFilter.getKind()) || !classFilter.matches(parentElement)) {
+                continue;
+            };
+
+            if (pointcut.matches(element)) {
                 int dot = signature.lastIndexOf('.');
                 String className  = signature.substring(0, dot);
                 String methodName = signature.substring(dot + 1);
@@ -82,6 +92,16 @@ public class PointcutAdvisor {
         }
 
         if (element instanceof PhpClass) {
+            PhpClass instance = (PhpClass) element;
+            if (instance.isInterface()) {
+                return false;
+            }
+            String[] interfaceNames = instance.getInterfaceNames();
+            for (String interfaceName : interfaceNames) {
+                if (interfaceName.equals("\\Go\\Aop\\Aspect")) {
+                    return false;
+                }
+            }
             return filterKind.contains(KindFilter.KIND_CLASS);
         }
 
