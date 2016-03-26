@@ -5,6 +5,7 @@ import com.jetbrains.php.PhpIndex;
 import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -39,11 +40,13 @@ public class InheritanceClassFilter implements PointFilter {
             return false;
         }
 
-        PhpClass parentClass = PhpIndex.getInstance(element.getProject()).getClassByName(parentClassName);
-        if (parentClass == null) {
+        Collection<PhpClass> parentClasses = PhpIndex.getInstance(element.getProject()).getAnyByFQN(parentClassName);
+        if (parentClasses.size() == 0) {
             return false;
         }
 
-        return PhpClassHierarchyUtils.isSuperClass(parentClass, (PhpClass) element, false);
+        PhpClass parentClass = parentClasses.iterator().next();
+
+        return PhpClassHierarchyUtils.getAllSubclasses(parentClass).contains(element);
     }
 }
