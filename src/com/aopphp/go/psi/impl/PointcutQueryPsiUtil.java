@@ -169,7 +169,7 @@ public class PointcutQueryPsiUtil {
         SignaturePointcut signaturePointcut = new SignaturePointcut(
             propertyKind,
             memberReference.getMemberNamePattern(),
-            memberReference.getVisibilityFilter()
+            new AndPointFilter(memberReference.getVisibilityFilter(), memberReference.getAccessTypeFilter())
         );
         signaturePointcut.setClassFilter(memberReference.getClassFilter());
         return signaturePointcut;
