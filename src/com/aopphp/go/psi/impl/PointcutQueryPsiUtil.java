@@ -4,6 +4,7 @@ import com.aopphp.go.pointcut.*;
 import com.aopphp.go.psi.*;
 import com.jetbrains.php.lang.psi.elements.PhpModifier;
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -75,24 +76,76 @@ public class PointcutQueryPsiUtil {
     }
 
     public static Pointcut resolveSinglePointcut(SinglePointcut element) {
+        AccessPointcut accessPointcut = element.getAccessPointcut();
+        final Set<KindFilter> kindProperty = Collections.singleton(KindFilter.KIND_PROPERTY);
+        final Set<KindFilter> kindMethod   = Collections.singleton(KindFilter.KIND_METHOD);
+        final Set<KindFilter> kindClass    = Collections.singleton(KindFilter.KIND_CLASS);
+
+        if (accessPointcut != null) {
+            ClassMemberReference memberReference = accessPointcut.getMemberReference().getClassMemberReference();
+
+            return getSignaturePointcut(memberReference, kindProperty);
+        }
+
+        ExecutionPointcut executionPointcut = element.getExecutionPointcut();
+        if (executionPointcut != null) {
+            MethodExecutionReference methodExecutionReference = executionPointcut.getMethodExecutionReference();
+            if (methodExecutionReference != null) {
+                ClassMemberReference memberReference = methodExecutionReference.getMemberReference().getClassMemberReference();
+
+                return getSignaturePointcut(memberReference, kindMethod);
+            }
+            // TODO: process function reference
+        }
+
+        WithinPointcut withinPointcut = element.getWithinPointcut();
+        if (withinPointcut != null) {
+            TruePointcut pointcut = new TruePointcut();
+            pointcut.setClassFilter(withinPointcut.getClassFilter().getClassFilterMatcher());
+
+            return pointcut;
+        }
+
         AnnotatedExecutionPointcut annotatedExecutionPointcut = element.getAnnotatedExecutionPointcut();
         if (annotatedExecutionPointcut != null) {
             String annotationName = annotatedExecutionPointcut.getNamespaceName().getFQN();
-            return new AnnotationPointcut(Collections.singleton(KindFilter.KIND_METHOD), annotationName);
+            return new AnnotationPointcut(kindMethod, annotationName);
         }
 
         AnnotatedAccessPointcut annotatedAccessPointcut = element.getAnnotatedAccessPointcut();
         if (annotatedAccessPointcut != null) {
             String annotationName = annotatedAccessPointcut.getNamespaceName().getFQN();
-            return new AnnotationPointcut(Collections.singleton(KindFilter.KIND_PROPERTY), annotationName);
+            return new AnnotationPointcut(kindProperty, annotationName);
         }
 
         AnnotatedWithinPointcut annotatedWithinPointcut = element.getAnnotatedWithinPointcut();
         if (annotatedWithinPointcut != null) {
-            String annotationName = annotatedWithinPointcut.getNamespaceName().getFQN();
-            return new AnnotationPointcut(Collections.singleton(KindFilter.KIND_CLASS), annotationName);
+            TruePointcut pointcut = new TruePointcut();
+
+            String annotationName     = annotatedWithinPointcut.getNamespaceName().getFQN();
+            AnnotationPointcut classFilter = new AnnotationPointcut(kindClass, annotationName);
+            pointcut.setClassFilter(classFilter);
+
+            return pointcut;
         }
 
+        InitializationPointcut initializationPointcut = element.getInitializationPointcut();
+        if (initializationPointcut != null) {
+            TruePointcut pointcut = new TruePointcut(kindClass);
+            pointcut.setClassFilter(initializationPointcut.getClassFilter().getClassFilterMatcher());
+
+            return pointcut;
+        }
+
+        StaticInitializationPointcut staticInitializationPointcut = element.getStaticInitializationPointcut();
+        if (staticInitializationPointcut != null) {
+            TruePointcut pointcut = new TruePointcut(kindClass);
+            pointcut.setClassFilter(staticInitializationPointcut.getClassFilter().getClassFilterMatcher());
+
+            return pointcut;
+        }
+
+        // Pointcut that never matches
         return new Pointcut() {
             @Override
             public PointFilter getClassFilter() {
@@ -106,9 +159,20 @@ public class PointcutQueryPsiUtil {
 
             @Override
             public Set<KindFilter> getKind() {
-                return Collections.singleton(KindFilter.KIND_METHOD);
+                return Collections.emptySet();
             }
         };
+    }
+
+    @NotNull
+    private static SignaturePointcut getSignaturePointcut(ClassMemberReference memberReference, Set<KindFilter> propertyKind) {
+        SignaturePointcut signaturePointcut = new SignaturePointcut(
+            propertyKind,
+            memberReference.getMemberNamePattern(),
+            memberReference.getVisibilityFilter()
+        );
+        signaturePointcut.setClassFilter(memberReference.getClassFilter());
+        return signaturePointcut;
     }
 
     /**
@@ -152,7 +216,7 @@ public class PointcutQueryPsiUtil {
      * @return concrete PhpModifier.Access value
      */
     public static PhpModifier.Access getMemberAccess(MemberModifier element) {
-        return PhpModifier.Access.valueOf(element.getText());
+        return PhpModifier.Access.valueOf(element.getText().toUpperCase());
     }
 
     /**
