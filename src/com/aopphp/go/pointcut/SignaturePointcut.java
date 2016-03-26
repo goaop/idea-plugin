@@ -24,8 +24,8 @@ public class SignaturePointcut implements Pointcut
         String regexp   = name.replaceAll("([\\\\\\.\\[\\{\\(\\*\\+\\?\\^\\$\\|])", "\\\\$1");
         this.regexp     = Pattern.compile(
             regexp
-                .replace("\\*", "[^\\\\]+?")
                 .replace("\\*\\*", ".+?")
+                .replace("\\*", "[^\\\\]+?")
                 .replace("\\?", ".")
                 .replace("\\|", "|"));
         this.modifierFilter = modifierFilter;
