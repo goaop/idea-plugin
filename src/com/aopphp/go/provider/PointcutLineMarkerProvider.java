@@ -1,11 +1,11 @@
 package com.aopphp.go.provider;
 
 
+import com.aopphp.go.GoAopIcons;
 import com.aopphp.go.pointcut.PointcutAdvisor;
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo;
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider;
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
-import com.intellij.icons.AllIcons;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
@@ -46,7 +46,7 @@ public class PointcutLineMarkerProvider extends RelatedItemLineMarkerProvider {
             if (matchedAdvices.size() > 0) {
                 NavigationGutterIconBuilder<PsiElement> builder = null;
 
-                builder = NavigationGutterIconBuilder.create(AllIcons.Gutter.ImplementingMethod);
+                builder = NavigationGutterIconBuilder.create(GoAopIcons.ADVISING_ELEMENT);
                 if (matchedAdvices.size() > 1) {
                     builder.setTooltipText("Navigate to AOP advices");
                 } else {
