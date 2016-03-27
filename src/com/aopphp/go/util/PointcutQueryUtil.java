@@ -4,6 +4,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.jetbrains.php.lang.documentation.phpdoc.psi.tags.PhpDocTag;
+import com.jetbrains.php.lang.psi.elements.PhpClass;
+import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 import com.jetbrains.php.lang.psi.elements.PhpUse;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -87,5 +89,26 @@ public class PointcutQueryUtil {
 
         return annotationFqnName;
 
+    }
+
+    /**
+     * Checks if the given element is aspect
+     *
+     * @param element Instance of PSI element
+     * @return true if element is aspect or false
+     */
+    public static boolean isAspect(PsiElement element) {
+        if (!(element instanceof PhpClass)) {
+            return false;
+        }
+
+        String[] interfaceNames = ((PhpClass) element).getInterfaceNames();
+        for (String interfaceName : interfaceNames) {
+            if (interfaceName.equals("\\Go\\Aop\\Aspect")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
