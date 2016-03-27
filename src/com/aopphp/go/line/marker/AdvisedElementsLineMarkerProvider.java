@@ -1,4 +1,4 @@
-package com.aopphp.go.provider;
+package com.aopphp.go.line.marker;
 
 
 import com.aopphp.go.GoAopIcons;
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Provides a navigation links from the intercepted elements to the concrete advices
  */
-public class PointcutLineMarkerProvider extends RelatedItemLineMarkerProvider {
+public class AdvisedElementsLineMarkerProvider extends RelatedItemLineMarkerProvider {
     @Override
     protected void collectNavigationMarkers(
             @NotNull PsiElement element,
