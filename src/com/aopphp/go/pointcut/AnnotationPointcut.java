@@ -1,6 +1,11 @@
 package com.aopphp.go.pointcut;
 
+import com.aopphp.go.index.AnnotatedPhpNamedElementIndex;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.indexing.FileBasedIndex;
+import com.intellij.util.indexing.ID;
+import com.jetbrains.php.PhpIndex;
 import com.jetbrains.php.lang.documentation.phpdoc.psi.PhpDocComment;
 import com.jetbrains.php.lang.documentation.phpdoc.psi.tags.PhpDocTag;
 import com.jetbrains.php.lang.psi.elements.Field;
@@ -9,6 +14,7 @@ import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 import de.espend.idea.php.annotation.util.AnnotationUtil;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +23,7 @@ import java.util.Set;
  */
 public class AnnotationPointcut implements Pointcut
 {
-    private PointFilter classFilter = TruePointFilter.getInstance();
+    private PointFilter classFilter;
     private Set<KindFilter> filterKind;
 
     /**
@@ -27,7 +33,8 @@ public class AnnotationPointcut implements Pointcut
 
     public AnnotationPointcut(Set<KindFilter> filterKind, String annotationName) {
         this.filterKind     = filterKind;
-        this.expectedClass = annotationName;
+        this.expectedClass  = annotationName;
+        this.classFilter    = new AnnotatedPhpNamedElementClassFilter(annotationName);
     }
 
     @Override
@@ -90,5 +97,49 @@ public class AnnotationPointcut implements Pointcut
     @Override
     public Set<KindFilter> getKind() {
         return filterKind;
+    }
+
+    private static class AnnotatedPhpNamedElementClassFilter implements PointFilter {
+
+        private static final Set<KindFilter> KIND_CLASS = Collections.singleton(KindFilter.KIND_CLASS);
+        private static final FileBasedIndex INDEX = FileBasedIndex.getInstance();
+        private static final ID<String, List<String>> KEY = AnnotatedPhpNamedElementIndex.KEY;
+
+
+        private String annotationName;
+
+        public AnnotatedPhpNamedElementClassFilter(String annotationName) {
+            this.annotationName = annotationName;
+        }
+
+        @Override
+        public boolean matches(PhpNamedElement element) {
+            if (!(element instanceof PhpClass)) {
+                return false;
+            }
+
+            String elementFQN = element.getFQN();
+            if (elementFQN == null) {
+                return false;
+            }
+
+            GlobalSearchScope searchScope = PhpIndex.getInstance(element.getProject()).getSearchScope();
+            List<List<String>> values     = INDEX.getValues(KEY, annotationName, searchScope);
+            if (values.size() > 0) {
+                List<String> phpElementsFQN = values.get(0);
+                for (String phpElementFQN : phpElementsFQN) {
+                    if (phpElementFQN.startsWith(elementFQN)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        public Set<KindFilter> getKind() {
+            return KIND_CLASS;
+        }
     }
 }
