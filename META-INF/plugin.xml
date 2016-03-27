@@ -1,14 +1,14 @@
 <idea-plugin version="2">
   <id>com.aopphp.go.framework</id>
   <name>Go! AOP Framework</name>
-  <version>0.1.1</version>
+  <version>1.0.0</version>
   <vendor email="lisachenko.it@gmail.com" url="http://go.aopphp.com">Go! AOP Framework</vendor>
 
   <description><![CDATA[
 
 <h1>Go! AOP Plugin</h1>
 <br>
-<a href="https://github.com/lisachenko/idea-go-aop-plugin">GitHub</a> | <a href="https://github.com/lisachenko/idea-go-aop-plugin/issues">Issues</a><br>
+<a href="https://github.com/goaop/idea-plugin">GitHub</a> | <a href="https://github.com/goaop/idea-plugin/issues">Issues</a><br>
 <br>
 
 <h2>Installation</h2>
@@ -20,17 +20,26 @@
 <h2>Features</h2>
 <ul>
   <li>Go! AOP pointcut syntax highlighting and parsing</li>
+  <li>Analysis of pointcuts and line marker to navigate to the concrete advice</li>
+  <li>Highlighting of incorrect doctrine annotations for @access, @execution and @within pointcuts</li>
+  <li>Completion of doctrine annotations @access, @execution and @within pointcuts</li>
+  <li>Completion of visibility modifiers and pointcut keywords</li>
+  <li>Automatic injection of pointcut language into the Go\Lang\Annotation\* annotations</li>
+  <li>Color settings adjustment for pointcut expressions</li>
 </ul>
 
 <h2>Todo</h2>
 <ul>
-  <li>Pointcut analyser</li>
-  <li>Completion contributor</li>
+  <li>Completion contributor for class names and reference provider</li>
 </ul>
     ]]></description>
 
   <change-notes><![CDATA[
-
+<h2>1.0.0</h2>
+<ul>
+    <li>Implemented pointcut engine for Java</li>
+    <li>Line markers for properties and methods that advised by aspects with quick navigation to aspect</li>
+</ul>
 <h2>0.1.1</h2>
 <ul>
     <li>Automatic pointcut query language injection into an annotations and pointcut query builder methods</li>
