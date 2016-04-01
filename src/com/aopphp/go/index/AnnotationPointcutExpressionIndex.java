@@ -3,7 +3,7 @@ package com.aopphp.go.index;
 import com.aopphp.go.pointcut.Pointcut;
 import com.aopphp.go.psi.PointcutElementFactory;
 import com.aopphp.go.psi.PointcutExpression;
-import com.aopphp.go.util.PointcutQueryUtil;
+import com.aopphp.go.util.PluginUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -135,7 +135,7 @@ public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<S
 
         public void visitPhpDocTag(PhpDocTag phpDocTag) {
 
-            String annotationFqnName = PointcutQueryUtil.getClassNameReference(phpDocTag);
+            String annotationFqnName = PluginUtil.getClassNameReference(phpDocTag);
             if(annotationFqnName == null || !annotationFqnName.startsWith("\\Go\\Lang\\Annotation\\")) {
                 return;
             }
