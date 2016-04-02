@@ -1,7 +1,7 @@
 package com.aopphp.go.pointcut;
 
 import com.aopphp.go.index.AnnotationPointcutExpressionIndex;
-import com.aopphp.go.util.PointcutQueryUtil;
+import com.aopphp.go.util.PluginUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.FileBasedIndex;
@@ -104,7 +104,7 @@ public class PointcutAdvisor {
 
         if (element instanceof PhpClass) {
             PhpClass instance = (PhpClass) element;
-            if (instance.isInterface() || PointcutQueryUtil.isAspect(instance)) {
+            if (instance.isInterface() || PluginUtil.isAspect(instance)) {
                 return false;
             }
             return filterKind.contains(KindFilter.KIND_CLASS);
