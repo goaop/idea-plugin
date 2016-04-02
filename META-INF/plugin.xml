@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.aopphp.go.framework</id>
   <name>Go! AOP Framework</name>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <vendor email="lisachenko.it@gmail.com" url="http://go.aopphp.com">Go! AOP Framework</vendor>
 
   <description><![CDATA[
@@ -26,6 +26,7 @@
   <li>Completion of visibility modifiers and pointcut keywords</li>
   <li>Automatic injection of pointcut language into the Go\Lang\Annotation\* annotations</li>
   <li>Color settings adjustment for pointcut expressions</li>
+  <li>Support for the <a href="https://github.com/lisachenko/php-deal">Php-Deal Design-by-Contract</a> framework for PHP
 </ul>
 
 <h2>Todo</h2>
@@ -35,6 +36,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
+<h2>1.0.1</h2>
+<ul>
+    <li>PHP Language injection into the Php-Deal Design-by-Contract assertions</li>
+</ul>
 <h2>1.0.0</h2>
 <ul>
     <li>Implemented pointcut engine for Java</li>
