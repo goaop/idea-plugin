@@ -36,9 +36,9 @@ public class PluginUtil {
             private void visitUse(PhpUse phpUse) {
                 String alias = phpUse.getAliasName();
                 if(alias != null) {
-                    useImports.put(alias, phpUse.getOriginal());
+                    useImports.put(alias, phpUse.getFQN());
                 } else {
-                    useImports.put(phpUse.getName(), phpUse.getOriginal());
+                    useImports.put(phpUse.getName(), phpUse.getFQN());
                 }
             }
 
