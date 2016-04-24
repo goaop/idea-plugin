@@ -22,6 +22,7 @@ Features
   - Completion of visibility modifiers and pointcut keywords
   - Automatic injection of pointcut language into the Go\Lang\Annotation\* annotations
   - Color settings adjustment for pointcut expressions
+  - Navigation from advices to the advised elements ![Navigate to advised elements](https://raw.githubusercontent.com/goaop/idea-plugin/master/images/navigate-to-advised.gif)
 
 Additional features
 -------------------
