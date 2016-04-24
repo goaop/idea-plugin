@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.aopphp.go.framework</id>
   <name>Go! AOP Framework</name>
-  <version>1.0.1</version>
+  <version>1.1.0</version>
   <vendor email="lisachenko.it@gmail.com" url="http://go.aopphp.com">Go! AOP Framework</vendor>
 
   <description><![CDATA[
@@ -10,6 +10,7 @@
 <br>
 <a href="https://github.com/goaop/idea-plugin">GitHub</a> | <a href="https://github.com/goaop/idea-plugin/issues">Issues</a><br>
 <br>
+This plugin adds a support for aspect-oriented programming in PHP with Go! AOP plugin for IDEA products, allowing for natural experience with advised methods, pointcuts and aspects.
 
 <h2>Installation</h2>
 <ul>
@@ -20,9 +21,9 @@
 <h2>Features</h2>
 <ul>
   <li>Go! AOP pointcut syntax highlighting and parsing</li>
-  <li>Analysis of pointcuts and line marker to navigate to the concrete advice</li>
+  <li>Analysis of pointcuts and insertion of line markers for navigation to the concrete advice</li>
   <li>Highlighting of incorrect doctrine annotations for @access, @execution and @within pointcuts</li>
-  <li>Completion of doctrine annotations @access, @execution and @within pointcuts</li>
+  <li>Completion of doctrine annotations for @access, @execution and @within pointcuts</li>
   <li>Completion of visibility modifiers and pointcut keywords</li>
   <li>Automatic injection of pointcut language into the Go\Lang\Annotation\* annotations</li>
   <li>Color settings adjustment for pointcut expressions</li>
@@ -36,6 +37,11 @@
     ]]></description>
 
   <change-notes><![CDATA[
+<h2>1.1.0</h2>
+<ul>
+    <li>Line markers for aspects with ability to navigate to all advised elements</li>
+    <li>Index for all annotated elements for faster checks in aspects</li>
+</ul>
 <h2>1.0.1</h2>
 <ul>
     <li>PHP Language injection into the Php-Deal Design-by-Contract assertions</li>

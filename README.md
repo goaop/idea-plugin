@@ -16,9 +16,9 @@ Install it and [PHP Annotations Plugin](http://plugins.jetbrains.com/plugin/7320
 Features
 ----------
   - Go! AOP pointcut syntax highlighting and parsing
-  - Analysis of pointcuts and line marker to navigate to the concrete advice ![IDEA Pointcut analysis](https://raw.githubusercontent.com/goaop/idea-plugin/master/images/advise-navigation.gif)
+  - Analysis of pointcuts and insertion of line markers for navigation to the concrete advice ![IDEA Pointcut analysis](https://raw.githubusercontent.com/goaop/idea-plugin/master/images/advise-navigation.gif)
   - Highlighting of incorrect doctrine annotations for @access, @execution and @within pointcuts
-  - Completion of doctrine annotations @access, @execution and @within pointcuts ![Doctrine annotation completion](https://raw.githubusercontent.com/goaop/idea-plugin/master/images/doctrine-completion.gif)
+  - Completion of doctrine annotations for @access, @execution and @within pointcuts ![Doctrine annotation completion](https://raw.githubusercontent.com/goaop/idea-plugin/master/images/doctrine-completion.gif)
   - Completion of visibility modifiers and pointcut keywords
   - Automatic injection of pointcut language into the Go\Lang\Annotation\* annotations
   - Color settings adjustment for pointcut expressions
