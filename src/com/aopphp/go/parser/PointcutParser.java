@@ -401,38 +401,38 @@ public class PointcutParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // (memberModifier '|'?)+
+  // memberModifier {'|' memberModifier}*
   public static boolean memberModifiers(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "memberModifiers")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<member modifiers>");
-    r = memberModifiers_0(b, l + 1);
-    int c = current_position_(b);
-    while (r) {
-      if (!memberModifiers_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "memberModifiers", c)) break;
-      c = current_position_(b);
-    }
+    r = memberModifier(b, l + 1);
+    r = r && memberModifiers_1(b, l + 1);
     exit_section_(b, l, m, MEMBER_MODIFIERS, r, false, null);
     return r;
   }
 
-  // memberModifier '|'?
-  private static boolean memberModifiers_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "memberModifiers_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = memberModifier(b, l + 1);
-    r = r && memberModifiers_0_1(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
+  // {'|' memberModifier}*
+  private static boolean memberModifiers_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "memberModifiers_1")) return false;
+    int c = current_position_(b);
+    while (true) {
+      if (!memberModifiers_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "memberModifiers_1", c)) break;
+      c = current_position_(b);
+    }
+    return true;
   }
 
-  // '|'?
-  private static boolean memberModifiers_0_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "memberModifiers_0_1")) return false;
-    consumeToken(b, T_ALTERNATION);
-    return true;
+  // '|' memberModifier
+  private static boolean memberModifiers_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "memberModifiers_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, T_ALTERNATION);
+    r = r && memberModifier(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */
@@ -464,26 +464,36 @@ public class PointcutParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // namePatternPart '|' namePatternPart
-  //   | namePatternPart
+  // namePatternPart {'|' namePatternPart}*
   public static boolean namePattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "namePattern")) return false;
     if (!nextTokenIs(b, "<name pattern>", T_ASTERISK, T_NAME_PART)) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<name pattern>");
-    r = namePattern_0(b, l + 1);
-    if (!r) r = namePatternPart(b, l + 1);
+    r = namePatternPart(b, l + 1);
+    r = r && namePattern_1(b, l + 1);
     exit_section_(b, l, m, NAME_PATTERN, r, false, null);
     return r;
   }
 
-  // namePatternPart '|' namePatternPart
-  private static boolean namePattern_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namePattern_0")) return false;
+  // {'|' namePatternPart}*
+  private static boolean namePattern_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namePattern_1")) return false;
+    int c = current_position_(b);
+    while (true) {
+      if (!namePattern_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "namePattern_1", c)) break;
+      c = current_position_(b);
+    }
+    return true;
+  }
+
+  // '|' namePatternPart
+  private static boolean namePattern_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namePattern_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = namePatternPart(b, l + 1);
-    r = r && consumeToken(b, T_ALTERNATION);
+    r = consumeToken(b, T_ALTERNATION);
     r = r && namePatternPart(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
@@ -521,74 +531,74 @@ public class PointcutParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // ('\'? T_NAME_PART)+
+  // T_NAME_PART {'\' T_NAME_PART}*
   public static boolean namespaceName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "namespaceName")) return false;
-    if (!nextTokenIs(b, "<namespace name>", T_NS_SEPARATOR, T_NAME_PART)) return false;
+    if (!nextTokenIs(b, T_NAME_PART)) return false;
     boolean r;
-    Marker m = enter_section_(b, l, _NONE_, "<namespace name>");
-    r = namespaceName_0(b, l + 1);
-    int c = current_position_(b);
-    while (r) {
-      if (!namespaceName_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "namespaceName", c)) break;
-      c = current_position_(b);
-    }
-    exit_section_(b, l, m, NAMESPACE_NAME, r, false, null);
+    Marker m = enter_section_(b);
+    r = consumeToken(b, T_NAME_PART);
+    r = r && namespaceName_1(b, l + 1);
+    exit_section_(b, m, NAMESPACE_NAME, r);
     return r;
   }
 
-  // '\'? T_NAME_PART
-  private static boolean namespaceName_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namespaceName_0")) return false;
+  // {'\' T_NAME_PART}*
+  private static boolean namespaceName_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namespaceName_1")) return false;
+    int c = current_position_(b);
+    while (true) {
+      if (!namespaceName_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "namespaceName_1", c)) break;
+      c = current_position_(b);
+    }
+    return true;
+  }
+
+  // '\' T_NAME_PART
+  private static boolean namespaceName_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namespaceName_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = namespaceName_0_0(b, l + 1);
+    r = consumeToken(b, T_NS_SEPARATOR);
     r = r && consumeToken(b, T_NAME_PART);
     exit_section_(b, m, null, r);
     return r;
   }
 
-  // '\'?
-  private static boolean namespaceName_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namespaceName_0_0")) return false;
-    consumeToken(b, T_NS_SEPARATOR);
-    return true;
-  }
-
   /* ********************************************************** */
-  // ('\'? namespacePatternPart)+
+  // namespacePatternPart {'\' namespacePatternPart}*
   public static boolean namespacePattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "namespacePattern")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<namespace pattern>");
-    r = namespacePattern_0(b, l + 1);
-    int c = current_position_(b);
-    while (r) {
-      if (!namespacePattern_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "namespacePattern", c)) break;
-      c = current_position_(b);
-    }
+    r = namespacePatternPart(b, l + 1);
+    r = r && namespacePattern_1(b, l + 1);
     exit_section_(b, l, m, NAMESPACE_PATTERN, r, false, null);
     return r;
   }
 
-  // '\'? namespacePatternPart
-  private static boolean namespacePattern_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namespacePattern_0")) return false;
+  // {'\' namespacePatternPart}*
+  private static boolean namespacePattern_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namespacePattern_1")) return false;
+    int c = current_position_(b);
+    while (true) {
+      if (!namespacePattern_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "namespacePattern_1", c)) break;
+      c = current_position_(b);
+    }
+    return true;
+  }
+
+  // '\' namespacePatternPart
+  private static boolean namespacePattern_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "namespacePattern_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = namespacePattern_0_0(b, l + 1);
+    r = consumeToken(b, T_NS_SEPARATOR);
     r = r && namespacePatternPart(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
-  }
-
-  // '\'?
-  private static boolean namespacePattern_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "namespacePattern_0_0")) return false;
-    consumeToken(b, T_NS_SEPARATOR);
-    return true;
   }
 
   /* ********************************************************** */

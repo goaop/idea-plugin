@@ -101,11 +101,9 @@ argumentList ::= '*';
 
 memberAccessType ::= ['::'|'->'] {methods=[getMemberAccessType getMemberAccessTypeMatcher]};
 
-namespacePattern ::= ('\'? namespacePatternPart)+;
+namespacePattern ::= namespacePatternPart {'\' namespacePatternPart}*;
 
-namePattern ::=
-    namePatternPart '|' namePatternPart
-  | namePatternPart;
+namePattern ::= namePatternPart {'|' namePatternPart}*;
 
 namespacePatternPart ::= namePatternPart|'**';
 
@@ -113,8 +111,8 @@ namePatternPart ::= (namePatternItem+);
 
 private namePatternItem ::= '*'|T_NAME_PART;
 
-namespaceName ::= ('\'? T_NAME_PART)+ {methods=[getFQN]}
+namespaceName ::= T_NAME_PART {'\' T_NAME_PART}* {methods=[getFQN]}
 
-memberModifiers ::= (memberModifier '|'?)+ {methods=[getMemberAccessMatcher]}
+memberModifiers ::= memberModifier {'|' memberModifier}* {methods=[getMemberAccessMatcher]}
 
 memberModifier ::= private|protected|public|final {methods=[getMemberAccess]}
