@@ -17,6 +17,7 @@ public class PointcutKeywordCompletionProvider extends CompletionProvider<Comple
         "within",
         "initialization",
         "staticinitialization",
+        "matchInherited",
     };
 
     private static final PointcutKeywordInsertHandler keywordInsertionHandler = PointcutKeywordInsertHandler.getInstance();

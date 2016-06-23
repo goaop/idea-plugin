@@ -50,6 +50,7 @@ WHITE_SPACE=({T_LINE_WS}|{EOL})+
   "staticinitialization"    { return com.aopphp.go.psi.PointcutTypes.STATICINITIALIZATION; }
   "cflowbelow"              { return com.aopphp.go.psi.PointcutTypes.CFLOWBELOW; }
   "dynamic"                 { return com.aopphp.go.psi.PointcutTypes.DYNAMIC; }
+  "matchInherited"          { return com.aopphp.go.psi.PointcutTypes.MATCHINHERITED; }
   "private"                 { return com.aopphp.go.psi.PointcutTypes.PRIVATE; }
   "protected"               { return com.aopphp.go.psi.PointcutTypes.PROTECTED; }
   "public"                  { return com.aopphp.go.psi.PointcutTypes.PUBLIC; }

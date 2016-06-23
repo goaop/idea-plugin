@@ -63,7 +63,8 @@ public class PointcutQuerySyntaxHighlighter extends SyntaxHighlighterBase {
             || tokenType.equals(PointcutTypes.INITIALIZATION)
             || tokenType.equals(PointcutTypes.STATICINITIALIZATION)
             || tokenType.equals(PointcutTypes.CFLOWBELOW)
-            || tokenType.equals(PointcutTypes.DYNAMIC)) {
+            || tokenType.equals(PointcutTypes.DYNAMIC)
+            || tokenType.equals(PointcutTypes.MATCHINHERITED)) {
             return KEY_KEYS;
         } else if (tokenType.equals(PointcutTypes.T_LEFT_PAREN)
             || tokenType.equals(PointcutTypes.T_RIGHT_PAREN)) {
