@@ -106,8 +106,13 @@ public class CodePattern extends PlatformPatterns {
             return false;
         }
 
-        MethodImpl methodImpl = (MethodImpl) ((MethodReference) element).resolve();
-        if (methodImpl == null || methodImpl.getFQN() == null) {
+        PsiElement resolvedElement = ((MethodReference) element).resolve();
+        if (!(resolvedElement instanceof MethodImpl)) {
+            return false;
+        }
+
+        MethodImpl methodImpl  = (MethodImpl) resolvedElement;
+        if (methodImpl.getFQN() == null) {
             return false;
         }
 
