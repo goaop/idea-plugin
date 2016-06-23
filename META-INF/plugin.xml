@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.aopphp.go.framework</id>
   <name>Go! AOP Framework</name>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
   <vendor email="lisachenko.it@gmail.com" url="http://go.aopphp.com">Go! AOP Framework</vendor>
 
   <description><![CDATA[
@@ -37,6 +37,11 @@ This plugin adds a support for aspect-oriented programming in PHP with Go! AOP p
     ]]></description>
 
   <change-notes><![CDATA[
+<h2>1.2.0</h2>
+<ul>
+    <li>Added support for the matchInherited() pointcut syntax</li>
+    <li>Fixed an issue with an incorrect code injection <a href="https://github.com/goaop/idea-plugin/issues/11">#11</a></li>
+</ul>
 <h2>1.1.0</h2>
 <ul>
     <li>Line markers for aspects with ability to navigate to all advised elements</li>
