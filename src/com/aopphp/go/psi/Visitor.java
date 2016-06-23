@@ -59,6 +59,10 @@ public class Visitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitMatchInheritedPointcut(@NotNull MatchInheritedPointcut o) {
+    visitPsiElement(o);
+  }
+
   public void visitMemberAccessType(@NotNull MemberAccessType o) {
     visitPsiElement(o);
   }

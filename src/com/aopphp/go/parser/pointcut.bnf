@@ -63,6 +63,7 @@ singlePointcut ::=
   | staticInitializationPointcut
   | cflowbelowPointcut
   | dynamicExecutionPointcut
+  | matchInheritedPointcut
   | pointcutReference {methods=[resolveSinglePointcut]};
 
 accessPointcut ::= access '(' memberReference ')'
@@ -86,6 +87,8 @@ staticInitializationPointcut ::= (staticinitialization '(' classFilter ')')
 cflowbelowPointcut ::= (cflowbelow '(' executionPointcut ')');
 
 dynamicExecutionPointcut ::= (dynamic '(' memberReference '(' argumentList ')' ')');
+
+matchInheritedPointcut ::= (matchInherited '(' ')');
 
 pointcutReference ::= ([namespaceName|'$this'] '->' namePatternPart);
 

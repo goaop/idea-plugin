@@ -61,6 +61,9 @@ public class PointcutParser implements PsiParser {
     else if (t == INITIALIZATION_POINTCUT) {
       r = initializationPointcut(b, 0);
     }
+    else if (t == MATCH_INHERITED_POINTCUT) {
+      r = matchInheritedPointcut(b, 0);
+    }
     else if (t == MEMBER_ACCESS_TYPE) {
       r = memberAccessType(b, 0);
     }
@@ -362,6 +365,20 @@ public class PointcutParser implements PsiParser {
     r = r && classFilter(b, l + 1);
     r = r && consumeToken(b, T_RIGHT_PAREN);
     exit_section_(b, m, INITIALIZATION_POINTCUT, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // matchInherited '(' ')'
+  public static boolean matchInheritedPointcut(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "matchInheritedPointcut")) return false;
+    if (!nextTokenIs(b, MATCHINHERITED)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, MATCHINHERITED);
+    r = r && consumeToken(b, T_LEFT_PAREN);
+    r = r && consumeToken(b, T_RIGHT_PAREN);
+    exit_section_(b, m, MATCH_INHERITED_POINTCUT, r);
     return r;
   }
 
@@ -710,6 +727,7 @@ public class PointcutParser implements PsiParser {
   //   | staticInitializationPointcut
   //   | cflowbelowPointcut
   //   | dynamicExecutionPointcut
+  //   | matchInheritedPointcut
   //   | pointcutReference
   public static boolean singlePointcut(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "singlePointcut")) return false;
@@ -725,6 +743,7 @@ public class PointcutParser implements PsiParser {
     if (!r) r = staticInitializationPointcut(b, l + 1);
     if (!r) r = cflowbelowPointcut(b, l + 1);
     if (!r) r = dynamicExecutionPointcut(b, l + 1);
+    if (!r) r = matchInheritedPointcut(b, l + 1);
     if (!r) r = pointcutReference(b, l + 1);
     exit_section_(b, l, m, SINGLE_POINTCUT, r, false, null);
     return r;

@@ -73,6 +73,12 @@ public class SinglePointcutImpl extends ASTWrapperPsiElement implements SinglePo
 
   @Override
   @Nullable
+  public MatchInheritedPointcut getMatchInheritedPointcut() {
+    return findChildByClass(MatchInheritedPointcut.class);
+  }
+
+  @Override
+  @Nullable
   public PointcutReference getPointcutReference() {
     return findChildByClass(PointcutReference.class);
   }

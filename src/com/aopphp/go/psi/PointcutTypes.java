@@ -21,6 +21,7 @@ public interface PointcutTypes {
   IElementType EXECUTION_POINTCUT = new PointcutElementType("EXECUTION_POINTCUT");
   IElementType FUNCTION_EXECUTION_REFERENCE = new PointcutElementType("FUNCTION_EXECUTION_REFERENCE");
   IElementType INITIALIZATION_POINTCUT = new PointcutElementType("INITIALIZATION_POINTCUT");
+  IElementType MATCH_INHERITED_POINTCUT = new PointcutElementType("MATCH_INHERITED_POINTCUT");
   IElementType MEMBER_ACCESS_TYPE = new PointcutElementType("MEMBER_ACCESS_TYPE");
   IElementType MEMBER_MODIFIER = new PointcutElementType("MEMBER_MODIFIER");
   IElementType MEMBER_MODIFIERS = new PointcutElementType("MEMBER_MODIFIERS");
@@ -44,6 +45,7 @@ public interface PointcutTypes {
   IElementType EXECUTION = new PointcutTokenType("execution");
   IElementType FINAL = new PointcutTokenType("final");
   IElementType INITIALIZATION = new PointcutTokenType("initialization");
+  IElementType MATCHINHERITED = new PointcutTokenType("matchInherited");
   IElementType PRIVATE = new PointcutTokenType("private");
   IElementType PROTECTED = new PointcutTokenType("protected");
   IElementType PUBLIC = new PointcutTokenType("public");
@@ -107,6 +109,9 @@ public interface PointcutTypes {
       }
       else if (type == INITIALIZATION_POINTCUT) {
         return new InitializationPointcutImpl(node);
+      }
+      else if (type == MATCH_INHERITED_POINTCUT) {
+        return new MatchInheritedPointcutImpl(node);
       }
       else if (type == MEMBER_ACCESS_TYPE) {
         return new MemberAccessTypeImpl(node);
