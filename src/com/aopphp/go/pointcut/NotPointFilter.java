@@ -34,4 +34,22 @@ public class NotPointFilter implements PointFilter {
     public boolean matches(PhpNamedElement element) {
         return !first.matches(element);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof NotPointFilter)) return false;
+
+        NotPointFilter that = (NotPointFilter) o;
+
+        if (!kind.equals(that.kind)) return false;
+        return first.equals(that.first);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = kind.hashCode();
+        result = 31 * result + first.hashCode();
+        return result;
+    }
 }

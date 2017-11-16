@@ -14,7 +14,7 @@ public class TruePointFilter implements PointFilter
     private static final Set<KindFilter> KIND_ALL = new HashSet<KindFilter>(Arrays.asList(KindFilter.values())) ;
 
     private static final TruePointFilter INSTANCE = new TruePointFilter();
-    TruePointFilter() {};
+    private TruePointFilter() {};
 
     public static PointFilter getInstance()
     {
@@ -29,5 +29,10 @@ public class TruePointFilter implements PointFilter
     @Override
     public Set<KindFilter> getKind() {
         return KIND_ALL;
+    }
+
+    @Override
+    public int hashCode() {
+        return 0;
     }
 }

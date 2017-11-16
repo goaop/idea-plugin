@@ -7,7 +7,6 @@ import com.aopphp.go.util.PluginUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.DataExternalizer;
@@ -19,10 +18,10 @@ import com.jetbrains.php.lang.psi.PhpFile;
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.jetbrains.php.lang.psi.stubs.indexes.PhpConstantNameIndex;
-import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -31,7 +30,7 @@ import java.util.Map;
 public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<String, Pointcut> {
 
     public static final ID<String, Pointcut> KEY = ID.create("com.aopphp.go.annotation.pointcuts");
-    private final KeyDescriptor<String> keyDescriptor = new EnumeratorStringDescriptor();
+    private static final KeyDescriptor<String> ENUMERATOR_STRING_DESCRIPTOR = new EnumeratorStringDescriptor();
 
     @NotNull
     @Override
@@ -46,16 +45,17 @@ public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<S
             @NotNull
             @Override
             public Map<String, Pointcut> map(@NotNull FileContent inputData) {
-                final Map<String, Pointcut> map = new THashMap<String, Pointcut>();
-
                 PsiFile psiFile = inputData.getPsiFile();
                 if(!(psiFile instanceof PhpFile)) {
-                    return map;
+                    return Collections.emptyMap();
                 }
 
-                psiFile.accept(new DocTagRecursiveElementVisitor(map));
-
-                return map;
+                return new AbstractDataIndexer<Pointcut>((PhpFile) psiFile) {
+                    @Override
+                    protected void visitPhpDocTag(final PhpDocTag phpDocTag, final Map<String, Pointcut> map) {
+                        AnnotationPointcutExpressionIndex.visitPhpDocTag(phpDocTag, map);
+                    }
+                }.map();
             }
         };
     }
@@ -63,7 +63,7 @@ public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<S
     @NotNull
     @Override
     public KeyDescriptor<String> getKeyDescriptor() {
-        return this.keyDescriptor;
+        return ENUMERATOR_STRING_DESCRIPTOR;
     }
 
     @NotNull
@@ -114,66 +114,47 @@ public class AnnotationPointcutExpressionIndex extends FileBasedIndexExtension<S
 
     @Override
     public int getVersion() {
-        return 1;
+        return 2;
     }
 
-    private static class DocTagRecursiveElementVisitor extends PsiRecursiveElementWalkingVisitor {
-
-        private final Map<String, Pointcut> map;
-
-        public DocTagRecursiveElementVisitor(Map<String, Pointcut> map) {
-            this.map = map;
+    private static void visitPhpDocTag(final PhpDocTag phpDocTag, final Map<String, Pointcut> map) {
+        String annotationFqnName = PluginUtil.getClassNameReference(phpDocTag);
+        if(annotationFqnName == null || !annotationFqnName.startsWith("\\Go\\Lang\\Annotation\\")) {
+            return;
         }
 
-        @Override
-        public void visitElement(PsiElement element) {
-            if ((element instanceof PhpDocTag)) {
-                visitPhpDocTag((PhpDocTag) element);
-            }
-            super.visitElement(element);
+        // searching for the concrete textual pointcut definition
+        StringLiteralExpression expression = PsiTreeUtil.findChildOfType(phpDocTag, StringLiteralExpression.class);
+        if (expression == null) {
+            return;
+        }
+        String unquotedExpression = StringUtil.trimEnd(expression.getText(), "\"").substring(1);
+
+        PointcutExpression pointcutExpression = PointcutElementFactory.createPointcut(
+            phpDocTag.getProject(),
+            unquotedExpression
+        );
+
+        if (pointcutExpression == null) {
+            return;
         }
 
-        public void visitPhpDocTag(PhpDocTag phpDocTag) {
+        // | - PhpDocComment
+        // |   | - PhpDocTag
+        // |
+        // | - PhpNamedElement
 
-            String annotationFqnName = PluginUtil.getClassNameReference(phpDocTag);
-            if(annotationFqnName == null || !annotationFqnName.startsWith("\\Go\\Lang\\Annotation\\")) {
-                return;
-            }
-
-            // searching for the concrete textual pointcut definition
-            StringLiteralExpression expression = PsiTreeUtil.findChildOfType(phpDocTag, StringLiteralExpression.class);
-            if (expression == null) {
-                return;
-            }
-            String unquotedExpression = StringUtil.trimEnd(expression.getText(), "\"").substring(1);
-
-            PointcutExpression pointcutExpression = PointcutElementFactory.createPointcut(
-                phpDocTag.getProject(),
-                unquotedExpression
-            );
-
-            if (pointcutExpression == null) {
-                return;
-            }
-
-            // | - PhpDocComment
-            // |   | - PhpDocTag
-            // |
-            // | - PhpNamedElement
-
-            PhpDocComment docComment = PsiTreeUtil.getParentOfType(phpDocTag, PhpDocComment.class);
-            if (docComment == null) {
-                return;
-            }
-
-            PsiElement phpNamedElement = docComment.getOwner();
-            if (phpNamedElement == null || !(phpNamedElement instanceof PhpNamedElement)) {
-                return;
-            }
-
-            Pointcut pointcut = pointcutExpression.compile();
-            map.put(((PhpNamedElement)phpNamedElement).getFQN(), pointcut);
+        PhpDocComment docComment = PsiTreeUtil.getParentOfType(phpDocTag, PhpDocComment.class);
+        if (docComment == null) {
+            return;
         }
+
+        PsiElement phpNamedElement = docComment.getOwner();
+        if (phpNamedElement == null || !(phpNamedElement instanceof PhpNamedElement)) {
+            return;
+        }
+
+        Pointcut pointcut = pointcutExpression.compile();
+        map.put(((PhpNamedElement)phpNamedElement).getFQN(), pointcut);
     }
 }
-

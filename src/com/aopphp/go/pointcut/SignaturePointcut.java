@@ -62,4 +62,28 @@ public class SignaturePointcut implements Pointcut
     public Set<KindFilter> getKind() {
         return filterKind;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SignaturePointcut)) return false;
+
+        SignaturePointcut that = (SignaturePointcut) o;
+
+        if (!filterKind.equals(that.filterKind)) return false;
+        if (!name.equals(that.name)) return false;
+        if (!regexp.equals(that.regexp)) return false;
+        if (!modifierFilter.equals(that.modifierFilter)) return false;
+        return classFilter != null ? classFilter.equals(that.classFilter) : that.classFilter == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = filterKind.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + regexp.hashCode();
+        result = 31 * result + modifierFilter.hashCode();
+        result = 31 * result + (classFilter != null ? classFilter.hashCode() : 0);
+        return result;
+    }
 }

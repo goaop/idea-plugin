@@ -49,4 +49,19 @@ public class InheritanceClassFilter implements PointFilter {
 
         return PhpClassHierarchyUtils.getAllSubclasses(parentClass).contains(element);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InheritanceClassFilter)) return false;
+
+        InheritanceClassFilter that = (InheritanceClassFilter) o;
+
+        return parentClassName.equals(that.parentClassName);
+    }
+
+    @Override
+    public int hashCode() {
+        return parentClassName.hashCode();
+    }
 }

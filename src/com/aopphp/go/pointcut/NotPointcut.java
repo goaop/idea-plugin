@@ -56,4 +56,24 @@ public class NotPointcut implements Pointcut {
 
         return !pointcut.matches(element);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof NotPointcut)) return false;
+
+        NotPointcut that = (NotPointcut) o;
+
+        if (!kind.equals(that.kind)) return false;
+        if (!classFilter.equals(that.classFilter)) return false;
+        return pointcut.equals(that.pointcut);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = kind.hashCode();
+        result = 31 * result + classFilter.hashCode();
+        result = 31 * result + pointcut.hashCode();
+        return result;
+    }
 }

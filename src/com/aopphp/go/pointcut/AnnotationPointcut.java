@@ -103,7 +103,7 @@ public class AnnotationPointcut implements Pointcut
 
         private static final Set<KindFilter> KIND_CLASS = Collections.singleton(KindFilter.KIND_CLASS);
         private static final FileBasedIndex INDEX = FileBasedIndex.getInstance();
-        private static final ID<String, List<String>> KEY = AnnotatedPhpNamedElementIndex.KEY;
+        private static final ID<String, Set<String>> KEY = AnnotatedPhpNamedElementIndex.KEY;
 
 
         private String annotationName;
@@ -124,9 +124,9 @@ public class AnnotationPointcut implements Pointcut
             }
 
             GlobalSearchScope searchScope = PhpIndex.getInstance(element.getProject()).getSearchScope();
-            List<List<String>> values     = INDEX.getValues(KEY, annotationName, searchScope);
+            List<Set<String>> values     = INDEX.getValues(KEY, annotationName, searchScope);
             if (values.size() > 0) {
-                List<String> phpElementsFQN = values.get(0);
+                Set<String> phpElementsFQN = values.get(0);
                 for (String phpElementFQN : phpElementsFQN) {
                     if (phpElementFQN.startsWith(elementFQN)) {
                         return true;
@@ -141,5 +141,40 @@ public class AnnotationPointcut implements Pointcut
         public Set<KindFilter> getKind() {
             return KIND_CLASS;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof AnnotatedPhpNamedElementClassFilter)) return false;
+
+            AnnotatedPhpNamedElementClassFilter that = (AnnotatedPhpNamedElementClassFilter) o;
+
+            return annotationName.equals(that.annotationName);
+        }
+
+        @Override
+        public int hashCode() {
+            return annotationName.hashCode();
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AnnotationPointcut)) return false;
+
+        AnnotationPointcut that = (AnnotationPointcut) o;
+
+        if (!classFilter.equals(that.classFilter)) return false;
+        if (!filterKind.equals(that.filterKind)) return false;
+        return expectedClass.equals(that.expectedClass);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = classFilter.hashCode();
+        result = 31 * result + filterKind.hashCode();
+        result = 31 * result + expectedClass.hashCode();
+        return result;
     }
 }

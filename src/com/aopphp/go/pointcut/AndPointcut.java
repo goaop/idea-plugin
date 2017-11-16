@@ -79,4 +79,26 @@ public class AndPointcut implements Pointcut {
 
         return pointcut.matches(point) && pointcut.getClassFilter().matches(containingClass);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AndPointcut)) return false;
+
+        AndPointcut that = (AndPointcut) o;
+
+        if (!kind.equals(that.kind)) return false;
+        if (!classFilter.equals(that.classFilter)) return false;
+        if (!first.equals(that.first)) return false;
+        return second.equals(that.second);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = kind.hashCode();
+        result = 31 * result + classFilter.hashCode();
+        result = 31 * result + first.hashCode();
+        result = 31 * result + second.hashCode();
+        return result;
+    }
 }

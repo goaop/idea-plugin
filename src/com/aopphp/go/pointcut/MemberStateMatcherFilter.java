@@ -35,4 +35,19 @@ public class MemberStateMatcherFilter implements PointFilter {
 
         return allowedState.equals(modifier.getState());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MemberStateMatcherFilter)) return false;
+
+        MemberStateMatcherFilter that = (MemberStateMatcherFilter) o;
+
+        return allowedState == that.allowedState;
+    }
+
+    @Override
+    public int hashCode() {
+        return allowedState.hashCode();
+    }
 }
