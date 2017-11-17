@@ -16,7 +16,10 @@ import java.util.Set;
  */
 public class PointcutQueryPsiUtil {
 
-    private static final Pointcut NEVER_MATCHES_POINTCUT = new Pointcut() {
+    private static final Pointcut NEVER_MATCHES_POINTCUT = new NeverMatchesPointcut();
+
+    private static final class NeverMatchesPointcut implements Pointcut {
+
         @Override
         public PointFilter getClassFilter() {
             return TruePointFilter.getInstance();
@@ -36,7 +39,12 @@ public class PointcutQueryPsiUtil {
         public int hashCode() {
             return 0;
         }
-    };
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof NeverMatchesPointcut;
+        }
+    }
 
     /**
      * Returns an absolute FQN for namespace name node

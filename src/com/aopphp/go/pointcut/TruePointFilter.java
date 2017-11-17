@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * Canonical PointFilter instance that matches all points.
  */
-public class TruePointFilter implements PointFilter
+public final class TruePointFilter implements PointFilter
 {
     private static final Set<KindFilter> KIND_ALL = new HashSet<KindFilter>(Arrays.asList(KindFilter.values())) ;
 
@@ -34,5 +34,10 @@ public class TruePointFilter implements PointFilter
     @Override
     public int hashCode() {
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof TruePointFilter;
     }
 }
