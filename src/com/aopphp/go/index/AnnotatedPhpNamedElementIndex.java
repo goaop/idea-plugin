@@ -4,6 +4,7 @@ import com.aopphp.go.util.PluginUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.ReflectionUtil;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
@@ -28,7 +29,7 @@ public class AnnotatedPhpNamedElementIndex extends FileBasedIndexExtension<Strin
 
     public static final ID<String, Set<String>> KEY = ID.create("com.aopphp.go.annotated.elements");
     private static final KeyDescriptor<String> ENUMERATOR_STRING_DESCRIPTOR = new EnumeratorStringDescriptor();
-    private static final StringSetDataExternalizer STRING_SET_DATA_EXTERNALIZER = new StringSetDataExternalizer();
+    private static final StringSetDataExternalizer STRING_SET_DATA_EXTERNALIZER = ReflectionUtil.newInstance(StringSetDataExternalizer.class);
 
     @NotNull
     @Override
