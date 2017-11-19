@@ -45,4 +45,22 @@ public class TruePointcut implements Pointcut
     public Set<KindFilter> getKind() {
         return kind;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TruePointcut)) return false;
+
+        TruePointcut that = (TruePointcut) o;
+
+        if (!classFilter.equals(that.classFilter)) return false;
+        return kind.equals(that.kind);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = classFilter.hashCode();
+        result = 31 * result + kind.hashCode();
+        return result;
+    }
 }

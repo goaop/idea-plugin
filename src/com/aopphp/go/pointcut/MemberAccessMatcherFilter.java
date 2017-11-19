@@ -35,4 +35,19 @@ public class MemberAccessMatcherFilter implements PointFilter {
 
         return allowedAccess.contains(modifier.getAccess());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MemberAccessMatcherFilter)) return false;
+
+        MemberAccessMatcherFilter that = (MemberAccessMatcherFilter) o;
+
+        return allowedAccess.equals(that.allowedAccess);
+    }
+
+    @Override
+    public int hashCode() {
+        return allowedAccess.hashCode();
+    }
 }

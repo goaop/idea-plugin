@@ -16,6 +16,36 @@ import java.util.Set;
  */
 public class PointcutQueryPsiUtil {
 
+    private static final Pointcut NEVER_MATCHES_POINTCUT = new NeverMatchesPointcut();
+
+    private static final class NeverMatchesPointcut implements Pointcut {
+
+        @Override
+        public PointFilter getClassFilter() {
+            return TruePointFilter.getInstance();
+        }
+
+        @Override
+        public boolean matches(PhpNamedElement element) {
+            return false;
+        }
+
+        @Override
+        public Set<KindFilter> getKind() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public int hashCode() {
+            return 0;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof NeverMatchesPointcut;
+        }
+    }
+
     /**
      * Returns an absolute FQN for namespace name node
      *
@@ -146,22 +176,7 @@ public class PointcutQueryPsiUtil {
         }
 
         // Pointcut that never matches
-        return new Pointcut() {
-            @Override
-            public PointFilter getClassFilter() {
-                return TruePointFilter.getInstance();
-            }
-
-            @Override
-            public boolean matches(PhpNamedElement element) {
-                return false;
-            }
-
-            @Override
-            public Set<KindFilter> getKind() {
-                return Collections.emptySet();
-            }
-        };
+        return NEVER_MATCHES_POINTCUT;
     }
 
     @NotNull

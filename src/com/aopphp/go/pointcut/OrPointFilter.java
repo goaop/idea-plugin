@@ -46,4 +46,24 @@ public class OrPointFilter implements PointFilter {
     public boolean matches(PhpNamedElement element) {
         return first.matches(element) || second.matches(element);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrPointFilter)) return false;
+
+        OrPointFilter that = (OrPointFilter) o;
+
+        if (!kind.equals(that.kind)) return false;
+        if (!first.equals(that.first)) return false;
+        return second.equals(that.second);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = kind.hashCode();
+        result = 31 * result + first.hashCode();
+        result = 31 * result + second.hashCode();
+        return result;
+    }
 }

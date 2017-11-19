@@ -2,9 +2,10 @@ package com.aopphp.go.util;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.jetbrains.php.lang.documentation.phpdoc.psi.tags.PhpDocTag;
+import com.jetbrains.php.lang.psi.PhpFile;
 import com.jetbrains.php.lang.psi.elements.PhpClass;
+import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 import com.jetbrains.php.lang.psi.elements.PhpUse;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -24,25 +25,20 @@ public class PluginUtil {
 
         // search for use alias in local file
         final Map<String, String> useImports = new HashMap<String, String>();
-        psiFile.acceptChildren(new PsiRecursiveElementWalkingVisitor() {
-            @Override
-            public void visitElement(PsiElement element) {
-                if(element instanceof PhpUse) {
-                    visitUse((PhpUse) element);
-                }
-                super.visitElement(element);
-            }
 
-            private void visitUse(PhpUse phpUse) {
-                String alias = phpUse.getAliasName();
-                if(alias != null) {
-                    useImports.put(alias, phpUse.getFQN());
-                } else {
-                    useImports.put(phpUse.getName(), phpUse.getFQN());
+        if (psiFile instanceof PhpFile) {
+            for (final PhpNamedElement element : ((PhpFile) psiFile).getTopLevelDefs().values()) {
+                if (element instanceof PhpUse) {
+                    final PhpUse phpUse = (PhpUse) element;
+                    String alias = phpUse.getAliasName();
+                    if(alias != null) {
+                        useImports.put(alias, phpUse.getFQN());
+                    } else {
+                        useImports.put(phpUse.getName(), phpUse.getFQN());
+                    }
                 }
             }
-
-        });
+        }
 
         return useImports;
     }
