@@ -22,7 +22,7 @@ public class PointcutQueryLanguageInjector implements LanguageInjector {
             @NotNull InjectedLanguagePlaces injectionPlacesRegistrar)
     {
         // we accept only PHP literal expressions, such as docBlocks and string for PointcutBuilder->method('<expr>')
-        if (!(host instanceof StringLiteralExpression)) {
+        if (!(host instanceof StringLiteralExpression) || !host.isValidHost()) {
             return;
         }
 
