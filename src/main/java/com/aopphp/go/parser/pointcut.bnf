@@ -1,0 +1,121 @@
+{
+  parserClass="com.aopphp.go.parser.PointcutParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix=""
+  psiImplClassSuffix="Impl"
+  psiPackage="com.aopphp.go.psi"
+  psiImplPackage="com.aopphp.go.psi.impl"
+  psiImplUtilClass="com.aopphp.go.psi.impl.PointcutQueryPsiUtil"
+
+  elementTypeHolderClass="com.aopphp.go.psi.PointcutTypes"
+  elementTypeClass="com.aopphp.go.psi.PointcutElementType"
+  tokenTypeClass="com.aopphp.go.psi.PointcutTokenType"
+
+  tokens=[
+    T_NS_SEPARATOR='\'
+    T_ANNOTATION='@'
+    T_LEFT_PAREN='('
+    T_RIGHT_PAREN=')'
+    T_OBJECT_ACCESS='->'
+    T_STATIC_ACCESS='::'
+    T_ASTERISK='*'
+    T_ALTERNATION='|'
+    T_NEGATION='!'
+    T_LOGICAL_AND='&&'
+    T_LOGICAL_OR='||'
+    T_DOUBLE_ASTERISK='**'
+    T_SUBNAMESPACE_SIGN='+'
+    T_THIS='$this'
+    T_COMMENT='regexp://.*'
+    T_LINE_WS='regexp:[\ \t\f]'
+    T_NAME_PART='regexp:[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
+  ]
+}
+pointcutFile ::= pointcutExpression;
+
+pointcutExpression ::=
+    (conjugatedExpression '||' pointcutExpression)
+  | conjugatedExpression {methods=[compile]};
+
+conjugatedExpression ::=
+    (negatedExpression '&&' conjugatedExpression)
+  | negatedExpression {methods=[resolveConjugatedExpression]};
+
+negatedExpression ::=
+    brakedExpression
+  | '!' brakedExpression {methods=[resolveNegatedExpression]};
+
+brakedExpression ::=
+    singlePointcut
+  | '(' pointcutExpression ')' {methods=[resolveBrakedExpression]};
+
+
+singlePointcut ::=
+    accessPointcut
+  | annotatedAccessPointcut
+  | executionPointcut
+  | annotatedExecutionPointcut
+  | withinPointcut
+  | annotatedWithinPointcut
+  | initializationPointcut
+  | staticInitializationPointcut
+  | cflowbelowPointcut
+  | dynamicExecutionPointcut
+  | matchInheritedPointcut
+  | pointcutReference {methods=[resolveSinglePointcut]};
+
+accessPointcut ::= access '(' memberReference ')'
+
+executionPointcut ::=
+    execution '(' methodExecutionReference ')'
+  | execution '(' functionExecutionReference ')'
+
+withinPointcut ::= within '(' classFilter ')'
+
+annotatedAccessPointcut ::= ('@' access '(' namespaceName ')')
+
+annotatedExecutionPointcut ::= ('@' execution '(' namespaceName ')')
+
+annotatedWithinPointcut ::= ('@' within '(' namespaceName ')')
+
+initializationPointcut ::= (initialization '(' classFilter ')')
+
+staticInitializationPointcut ::= (staticinitialization '(' classFilter ')')
+
+cflowbelowPointcut ::= (cflowbelow '(' executionPointcut ')');
+
+dynamicExecutionPointcut ::= (dynamic '(' memberReference '(' argumentList ')' ')');
+
+matchInheritedPointcut ::= (matchInherited '(' ')');
+
+pointcutReference ::= ([namespaceName|'$this'] '->' namePatternPart);
+
+methodExecutionReference ::= (memberReference '(' argumentList ')');
+
+functionExecutionReference ::= (namespacePattern '(' argumentList ')');
+
+memberReference ::= (memberModifiers classFilter memberAccessType namePattern) {methods=[getClassMemberReference]};
+
+classFilter ::= namespacePattern '+'? {methods=[getClassFilterMatcher]};
+
+argumentList ::= '*';
+
+memberAccessType ::= ['::'|'->'] {methods=[getMemberAccessType getMemberAccessTypeMatcher]};
+
+namespacePattern ::= namespacePatternPart {'\' namespacePatternPart}*;
+
+namePattern ::= namePatternPart {'|' namePatternPart}*;
+
+namespacePatternPart ::= namePatternPart|'**';
+
+namePatternPart ::= (namePatternItem+);
+
+private namePatternItem ::= '*'|T_NAME_PART;
+
+namespaceName ::= T_NAME_PART {'\' T_NAME_PART}* {methods=[getFQN]}
+
+memberModifiers ::= memberModifier {'|' memberModifier}* {methods=[getMemberAccessMatcher]}
+
+memberModifier ::= private|protected|public|final {methods=[getMemberAccess]}
