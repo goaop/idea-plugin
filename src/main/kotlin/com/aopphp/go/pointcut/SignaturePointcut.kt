@@ -22,9 +22,10 @@ class SignaturePointcut(
         )
     }
 
-    var classFilter: PointFilter? = null
+    @set:JvmName("setClassFilter")
+    var _classFilter: PointFilter? = null
 
-    override fun getClassFilter() = classFilter!!
+    override fun getClassFilter() = _classFilter!!
 
     override fun matches(element: PhpNamedElement): Boolean {
         if (element is PhpClassMember && !modifierFilter.matches(element)) return false
@@ -44,14 +45,14 @@ class SignaturePointcut(
         if (this === other) return true
         if (other !is SignaturePointcut) return false
         return filterKind == other.filterKind && name == other.name
-            && modifierFilter == other.modifierFilter && classFilter == other.classFilter
+            && modifierFilter == other.modifierFilter && _classFilter == other._classFilter
     }
 
     override fun hashCode(): Int {
         var result = filterKind.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + modifierFilter.hashCode()
-        result = 31 * result + (classFilter?.hashCode() ?: 0)
+        result = 31 * result + (_classFilter?.hashCode() ?: 0)
         return result
     }
 }

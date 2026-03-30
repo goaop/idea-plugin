@@ -6,9 +6,9 @@ import com.jetbrains.php.lang.psi.elements.PhpClass
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 
 class InheritanceClassFilter(private val parentClassName: String) : PointFilter {
-    private val kind = setOf(KindFilter.KIND_CLASS)
+    private val _kind = setOf(KindFilter.KIND_CLASS)
 
-    override fun getKind() = kind
+    override fun getKind() = _kind
 
     override fun matches(element: PhpNamedElement): Boolean {
         if (element !is PhpClass) return false

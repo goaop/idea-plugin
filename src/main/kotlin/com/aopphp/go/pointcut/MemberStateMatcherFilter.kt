@@ -5,9 +5,9 @@ import com.jetbrains.php.lang.psi.elements.PhpModifier
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 
 class MemberStateMatcherFilter(private val allowedState: PhpModifier.State) : PointFilter {
-    private val kind = KindFilter.entries.toSet()
+    private val _kind = KindFilter.entries.toSet()
 
-    override fun getKind() = kind
+    override fun getKind() = _kind
 
     override fun matches(element: PhpNamedElement): Boolean {
         if (element !is PhpElementWithModifier) return false

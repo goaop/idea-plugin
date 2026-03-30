@@ -4,12 +4,12 @@ import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 
 class OrPointcut(first: Pointcut, second: Pointcut) : AndPointcut(first, second) {
     init {
-        classFilter = OrPointFilter(first.getClassFilter(), second.getClassFilter())
+        _classFilter = OrPointFilter(first.getClassFilter(), second.getClassFilter())
     }
 
     // Override kind to be the union rather than intersection
-    private val orKind: Set<KindFilter> = first.getKind() + second.getKind()
-    override fun getKind() = orKind
+    private val _orKind: Set<KindFilter> = first.getKind() + second.getKind()
+    override fun getKind() = _orKind
 
     override fun matches(element: PhpNamedElement) =
         isMatchesPointcut(element, first) || isMatchesPointcut(element, second)

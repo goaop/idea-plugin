@@ -45,7 +45,7 @@ class AnnotatedPhpNamedElementIndex : FileBasedIndexExtension<String, Set<String
     private fun buildMap(phpFile: PhpFile): Map<String, Set<String>> {
         val result = mutableMapOf<String, MutableSet<String>>()
 
-        for (element in phpFile.topLevelDefs.values) {
+        for (element in phpFile.topLevelDefs.values()) {
             when (element) {
                 is Function -> visitElement(element, result)
                 is PhpClass -> {

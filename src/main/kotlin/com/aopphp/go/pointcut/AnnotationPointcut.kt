@@ -19,9 +19,9 @@ class AnnotationPointcut(
     private val expectedClass: String
 ) : Pointcut {
 
-    private val classFilter: PointFilter = AnnotatedClassFilter(expectedClass)
+    private val _classFilter: PointFilter = AnnotatedClassFilter(expectedClass)
 
-    override fun getClassFilter() = classFilter
+    override fun getClassFilter() = _classFilter
 
     override fun matches(element: PhpNamedElement): Boolean {
         if (!canMatchElement(element)) return false
@@ -41,18 +41,18 @@ class AnnotationPointcut(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AnnotationPointcut) return false
-        return classFilter == other.classFilter && filterKind == other.filterKind
+        return _classFilter == other._classFilter && filterKind == other.filterKind
             && expectedClass == other.expectedClass
     }
 
-    override fun hashCode() = 31 * (31 * classFilter.hashCode() + filterKind.hashCode()) + expectedClass.hashCode()
+    override fun hashCode() = 31 * (31 * _classFilter.hashCode() + filterKind.hashCode()) + expectedClass.hashCode()
 
     private class AnnotatedClassFilter(private val annotationName: String) : PointFilter {
-        private val kind = setOf(KindFilter.KIND_CLASS)
+        private val _kind = setOf(KindFilter.KIND_CLASS)
         private val index: FileBasedIndex = FileBasedIndex.getInstance()
         private val key: ID<String, Set<String>> = AnnotatedPhpNamedElementIndex.KEY
 
-        override fun getKind() = kind
+        override fun getKind() = _kind
 
         override fun matches(element: PhpNamedElement): Boolean {
             if (element !is PhpClass) return false

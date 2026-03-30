@@ -1,14 +1,14 @@
 package com.aopphp.go.completion
 
+import com.aopphp.go.index.AnnotatedPhpNamedElementIndex
 import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.completion.CompletionProvider
 import com.intellij.codeInsight.completion.CompletionResultSet
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.ProcessingContext
-import com.jetbrains.php.lang.psi.elements.PhpClass
-import com.jetbrains.php.lang.psi.stubs.indexes.PhpAttributesFQNsIndex
+import com.intellij.util.indexing.FileBasedIndex
+import com.jetbrains.php.PhpIndex
 
 /**
  * Provides completion for PHP 8 Attribute class names inside annotation pointcuts
@@ -24,20 +24,21 @@ class AttributeClassCompletionProvider : CompletionProvider<CompletionParameters
         val position = parameters.originalPosition ?: return
         val project = position.project
         val scope = GlobalSearchScope.allScope(project)
+        val phpIndex = PhpIndex.getInstance(project)
 
-        StubIndex.getInstance().processElements(
-            PhpAttributesFQNsIndex.KEY,
-            "\\Attribute",
-            project,
-            scope,
-            PhpClass::class.java
-        ) { phpClass ->
-            val fqn = phpClass.presentableFQN ?: return@processElements true
-            result.addElement(
-                LookupElementBuilder.createWithSmartPointer(fqn, phpClass)
-                    .withIcon(phpClass.getIcon(0))
-            )
-            true
+        // Query our index for all elements annotated with \Attribute — those are PHP 8 attribute classes
+        val fqns = FileBasedIndex.getInstance()
+            .getValues(AnnotatedPhpNamedElementIndex.KEY, "\\Attribute", scope)
+            .flatten()
+
+        for (fqn in fqns) {
+            for (phpClass in phpIndex.getClassesByFQN(fqn)) {
+                val presentable = phpClass.presentableFQN ?: continue
+                result.addElement(
+                    LookupElementBuilder.createWithSmartPointer(presentable, phpClass)
+                        .withIcon(phpClass.getIcon(0))
+                )
+            }
         }
     }
 }

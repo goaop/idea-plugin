@@ -8,11 +8,11 @@ open class AndPointcut(
     protected val second: Pointcut
 ) : Pointcut {
 
-    protected val kind: Set<KindFilter> = first.getKind().intersect(second.getKind())
-    protected var classFilter: PointFilter = AndPointFilter(first.getClassFilter(), second.getClassFilter())
+    protected val _kind: Set<KindFilter> = first.getKind().intersect(second.getKind())
+    protected var _classFilter: PointFilter = AndPointFilter(first.getClassFilter(), second.getClassFilter())
 
-    override fun getKind() = kind
-    override fun getClassFilter() = classFilter
+    override fun getKind() = _kind
+    override fun getClassFilter() = _classFilter
 
     override fun matches(element: PhpNamedElement) =
         isMatchesPointcut(element, first) && isMatchesPointcut(element, second)
@@ -26,9 +26,9 @@ open class AndPointcut(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AndPointcut) return false
-        return kind == other.kind && classFilter == other.classFilter
+        return _kind == other._kind && _classFilter == other._classFilter
             && first == other.first && second == other.second
     }
 
-    override fun hashCode() = 31 * (31 * (31 * kind.hashCode() + classFilter.hashCode()) + first.hashCode()) + second.hashCode()
+    override fun hashCode() = 31 * (31 * (31 * _kind.hashCode() + _classFilter.hashCode()) + first.hashCode()) + second.hashCode()
 }

@@ -50,7 +50,7 @@ class AnnotationPointcutExpressionIndex : FileBasedIndexExtension<String, Pointc
     private fun buildMap(phpFile: PhpFile): Map<String, Pointcut> {
         val result = mutableMapOf<String, Pointcut>()
 
-        for (element in phpFile.topLevelDefs.values) {
+        for (element in phpFile.topLevelDefs.values()) {
             when (element) {
                 is Function -> visitElement(element, result)
                 is PhpClass -> {
