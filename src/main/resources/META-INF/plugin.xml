@@ -1,18 +1,45 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.lisachenko.intellijideagoaopplugin</id>
-    <name>intellij-idea-goaop-plugin</name>
-    <vendor>lisachenko</vendor>
+    <id>com.aopphp.go.framework</id>
+    <name>Go! AOP Framework</name>
+    <vendor email="lisachenko.it@gmail.com" url="https://go.aopphp.com">Go! AOP Framework</vendor>
 
     <depends>com.intellij.modules.platform</depends>
-
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <depends>com.jetbrains.php</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.lisachenko.intellijideagoaopplugin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-    </extensions>
+        <fileType name="Go! AOP Pointcut"
+                  implementationClass="com.aopphp.go.GoAopFileType"
+                  fieldName="INSTANCE"
+                  language="Go! AOP Pointcut query"
+                  extensions="goaop"/>
 
-    <applicationListeners>
-        <listener class="com.github.lisachenko.intellijideagoaopplugin.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
+        <lang.parserDefinition language="Go! AOP Pointcut query"
+                               implementationClass="com.aopphp.go.PointcutQueryParserDefinition"/>
+
+        <lang.syntaxHighlighterFactory key="Go! AOP Pointcut query"
+                                       implementationClass="com.aopphp.go.PointcutQuerySyntaxHighlighterFactory"/>
+
+        <colorSettingsPage implementation="com.aopphp.go.PointcutQueryColorSettingsPage"/>
+
+        <completion.contributor language="Go! AOP Pointcut query"
+                                implementationClass="com.aopphp.go.PointcutCompletionContributor"/>
+
+        <lang.braceMatcher language="Go! AOP Pointcut query"
+                           implementationClass="com.aopphp.go.PointcutQueryPairedBraceMatcher"/>
+
+        <languageInjector implementation="com.aopphp.go.injector.PointcutQueryLanguageInjector"/>
+        <languageInjector implementation="com.aopphp.go.injector.PhpDealAssertInjector"/>
+
+        <annotator language="Go! AOP Pointcut query"
+                   implementationClass="com.aopphp.go.annotator.AttributeAnnotator"/>
+
+        <codeInsight.lineMarkerProvider language="PHP"
+                                        implementationClass="com.aopphp.go.line.marker.AdvisedElementsLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="PHP"
+                                        implementationClass="com.aopphp.go.line.marker.AdvisorLineMarkerProvider"/>
+
+        <fileBasedIndex implementation="com.aopphp.go.index.AnnotationPointcutExpressionIndex"/>
+        <fileBasedIndex implementation="com.aopphp.go.index.AnnotatedPhpNamedElementIndex"/>
+    </extensions>
 </idea-plugin>
