@@ -25,13 +25,13 @@ repositories {
 
 dependencies {
     intellijPlatform {
-        local("/Users/lisachenko/Applications/IntelliJ IDEA Ultimate.app")
-        plugin("com.jetbrains.php:252.25557.131")
+        local("/Users/lisachenko/Applications/PhpStorm.app")
+        bundledPlugin("com.jetbrains.php")
     }
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 intellijPlatform {
@@ -40,7 +40,7 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = properties("pluginSinceBuild")
-            untilBuild = properties("pluginUntilBuild")
+            untilBuild = provider { null }
         }
     }
 }
@@ -66,7 +66,7 @@ tasks {
     patchPluginXml {
         version = properties("pluginVersion")
         sinceBuild = properties("pluginSinceBuild")
-        untilBuild = properties("pluginUntilBuild")
+        untilBuild = provider { null }
 
         pluginDescription = providers.fileContents(layout.projectDirectory.file("README.md")).asText.map {
             val start = "<!-- Plugin description -->"
