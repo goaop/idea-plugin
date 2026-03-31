@@ -3,7 +3,6 @@ package com.aopphp.go.pointcut
 import com.aopphp.go.index.AnnotatedPhpNamedElementIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
-import com.intellij.util.indexing.ID
 import com.jetbrains.php.PhpIndex
 import com.jetbrains.php.lang.psi.elements.Field
 import com.jetbrains.php.lang.psi.elements.Method
@@ -49,16 +48,14 @@ class AnnotationPointcut(
 
     private class AnnotatedClassFilter(private val annotationName: String) : PointFilter {
         private val _kind = setOf(KindFilter.KIND_CLASS)
-        private val index: FileBasedIndex = FileBasedIndex.getInstance()
-        private val key: ID<String, Set<String>> = AnnotatedPhpNamedElementIndex.KEY
 
         override fun getKind() = _kind
 
         override fun matches(element: PhpNamedElement): Boolean {
             if (element !is PhpClass) return false
-            val elementFQN = element.fqn ?: return false
+            val elementFQN = element.fqn
             val scope = PhpIndex.getInstance(element.project).searchScope
-            val values = index.getValues(key, annotationName, scope)
+            val values = FileBasedIndex.getInstance().getValues(AnnotatedPhpNamedElementIndex.KEY, annotationName, scope)
             return values.firstOrNull()?.any { it.startsWith(elementFQN) } == true
         }
 
