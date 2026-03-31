@@ -41,5 +41,7 @@
 
         <fileBasedIndex implementation="com.aopphp.go.index.AnnotationPointcutExpressionIndex"/>
         <fileBasedIndex implementation="com.aopphp.go.index.AnnotatedPhpNamedElementIndex"/>
+
+        <iconProvider implementation="com.aopphp.go.provider.AspectIconProvider" order="first"/>
     </extensions>
 </idea-plugin>
