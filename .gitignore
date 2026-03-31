@@ -2,4 +2,6 @@
 .idea
 .qodana
 .intellijPlatform
+.kotlin
 build
+out

@@ -2,7 +2,6 @@ package com.aopphp.go.index
 
 import com.aopphp.go.pointcut.Pointcut
 import com.aopphp.go.psi.PointcutElementFactory
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiFile
 import com.intellij.util.indexing.DataIndexer
 import com.intellij.util.indexing.FileBasedIndexExtension
@@ -32,11 +31,11 @@ import java.io.ObjectOutputStream
  * Key:   FQN of the aspect member (e.g. \MyAspect.beforeMethod)
  * Value: compiled Pointcut object
  */
-class AnnotationPointcutExpressionIndex : FileBasedIndexExtension<String, Pointcut>() {
+class AttributePointcutExpressionIndex : FileBasedIndexExtension<String, Pointcut>() {
 
     companion object {
         @JvmField
-        val KEY: ID<String, Pointcut> = ID.create("com.aopphp.go.annotation.pointcuts")
+        val KEY: ID<String, Pointcut> = ID.create("com.aopphp.go.attribute.pointcuts")
     }
 
     override fun getName() = KEY
@@ -71,7 +70,7 @@ class AnnotationPointcutExpressionIndex : FileBasedIndexExtension<String, Pointc
 
             val stringArg = PsiTreeUtil.findChildOfType(attr, StringLiteralExpression::class.java)
                 ?: continue
-            val expressionText = StringUtil.trimEnd(stringArg.text, "\"").removePrefix("\"")
+            val expressionText = stringArg.contents
 
             val pointcutExpression = PointcutElementFactory.createPointcut(attr.project, expressionText)
                 ?: continue
@@ -105,5 +104,5 @@ class AnnotationPointcutExpressionIndex : FileBasedIndexExtension<String, Pointc
 
     override fun dependsOnFileContent() = true
 
-    override fun getVersion() = 4
+    override fun getVersion() = 5
 }

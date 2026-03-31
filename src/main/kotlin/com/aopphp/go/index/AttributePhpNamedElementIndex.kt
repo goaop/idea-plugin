@@ -21,14 +21,14 @@ import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * Indexes PHP elements (classes, methods, functions) that have PHP 8 Attributes applied.
- * Key:   attribute class FQN (e.g. \Go\Lang\Annotation\Before)
+ * Key:   attribute class FQN (e.g. \Go\Lang\Attribute\Before)
  * Value: set of FQNs of elements decorated with that attribute
  */
-class AnnotatedPhpNamedElementIndex : FileBasedIndexExtension<String, Set<String>>() {
+class AttributePhpNamedElementIndex : FileBasedIndexExtension<String, Set<String>>() {
 
     companion object {
         @JvmField
-        val KEY: ID<String, Set<String>> = ID.create("com.aopphp.go.annotated.elements")
+        val KEY: ID<String, Set<String>> = ID.create("com.aopphp.go.attributed.elements")
 
         private val EXTERNALIZER: StringSetDataExternalizer =
             ReflectionUtil.newInstance(StringSetDataExternalizer::class.java)
@@ -77,5 +77,5 @@ class AnnotatedPhpNamedElementIndex : FileBasedIndexExtension<String, Set<String
 
     override fun dependsOnFileContent() = true
 
-    override fun getVersion() = 3
+    override fun getVersion() = 4
 }

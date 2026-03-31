@@ -1,6 +1,6 @@
 package com.aopphp.go.completion
 
-import com.aopphp.go.index.AnnotatedPhpNamedElementIndex
+import com.aopphp.go.index.AttributePhpNamedElementIndex
 import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.completion.CompletionProvider
 import com.intellij.codeInsight.completion.CompletionResultSet
@@ -28,7 +28,7 @@ class AttributeClassCompletionProvider : CompletionProvider<CompletionParameters
 
         // Query our index for all elements annotated with \Attribute — those are PHP 8 attribute classes
         val fqns = FileBasedIndex.getInstance()
-            .getValues(AnnotatedPhpNamedElementIndex.KEY, "\\Attribute", scope)
+            .getValues(AttributePhpNamedElementIndex.KEY, "\\Attribute", scope)
             .flatten()
 
         for (fqn in fqns) {

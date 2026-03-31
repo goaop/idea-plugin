@@ -139,13 +139,13 @@ public class PointcutQueryPsiUtil {
         AnnotatedExecutionPointcut annotatedExecutionPointcut = element.getAnnotatedExecutionPointcut();
         if (annotatedExecutionPointcut != null) {
             String annotationName = annotatedExecutionPointcut.getNamespaceName().getFQN();
-            return new AnnotationPointcut(kindMethod, annotationName);
+            return new AttributePointcut(kindMethod, annotationName);
         }
 
         AnnotatedAccessPointcut annotatedAccessPointcut = element.getAnnotatedAccessPointcut();
         if (annotatedAccessPointcut != null) {
             String annotationName = annotatedAccessPointcut.getNamespaceName().getFQN();
-            return new AnnotationPointcut(kindProperty, annotationName);
+            return new AttributePointcut(kindProperty, annotationName);
         }
 
         AnnotatedWithinPointcut annotatedWithinPointcut = element.getAnnotatedWithinPointcut();
@@ -153,7 +153,7 @@ public class PointcutQueryPsiUtil {
             TruePointcut pointcut = new TruePointcut();
 
             String annotationName     = annotatedWithinPointcut.getNamespaceName().getFQN();
-            AnnotationPointcut classFilter = new AnnotationPointcut(kindClass, annotationName);
+            AttributePointcut classFilter = new AttributePointcut(kindClass, annotationName);
             pointcut.setClassFilter(classFilter);
 
             return pointcut;

@@ -1,9 +1,10 @@
 package com.aopphp.go.injector
 
 import com.aopphp.go.pattern.CodePattern
+import com.intellij.lang.injection.MultiHostInjector
+import com.intellij.lang.injection.MultiHostRegistrar
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.InjectedLanguagePlaces
-import com.intellij.psi.LanguageInjector
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiLanguageInjectionHost
 import com.jetbrains.php.lang.PhpLanguage
 import com.jetbrains.php.lang.psi.elements.Method
@@ -17,20 +18,19 @@ import kotlin.math.max
 /**
  * Injects PHP syntax into string literal arguments of #[\PhpDeal\Annotation\*] attributes,
  * providing $this, $__old, $__result, and parameter type hints in the injected fragment.
+ *
+ * Uses MultiHostInjector so both single-quoted and double-quoted strings are covered.
  */
-class PhpDealAssertInjector : LanguageInjector {
+class PhpDealAssertInjector : MultiHostInjector {
 
-    override fun getLanguagesToInject(
-        host: PsiLanguageInjectionHost,
-        injectionPlacesRegistrar: InjectedLanguagePlaces
-    ) {
-        if (host !is StringLiteralExpression || !host.isValidHost) return
-        if (!CodePattern.isInsidePhpAttribute(host, PHP_DEAL_ANNOTATION_PREFIX)) return
+    override fun getLanguagesToInject(registrar: MultiHostRegistrar, context: PsiElement) {
+        if (context !is StringLiteralExpression) return
+        if (!CodePattern.isInsidePhpAttribute(context, PHP_DEAL_ANNOTATION_PREFIX)) return
 
-        val range = TextRange(1, max(host.textLength - 1, 1))
+        val range = TextRange(1, max(context.textLength - 1, 1))
 
         // Navigate up to the attribute's owner (method / function / class)
-        val paramList = host.parent as? ParameterList ?: return
+        val paramList = context.parent as? ParameterList ?: return
         val attribute = paramList.parent as? PhpAttribute ?: return
         val owner = attribute.owner
 
@@ -58,8 +58,13 @@ class PhpDealAssertInjector : LanguageInjector {
         prefix += "/** @noinspection PhpVoidFunctionResultUsedInspection */\n"
         prefix += "return "
 
-        injectionPlacesRegistrar.addPlace(PhpLanguage.INSTANCE, range, prefix, ";")
+        registrar.startInjecting(PhpLanguage.INSTANCE)
+            .addPlace(prefix, ";", context as PsiLanguageInjectionHost, range)
+            .doneInjecting()
     }
+
+    override fun elementsToInjectIn(): List<Class<out PsiElement>> =
+        listOf(StringLiteralExpression::class.java)
 
     companion object {
         private const val PHP_DEAL_ANNOTATION_PREFIX = "\\PhpDeal\\Annotation"

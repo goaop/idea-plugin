@@ -1,6 +1,6 @@
 package com.aopphp.go.pointcut
 
-import com.aopphp.go.index.AnnotatedPhpNamedElementIndex
+import com.aopphp.go.index.AttributePhpNamedElementIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
 import com.jetbrains.php.PhpIndex
@@ -13,12 +13,12 @@ import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 /**
  * Matches PHP named elements that have a specific PHP 8 Attribute applied.
  */
-class AnnotationPointcut(
+class AttributePointcut(
     private val filterKind: Set<KindFilter>,
     private val expectedClass: String
 ) : Pointcut {
 
-    private val _classFilter: PointFilter = AnnotatedClassFilter(expectedClass)
+    private val _classFilter: PointFilter = AttributeClassFilter(expectedClass)
 
     override fun getClassFilter() = _classFilter
 
@@ -39,14 +39,14 @@ class AnnotationPointcut(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is AnnotationPointcut) return false
+        if (other !is AttributePointcut) return false
         return _classFilter == other._classFilter && filterKind == other.filterKind
             && expectedClass == other.expectedClass
     }
 
     override fun hashCode() = 31 * (31 * _classFilter.hashCode() + filterKind.hashCode()) + expectedClass.hashCode()
 
-    private class AnnotatedClassFilter(private val annotationName: String) : PointFilter {
+    private class AttributeClassFilter(private val annotationName: String) : PointFilter {
         private val _kind = setOf(KindFilter.KIND_CLASS)
 
         override fun getKind() = _kind
@@ -55,13 +55,13 @@ class AnnotationPointcut(
             if (element !is PhpClass) return false
             val elementFQN = element.fqn
             val scope = PhpIndex.getInstance(element.project).searchScope
-            val values = FileBasedIndex.getInstance().getValues(AnnotatedPhpNamedElementIndex.KEY, annotationName, scope)
+            val values = FileBasedIndex.getInstance().getValues(AttributePhpNamedElementIndex.KEY, annotationName, scope)
             return values.firstOrNull()?.any { it.startsWith(elementFQN) } == true
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
-            if (other !is AnnotatedClassFilter) return false
+            if (other !is AttributeClassFilter) return false
             return annotationName == other.annotationName
         }
 

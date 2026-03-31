@@ -1,6 +1,6 @@
 package com.aopphp.go.pointcut
 
-import com.aopphp.go.index.AnnotationPointcutExpressionIndex
+import com.aopphp.go.index.AttributePointcutExpressionIndex
 import com.aopphp.go.util.PluginUtil
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.project.Project
@@ -18,7 +18,7 @@ import com.jetbrains.php.lang.psi.stubs.indexes.PhpClassIndex
 object PointcutAdvisor {
 
     private val fileBasedIndex = FileBasedIndex.getInstance()
-    private val index = AnnotationPointcutExpressionIndex.KEY
+    private val index = AttributePointcutExpressionIndex.KEY
 
     @JvmStatic
     fun getMatchedAdvices(element: PhpNamedElement): List<PhpNamedElement> {
