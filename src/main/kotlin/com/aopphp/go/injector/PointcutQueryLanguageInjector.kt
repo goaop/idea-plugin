@@ -11,7 +11,7 @@ import kotlin.math.max
 
 /**
  * Injects the Go! AOP Pointcut query language into PHP string literals that are:
- *  - arguments of #[\Go\Lang\Annotation\*] PHP 8 attributes
+ *  - arguments of #[\Go\Lang\Attribute\*] PHP 8 attributes
  *  - arguments of PointcutBuilder->method() calls
  */
 class PointcutQueryLanguageInjector : LanguageInjector {
@@ -32,6 +32,6 @@ class PointcutQueryLanguageInjector : LanguageInjector {
     }
 
     companion object {
-        private const val GO_AOP_ANNOTATION_PREFIX = "\\Go\\Lang\\Annotation"
+        private const val GO_AOP_ANNOTATION_PREFIX = "\\Go\\Lang\\Attribute"
     }
 }

@@ -28,7 +28,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
 /**
- * Indexes pointcut expressions from #[\Go\Lang\Annotation\*] PHP 8 attributes.
+ * Indexes pointcut expressions from #[\Go\Lang\Attribute\*] PHP 8 attributes.
  * Key:   FQN of the aspect member (e.g. \MyAspect.beforeMethod)
  * Value: compiled Pointcut object
  */
@@ -67,7 +67,7 @@ class AnnotationPointcutExpressionIndex : FileBasedIndexExtension<String, Pointc
         if (element !is PhpAttributesOwner) return
         for (attr in element.attributes) {
             val fqn = attr.fqn ?: continue
-            if (!fqn.startsWith("\\Go\\Lang\\Annotation\\")) continue
+            if (!fqn.startsWith("\\Go\\Lang\\Attribute\\")) continue
 
             val stringArg = PsiTreeUtil.findChildOfType(attr, StringLiteralExpression::class.java)
                 ?: continue
@@ -105,5 +105,5 @@ class AnnotationPointcutExpressionIndex : FileBasedIndexExtension<String, Pointc
 
     override fun dependsOnFileContent() = true
 
-    override fun getVersion() = 3
+    override fun getVersion() = 4
 }
