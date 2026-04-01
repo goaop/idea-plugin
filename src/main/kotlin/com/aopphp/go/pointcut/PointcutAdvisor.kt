@@ -3,6 +3,7 @@ package com.aopphp.go.pointcut
 import com.aopphp.go.index.AttributePointcutExpressionIndex
 import com.aopphp.go.util.PluginUtil
 import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
@@ -58,11 +59,17 @@ object PointcutAdvisor {
         val classList = mutableSetOf<PhpClass>()
 
         StubIndex.getInstance().getAllKeys(PhpClassIndex.KEY, project).forEach { classKey ->
-            StubIndex.getInstance().processElements(
-                PhpClassIndex.KEY, classKey, project, scope, PhpClass::class.java
-            ) { instance ->
-                if (pointcut.getClassFilter().matches(instance)) classList.add(instance)
-                false
+            try {
+                StubIndex.getInstance().processElements(
+                    PhpClassIndex.KEY, classKey, project, scope, PhpClass::class.java
+                ) { instance ->
+                    if (pointcut.getClassFilter().matches(instance)) classList.add(instance)
+                    false
+                }
+            } catch (e: ProcessCanceledException) {
+                throw e
+            } catch (_: Exception) {
+                // Skip stale/outdated stub entries — the index will be updated on the next re-index pass
             }
         }
 

@@ -3,5 +3,6 @@
 .qodana
 .intellijPlatform
 .kotlin
+.claude
 build
 out
