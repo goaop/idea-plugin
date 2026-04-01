@@ -12,9 +12,14 @@ class InheritanceClassFilter(private val parentClassName: String) : PointFilter 
 
     override fun matches(element: PhpNamedElement): Boolean {
         if (element !is PhpClass) return false
-        val parents = PhpIndex.getInstance(element.project).getAnyByFQN(parentClassName)
-        val parent = parents.firstOrNull() ?: return false
-        return PhpClassHierarchyUtils.getAllSubclasses(parent).contains(element)
+        val normalizedFqn = if (parentClassName.startsWith("\\")) parentClassName else "\\$parentClassName"
+        val elementFqn = element.fqn ?: return false
+        // X+ matches X itself
+        if (elementFqn == normalizedFqn) return true
+        // Match subclasses/implementors by FQN (not by PSI object identity)
+        val parent = PhpIndex.getInstance(element.project).getAnyByFQN(normalizedFqn).firstOrNull() ?: return false
+        @Suppress("DEPRECATION")
+        return PhpClassHierarchyUtils.getAllSubclasses(parent).any { it.fqn == elementFqn }
     }
 
     override fun equals(other: Any?): Boolean {
