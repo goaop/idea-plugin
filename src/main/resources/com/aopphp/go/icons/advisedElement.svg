@@ -1,0 +1,9 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Circle + A, shifted left to leave room for arrow on the right -->
+  <circle cx="6.5" cy="8" r="5.5" fill="none" stroke="#6B9BD2" stroke-width="1.5"/>
+  <text x="6.5" y="10.5" font-family="Arial, sans-serif" font-size="7" font-weight="800" fill="#6B9BD2" text-anchor="middle">A</text>
+
+  <!-- Downward arrow, bottom-right, ~9px tall -->
+  <line x1="12.5" y1="6" x2="12.5" y2="14" stroke="lightgrey" stroke-width="1.5" stroke-linecap="round"/>
+  <polyline points="10,12 12.5,14.5 15,12" stroke="lightgrey" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
