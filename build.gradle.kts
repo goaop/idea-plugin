@@ -25,7 +25,7 @@ repositories {
 
 dependencies {
     intellijPlatform {
-        local("/Users/lisachenko/Applications/PhpStorm.app")
+        phpstorm(providers.gradleProperty("platformVersion"))
         bundledPlugin("com.jetbrains.php")
     }
 }
