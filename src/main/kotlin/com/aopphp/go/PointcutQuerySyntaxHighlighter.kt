@@ -16,18 +16,20 @@ import java.awt.Font
 class PointcutQuerySyntaxHighlighter : SyntaxHighlighterBase() {
 
     companion object {
-        @JvmField val SEPARATOR      = createTextAttributesKey("GO_POINTCUT_SEPARATOR",      DefaultLanguageHighlighterColors.OPERATION_SIGN)
-        @JvmField val KEYWORD        = createTextAttributesKey("GO_POINTCUT_KEYWORD",         DefaultLanguageHighlighterColors.KEYWORD)
-        @JvmField val COMMENT        = createTextAttributesKey("GO_POINTCUT_COMMENT",         DefaultLanguageHighlighterColors.LINE_COMMENT)
-        @JvmField val PARENTHESIS    = createTextAttributesKey("GO_POINTCUT_PARENTHESIS",     DefaultLanguageHighlighterColors.PARENTHESES)
-        @JvmField val MEMBER_MODIFIER = createTextAttributesKey("GO_POINTCUT_MEMBER_MODIFIER", DefaultLanguageHighlighterColors.STRING)
-        @JvmField val BAD_CHARACTER  = createTextAttributesKey("GO_POINTCUT_BAD_CHARACTER",
+        @JvmField val SEPARATOR       = createTextAttributesKey("GO_POINTCUT_SEPARATOR",       DefaultLanguageHighlighterColors.OPERATION_SIGN)
+        @JvmField val KEYWORD         = createTextAttributesKey("GO_POINTCUT_KEYWORD",          DefaultLanguageHighlighterColors.KEYWORD)
+        @JvmField val COMMENT         = createTextAttributesKey("GO_POINTCUT_COMMENT",          DefaultLanguageHighlighterColors.LINE_COMMENT)
+        @JvmField val PARENTHESIS     = createTextAttributesKey("GO_POINTCUT_PARENTHESIS",      DefaultLanguageHighlighterColors.PARENTHESES)
+        @JvmField val MEMBER_MODIFIER = createTextAttributesKey("GO_POINTCUT_MEMBER_MODIFIER",  DefaultLanguageHighlighterColors.KEYWORD)
+        @JvmField val CLASS_REFERENCE = createTextAttributesKey("GO_POINTCUT_CLASS_REFERENCE",  DefaultLanguageHighlighterColors.CLASS_REFERENCE)
+        @JvmField val BAD_CHARACTER   = createTextAttributesKey("GO_POINTCUT_BAD_CHARACTER",
             TextAttributes(JBColor.RED, null, null, null, Font.BOLD))
     }
 
     override fun getHighlightingLexer() = FlexAdapter(PointcutLexer(null))
 
     override fun getTokenHighlights(tokenType: IElementType): Array<TextAttributesKey> = when (tokenType) {
+        PointcutTypes.T_ANNOTATION,
         PointcutTypes.T_NS_SEPARATOR,
         PointcutTypes.T_ASTERISK,
         PointcutTypes.T_STATIC_ACCESS,

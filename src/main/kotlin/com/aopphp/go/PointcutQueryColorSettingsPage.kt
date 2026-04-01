@@ -15,6 +15,7 @@ class PointcutQueryColorSettingsPage : ColorSettingsPage {
             AttributesDescriptor("Comment",         PointcutQuerySyntaxHighlighter.COMMENT),
             AttributesDescriptor("Member modifier", PointcutQuerySyntaxHighlighter.MEMBER_MODIFIER),
             AttributesDescriptor("Parenthesis",     PointcutQuerySyntaxHighlighter.PARENTHESIS),
+            AttributesDescriptor("Class reference", PointcutQuerySyntaxHighlighter.CLASS_REFERENCE),
         )
     }
 
