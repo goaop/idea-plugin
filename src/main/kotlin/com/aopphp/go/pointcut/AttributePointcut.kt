@@ -56,7 +56,7 @@ class AttributePointcut(
             val elementFQN = element.fqn
             val scope = PhpIndex.getInstance(element.project).searchScope
             val values = FileBasedIndex.getInstance().getValues(AttributePhpNamedElementIndex.KEY, annotationName, scope)
-            return values.firstOrNull()?.any { it.startsWith(elementFQN) } == true
+            return values.any { set -> set.any { it.startsWith(elementFQN) } }
         }
 
         override fun equals(other: Any?): Boolean {
