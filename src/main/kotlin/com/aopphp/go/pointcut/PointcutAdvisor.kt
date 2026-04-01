@@ -34,15 +34,12 @@ object PointcutAdvisor {
 
             val dot = signature.lastIndexOf('.')
             val className = signature.substring(0, dot)
-            val elementName = signature.substring(dot + 1)
-            val isField = elementName.startsWith("$")
+            val memberName = signature.substring(dot + 1).removePrefix("$")
 
             val adviceClass = phpIndex.getClassesByFQN(className).firstOrNull() ?: continue
-            val adviceElement: PhpNamedElement? = if (isField) {
-                adviceClass.findOwnFieldByName(elementName.removePrefix("$"), false)
-            } else {
-                adviceClass.findMethodByName(elementName)
-            }
+            val adviceElement: PhpNamedElement? =
+                adviceClass.findMethodByName(memberName)
+                    ?: adviceClass.findOwnFieldByName(memberName, false)
             adviceElement?.let { result.add(it) }
         }
         return result

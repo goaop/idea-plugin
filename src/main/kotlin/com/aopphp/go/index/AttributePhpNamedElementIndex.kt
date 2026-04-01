@@ -13,11 +13,9 @@ import com.jetbrains.php.lang.psi.PhpFile
 import com.jetbrains.php.lang.psi.elements.Function
 import com.jetbrains.php.lang.psi.elements.PhpAttributesOwner
 import com.jetbrains.php.lang.psi.elements.PhpClass
-import com.jetbrains.php.lang.psi.elements.PhpClassMember
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 import com.jetbrains.php.lang.psi.stubs.indexes.PhpConstantNameIndex
 import com.jetbrains.php.lang.psi.stubs.indexes.StringSetDataExternalizer
-import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * Indexes PHP elements (classes, methods, functions) that have PHP 8 Attributes applied.
@@ -50,8 +48,8 @@ class AttributePhpNamedElementIndex : FileBasedIndexExtension<String, Set<String
                 is Function -> visitElement(element, result)
                 is PhpClass -> {
                     visitElement(element, result)
-                    PsiTreeUtil.getChildrenOfTypeAsList(element, PhpClassMember::class.java)
-                        .forEach { visitElement(it, result) }
+                    element.ownMethods.forEach { visitElement(it, result) }
+                    element.ownFields.forEach { visitElement(it, result) }
                 }
             }
         }
@@ -77,5 +75,5 @@ class AttributePhpNamedElementIndex : FileBasedIndexExtension<String, Set<String
 
     override fun dependsOnFileContent() = true
 
-    override fun getVersion() = 4
+    override fun getVersion() = 5
 }

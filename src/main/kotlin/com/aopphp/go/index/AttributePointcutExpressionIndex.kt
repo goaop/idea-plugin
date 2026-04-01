@@ -14,7 +14,6 @@ import com.jetbrains.php.lang.psi.PhpFile
 import com.jetbrains.php.lang.psi.elements.Function
 import com.jetbrains.php.lang.psi.elements.PhpAttributesOwner
 import com.jetbrains.php.lang.psi.elements.PhpClass
-import com.jetbrains.php.lang.psi.elements.PhpClassMember
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression
 import com.jetbrains.php.lang.psi.stubs.indexes.PhpConstantNameIndex
@@ -53,8 +52,8 @@ class AttributePointcutExpressionIndex : FileBasedIndexExtension<String, Pointcu
             when (element) {
                 is Function -> visitElement(element, result)
                 is PhpClass -> {
-                    PsiTreeUtil.getChildrenOfTypeAsList(element, PhpClassMember::class.java)
-                        .forEach { visitElement(it, result) }
+                    element.ownMethods.forEach { visitElement(it, result) }
+                    element.ownFields.forEach { visitElement(it, result) }
                 }
             }
         }
@@ -104,5 +103,5 @@ class AttributePointcutExpressionIndex : FileBasedIndexExtension<String, Pointcu
 
     override fun dependsOnFileContent() = true
 
-    override fun getVersion() = 5
+    override fun getVersion() = 6
 }
