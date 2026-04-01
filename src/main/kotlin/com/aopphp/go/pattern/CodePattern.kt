@@ -4,6 +4,7 @@ import com.aopphp.go.PointcutQueryLanguage
 import com.aopphp.go.psi.AnnotatedAccessPointcut
 import com.aopphp.go.psi.AnnotatedExecutionPointcut
 import com.aopphp.go.psi.AnnotatedWithinPointcut
+import com.aopphp.go.psi.NamespaceName
 import com.aopphp.go.psi.PointcutTypes
 import com.intellij.patterns.ElementPattern
 import com.intellij.patterns.PlatformPatterns
@@ -17,7 +18,8 @@ import com.jetbrains.php.lang.psi.elements.impl.MethodImpl
 object CodePattern : PlatformPatterns() {
 
     /**
-     * Matches the class name position inside annotation pointcuts:
+     * Matches the leaf T_NAME_PART tokens inside annotation-pointcut class names.
+     * Used by completion — fires at the typing position (leaf level).
      *   @execution(<className>), @access(<className>), @within(<className>)
      */
     @JvmStatic
@@ -25,6 +27,17 @@ object CodePattern : PlatformPatterns() {
         psiElement(PointcutTypes.T_NAME_PART).withSuperParent(2, AnnotatedExecutionPointcut::class.java),
         psiElement(PointcutTypes.T_NAME_PART).withSuperParent(2, AnnotatedAccessPointcut::class.java),
         psiElement(PointcutTypes.T_NAME_PART).withSuperParent(2, AnnotatedWithinPointcut::class.java),
+    )
+
+    /**
+     * Matches the NamespaceName node (whole class reference) inside annotation pointcuts.
+     * Used by the annotator — fires on the composite node so annotations can cover its full range.
+     */
+    @JvmStatic
+    fun annotationPointcutClassName(): ElementPattern<PsiElement> = or(
+        psiElement(NamespaceName::class.java).withParent(AnnotatedExecutionPointcut::class.java),
+        psiElement(NamespaceName::class.java).withParent(AnnotatedAccessPointcut::class.java),
+        psiElement(NamespaceName::class.java).withParent(AnnotatedWithinPointcut::class.java),
     )
 
     @JvmStatic
