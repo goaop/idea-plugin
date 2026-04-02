@@ -2,7 +2,7 @@ package com.aopphp.go.index
 
 import com.aopphp.go.pointcut.Pointcut
 import com.aopphp.go.psi.PointcutElementFactory
-import com.intellij.psi.PsiFile
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.indexing.DataIndexer
 import com.intellij.util.indexing.FileBasedIndexExtension
 import com.intellij.util.indexing.FileContent
@@ -17,7 +17,6 @@ import com.jetbrains.php.lang.psi.elements.PhpClass
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression
 import com.jetbrains.php.lang.psi.stubs.indexes.PhpConstantNameIndex
-import com.intellij.psi.util.PsiTreeUtil
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInput
@@ -29,12 +28,18 @@ import java.io.ObjectOutputStream
  * Indexes pointcut expressions from #[\Go\Lang\Attribute\*] PHP 8 attributes.
  * Key:   FQN of the aspect member (e.g. \MyAspect.beforeMethod)
  * Value: compiled Pointcut object
+ *
+ * `$this->memberName` references inside pointcut expressions are resolved at index
+ * time: the expression of the referenced `#[\Go\Lang\Attribute\Pointcut]`-annotated
+ * member in the same class is substituted inline before compilation.
  */
 class AttributePointcutExpressionIndex : FileBasedIndexExtension<String, Pointcut>() {
 
     companion object {
         @JvmField
         val KEY: ID<String, Pointcut> = ID.create("com.aopphp.go.attribute.pointcuts")
+
+        private const val POINTCUT_ATTR_FQN = "\\Go\\Lang\\Attribute\\Pointcut"
     }
 
     override fun getName() = KEY
@@ -50,10 +55,15 @@ class AttributePointcutExpressionIndex : FileBasedIndexExtension<String, Pointcu
 
         for (element in phpFile.topLevelDefs.values()) {
             when (element) {
-                is Function -> visitElement(element, result)
+                is Function -> visitElement(element, emptyMap(), result)
                 is PhpClass -> {
-                    element.ownMethods.forEach { visitElement(it, result) }
-                    element.ownFields.forEach { visitElement(it, result) }
+                    // Pre-build the map of memberName -> raw expression for all
+                    // #[\Go\Lang\Attribute\Pointcut]-annotated members in this class.
+                    // This avoids unsafe PSI navigation (findMethodByName etc.) inside
+                    // the replace callback below, which can trigger index access.
+                    val selfPointcutMap = buildSelfPointcutMap(element)
+                    element.ownMethods.forEach { visitElement(it, selfPointcutMap, result) }
+                    element.ownFields.forEach { visitElement(it, selfPointcutMap, result) }
                 }
             }
         }
@@ -61,7 +71,34 @@ class AttributePointcutExpressionIndex : FileBasedIndexExtension<String, Pointcu
         return result
     }
 
-    private fun visitElement(element: PhpNamedElement, map: MutableMap<String, Pointcut>) {
+    /**
+     * Collects the raw pointcut expression string for every member in [phpClass]
+     * that carries `#[\Go\Lang\Attribute\Pointcut]`.
+     * Result: memberName → expression (e.g. `"myPointcut" → "execution(public **->*(*))"`).
+     */
+    private fun buildSelfPointcutMap(phpClass: PhpClass): Map<String, String> {
+        val map = mutableMapOf<String, String>()
+        val collect = { member: PhpNamedElement ->
+            if (member is PhpAttributesOwner) {
+                for (attr in member.attributes) {
+                    if (attr.fqn != POINTCUT_ATTR_FQN) continue
+                    val stringArg = PsiTreeUtil.findChildOfType(attr, StringLiteralExpression::class.java)
+                        ?: continue
+                    val name = member.name ?: continue
+                    map[name] = stringArg.contents
+                }
+            }
+        }
+        phpClass.ownMethods.forEach(collect)
+        phpClass.ownFields.forEach(collect)
+        return map
+    }
+
+    private fun visitElement(
+        element: PhpNamedElement,
+        selfPointcutMap: Map<String, String>,
+        map: MutableMap<String, Pointcut>
+    ) {
         if (element !is PhpAttributesOwner) return
         for (attr in element.attributes) {
             val fqn = attr.fqn ?: continue
@@ -69,13 +106,33 @@ class AttributePointcutExpressionIndex : FileBasedIndexExtension<String, Pointcu
 
             val stringArg = PsiTreeUtil.findChildOfType(attr, StringLiteralExpression::class.java)
                 ?: continue
-            val expressionText = stringArg.contents
+
+            val expressionText = resolveThisReferences(stringArg.contents, selfPointcutMap)
 
             val pointcutExpression = PointcutElementFactory.createPointcut(attr.project, expressionText)
                 ?: continue
 
             val elementFqn = element.fqn ?: continue
             map[elementFqn] = pointcutExpression.compile()
+        }
+    }
+
+    /**
+     * Replaces every `$this->memberName` occurrence in [expression] with the actual
+     * pointcut expression from [selfPointcutMap], wrapped in parentheses.
+     * Recursion up to depth 10 handles chained self-references.
+     */
+    private fun resolveThisReferences(
+        expression: String,
+        selfPointcutMap: Map<String, String>,
+        depth: Int = 0
+    ): String {
+        if (depth > 10 || selfPointcutMap.isEmpty()) return expression
+        return expression.replace(Regex("\\\$this->([a-zA-Z_][a-zA-Z0-9_]*)")) { matchResult ->
+            val memberName = matchResult.groupValues[1]
+            val referencedExpr = selfPointcutMap[memberName] ?: return@replace matchResult.value
+            val inner = resolveThisReferences(referencedExpr, selfPointcutMap, depth + 1)
+            "($inner)"
         }
     }
 
@@ -103,5 +160,5 @@ class AttributePointcutExpressionIndex : FileBasedIndexExtension<String, Pointcu
 
     override fun dependsOnFileContent() = true
 
-    override fun getVersion() = 6
+    override fun getVersion() = 9
 }

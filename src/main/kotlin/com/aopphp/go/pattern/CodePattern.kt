@@ -5,6 +5,7 @@ import com.aopphp.go.psi.AnnotatedAccessPointcut
 import com.aopphp.go.psi.AnnotatedExecutionPointcut
 import com.aopphp.go.psi.AnnotatedWithinPointcut
 import com.aopphp.go.psi.NamespaceName
+import com.aopphp.go.psi.PointcutReference
 import com.aopphp.go.psi.PointcutTypes
 import com.intellij.patterns.ElementPattern
 import com.intellij.patterns.PlatformPatterns
@@ -43,6 +44,16 @@ object CodePattern : PlatformPatterns() {
     @JvmStatic
     fun insidePointcutLanguage(): ElementPattern<PsiElement> =
         psiElement().withLanguage(PointcutQueryLanguage)
+
+    /**
+     * Matches T_NAME_PART tokens after `$this->` inside a pointcut reference.
+     * Used by [com.aopphp.go.completion.SelfPointcutReferenceCompletionProvider].
+     * The provider additionally checks that the enclosing PointcutReference starts
+     * with T_THIS (not a namespace-qualified reference like `SomeClass->method`).
+     */
+    @JvmStatic
+    fun insidePointcutSelfReference(): ElementPattern<PsiElement> =
+        psiElement(PointcutTypes.T_NAME_PART).withSuperParent(2, PointcutReference::class.java)
 
     @JvmStatic
     fun startOfMemberModifiers(): ElementPattern<PsiElement> = psiElement().afterLeafSkipping(

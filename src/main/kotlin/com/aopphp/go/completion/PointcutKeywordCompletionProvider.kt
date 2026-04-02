@@ -1,6 +1,7 @@
 package com.aopphp.go.completion
 
 import com.aopphp.go.completion.insert.PointcutKeywordInsertHandler
+import com.aopphp.go.completion.insert.SelfPointcutInsertHandler
 import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.completion.CompletionProvider
 import com.intellij.codeInsight.completion.CompletionResultSet
@@ -27,5 +28,13 @@ class PointcutKeywordCompletionProvider : CompletionProvider<CompletionParameter
                     .withInsertHandler(PointcutKeywordInsertHandler)
             )
         }
+
+        // Suggest $this-> as a self-reference to pointcut-annotated members of the aspect class
+        result.addElement(
+            LookupElementBuilder.create("\$this")
+                .withBoldness(true)
+                .withTypeText("self pointcut reference")
+                .withInsertHandler(SelfPointcutInsertHandler)
+        )
     }
 }
