@@ -4,6 +4,7 @@ import com.aopphp.go.index.AttributePointcutExpressionIndex
 import com.aopphp.go.util.PluginUtil
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
@@ -29,6 +30,7 @@ object PointcutAdvisor {
         val scope = GlobalSearchScope.allScope(project)
 
         for (signature in fileBasedIndex.getAllKeys(index, project)) {
+            ProgressManager.checkCanceled()
             val pointcut = fileBasedIndex.getValues(index, signature, scope).firstOrNull() ?: continue
             if (!isPointcutMatches(element, pointcut)) continue
 
@@ -56,6 +58,7 @@ object PointcutAdvisor {
         val classList = mutableSetOf<PhpClass>()
 
         StubIndex.getInstance().getAllKeys(PhpClassIndex.KEY, project).forEach { classKey ->
+            ProgressManager.checkCanceled()
             try {
                 StubIndex.getInstance().processElements(
                     PhpClassIndex.KEY, classKey, project, scope, PhpClass::class.java
@@ -72,6 +75,7 @@ object PointcutAdvisor {
 
         if (KindFilter.KIND_METHOD in pointcut.getKind()) {
             classList.forEach { phpClass ->
+                ProgressManager.checkCanceled()
                 ReadAction.run<RuntimeException> {
                     phpClass.ownMethods.filter { isPointcutMatches(it, pointcut) }.forEach { result.add(it) }
                 }
@@ -80,6 +84,7 @@ object PointcutAdvisor {
 
         if (KindFilter.KIND_PROPERTY in pointcut.getKind()) {
             classList.forEach { phpClass ->
+                ProgressManager.checkCanceled()
                 ReadAction.run<RuntimeException> {
                     phpClass.ownFields.filter { isPointcutMatches(it, pointcut) }.forEach { result.add(it) }
                 }

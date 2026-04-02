@@ -1,6 +1,5 @@
 package com.aopphp.go.pointcut
 
-import com.jetbrains.php.PhpClassHierarchyUtils
 import com.jetbrains.php.PhpIndex
 import com.jetbrains.php.lang.psi.elements.PhpClass
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
@@ -16,10 +15,8 @@ class InheritanceClassFilter(private val parentClassName: String) : PointFilter 
         val elementFqn = element.fqn ?: return false
         // X+ matches X itself
         if (elementFqn == normalizedFqn) return true
-        // Match subclasses/implementors by FQN (not by PSI object identity)
-        val parent = PhpIndex.getInstance(element.project).getAnyByFQN(normalizedFqn).firstOrNull() ?: return false
-        @Suppress("DEPRECATION")
-        return PhpClassHierarchyUtils.getAllSubclasses(parent).any { it.fqn == elementFqn }
+        // getAllSubclasses(String) is a fast index lookup that covers classes, interfaces, and traits
+        return PhpIndex.getInstance(element.project).getAllSubclasses(normalizedFqn).any { it.fqn == elementFqn }
     }
 
     override fun equals(other: Any?): Boolean {

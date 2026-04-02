@@ -1,16 +1,16 @@
 package com.aopphp.go.completion
 
-import com.aopphp.go.index.AttributePhpNamedElementIndex
 import com.aopphp.go.psi.NamespaceName
 import com.aopphp.go.util.AttributeTargetUtil
 import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.completion.CompletionProvider
 import com.intellij.codeInsight.completion.CompletionResultSet
+import com.intellij.codeInsight.completion.CompletionUtilCore
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.ProcessingContext
 import com.intellij.util.indexing.FileBasedIndex
 import com.jetbrains.php.PhpIndex
+import com.jetbrains.php.lang.psi.stubs.indexes.PhpAttributesFQNsIndex
 
 /**
  * Provides completion for PHP 8 Attribute class names inside annotation pointcuts
@@ -27,10 +27,11 @@ class AttributeClassCompletionProvider : CompletionProvider<CompletionParameters
         context: ProcessingContext,
         result: CompletionResultSet
     ) {
-        val position = parameters.originalPosition ?: return
+        // originalPosition is null when nothing has been typed yet (cursor is between '(' and ')').
+        // Fall back to parameters.position (the dummy-identifier element) for PSI structure navigation.
+        val originalPosition = parameters.originalPosition
+        val position = originalPosition ?: parameters.position
         val project = position.project
-        val scope = GlobalSearchScope.allScope(project)
-        val phpIndex = PhpIndex.getInstance(project)
 
         // T_NAME_PART → NamespaceName → AnnotatedXxxPointcut
         val namespaceName = position.parent as? NamespaceName
@@ -40,7 +41,9 @@ class AttributeClassCompletionProvider : CompletionProvider<CompletionParameters
         // When the user has already typed a namespace path (e.g. "Demo\Attribute\L"),
         // override the prefix matcher to use the full path so that IntelliJ filters
         // completions by the full FQN rather than just the last token.
-        val existingText = namespaceName?.text ?: ""
+        // Strip the dummy identifier suffix so the prefix is the real typed text only.
+        val rawText = if (originalPosition != null) (namespaceName?.text ?: "") else ""
+        val existingText = rawText.removeSuffix(CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED)
         val adjustedResult = if (existingText.contains('\\')) {
             result.withPrefixMatcher(existingText)
         } else {
@@ -49,13 +52,12 @@ class AttributeClassCompletionProvider : CompletionProvider<CompletionParameters
 
         // Start offset of the NamespaceName in the injected document, used to
         // remove the namespace prefix that IntelliJ leaves behind on insertion.
-        val nsStartOffset = namespaceName?.textRange?.startOffset ?: -1
+        val nsStartOffset = if (originalPosition != null) (namespaceName?.textRange?.startOffset ?: -1) else -1
 
-        val fqns = FileBasedIndex.getInstance()
-            .getValues(AttributePhpNamedElementIndex.KEY, "\\Attribute", scope)
-            .flatten()
-
-        for (fqn in fqns) {
+        // PhpAttributesFQNsIndex is a FileBasedIndex<String, Void> whose keys are the FQNs of all
+        // PHP 8 Attribute classes in the project (classes decorated with #[\Attribute]).
+        val phpIndex = PhpIndex.getInstance(project)
+        for (fqn in FileBasedIndex.getInstance().getAllKeys(PhpAttributesFQNsIndex.KEY, project)) {
             for (phpClass in phpIndex.getClassesByFQN(fqn)) {
                 if (!AttributeTargetUtil.isCompatible(phpClass, requiredBits)) continue
                 val presentable = phpClass.presentableFQN ?: continue
