@@ -1,9 +1,14 @@
 package com.aopphp.go.reference
 
 import com.aopphp.go.pattern.CodePattern
+import com.aopphp.go.psi.AccessPointcut
 import com.aopphp.go.psi.ClassFilter
+import com.aopphp.go.psi.ExecutionPointcut
+import com.aopphp.go.psi.MemberReference
+import com.aopphp.go.psi.NamePattern
 import com.aopphp.go.psi.NamespacePattern
 import com.aopphp.go.psi.PointcutTypes
+import com.aopphp.go.util.PhpClassUtil
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.editor.Editor
@@ -44,6 +49,37 @@ class PointcutGotoDeclarationHandler : GotoDeclarationHandler {
             PsiTreeUtil.getParentOfType(nsPattern, ClassFilter::class.java) != null
         ) {
             return resolveByPosition(sourceElement, nsPattern)
+        }
+
+        // Case 3: T_NAME_PART inside the member NamePattern of a MemberReference.
+        // Navigates to the PHP method (execution) or dynamic property (access) by name.
+        val namePattern = PsiTreeUtil.getParentOfType(sourceElement, NamePattern::class.java)
+        if (namePattern != null) {
+            val memberRef = namePattern.parent as? MemberReference ?: return null
+            val memberName = namePattern.text
+            if (memberName.contains('*')) return null   // wildcard — no single target
+
+            // Resolve the containing class
+            val nsPatternText = memberRef.classFilter.namespacePattern.text
+            if (nsPatternText.contains('*')) return null
+            val fqn = if (nsPatternText.startsWith('\\')) nsPatternText else "\\$nsPatternText"
+
+            val phpIndex = PhpIndex.getInstance(sourceElement.project)
+            val phpClass = PhpClassUtil.resolveNonProxyClass(fqn, phpIndex) ?: return null
+
+            val isExecution = PsiTreeUtil.getParentOfType(memberRef, ExecutionPointcut::class.java) != null
+            if (isExecution) {
+                val method = phpClass.findMethodByName(memberName)
+                    ?.takeIf { it.containingClass?.let { c -> !PhpClassUtil.isAopProxy(c) } != false }
+                return if (method != null) arrayOf(method) else null
+            }
+
+            val isAccess = PsiTreeUtil.getParentOfType(memberRef, AccessPointcut::class.java) != null
+            if (isAccess) {
+                val field = phpClass.findFieldByName(memberName, true)
+                    ?.takeIf { it.containingClass?.let { c -> !PhpClassUtil.isAopProxy(c) } != false }
+                return if (field != null) arrayOf(field) else null
+            }
         }
 
         return null
@@ -92,10 +128,7 @@ class PointcutGotoDeclarationHandler : GotoDeclarationHandler {
     }
 
     private fun resolveClass(fqn: String, context: PsiElement): Array<PsiElement>? {
-        val index = PhpIndex.getInstance(context.project)
-        val targets: List<PsiElement> = index.getClassesByFQN(fqn) +
-                index.getInterfacesByFQN(fqn) +
-                index.getTraitsByFQN(fqn)
-        return targets.toTypedArray().takeIf { it.isNotEmpty() }
+        val result = PhpClassUtil.resolveNonProxyClass(fqn, PhpIndex.getInstance(context.project))
+        return if (result != null) arrayOf(result) else null
     }
 }

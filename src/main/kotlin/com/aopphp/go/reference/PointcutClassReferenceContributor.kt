@@ -1,9 +1,15 @@
 package com.aopphp.go.reference
 
 import com.aopphp.go.pattern.CodePattern
+import com.aopphp.go.psi.AccessPointcut
 import com.aopphp.go.psi.ClassFilter
+import com.aopphp.go.psi.ExecutionPointcut
+import com.aopphp.go.psi.MemberReference
+import com.aopphp.go.psi.NamePattern
 import com.aopphp.go.psi.NamespaceName
 import com.aopphp.go.psi.NamespacePattern
+import com.aopphp.go.psi.PointcutTypes
+import com.aopphp.go.util.PhpClassUtil
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReference
@@ -11,6 +17,7 @@ import com.intellij.psi.PsiReferenceBase
 import com.intellij.psi.PsiReferenceContributor
 import com.intellij.psi.PsiReferenceProvider
 import com.intellij.psi.PsiReferenceRegistrar
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import com.jetbrains.php.PhpIndex
 
@@ -59,6 +66,23 @@ class PointcutClassReferenceContributor : PsiReferenceContributor() {
                 }
             }
         )
+
+        // Case 3: T_NAME_PART inside NamePattern → MemberReference.
+        // Resolves to a PHP method (in execution context) or dynamic property (in access context).
+        // Only registered for concrete (wildcard-free) member names.
+        registrar.registerReferenceProvider(
+            psiElement(PointcutTypes.T_NAME_PART).withSuperParent(3, MemberReference::class.java),
+            object : PsiReferenceProvider() {
+                override fun getReferencesByElement(
+                    element: PsiElement, context: ProcessingContext
+                ): Array<PsiReference> {
+                    val namePattern = element.parent?.parent as? NamePattern ?: return PsiReference.EMPTY_ARRAY
+                    if (namePattern.text.contains('*')) return PsiReference.EMPTY_ARRAY
+                    val memberRef = namePattern.parent as? MemberReference ?: return PsiReference.EMPTY_ARRAY
+                    return arrayOf(PhpMemberReference(element, memberRef))
+                }
+            }
+        )
     }
 
     /**
@@ -72,11 +96,7 @@ class PointcutClassReferenceContributor : PsiReferenceContributor() {
     ) : PsiReferenceBase<PsiElement>(element, true) {
 
         override fun resolve(): PsiElement? {
-            val fqn = namespaceName.getFQN()
-            val index = PhpIndex.getInstance(element.project)
-            return index.getClassesByFQN(fqn).firstOrNull()
-                ?: index.getInterfacesByFQN(fqn).firstOrNull()
-                ?: index.getTraitsByFQN(fqn).firstOrNull()
+            return PhpClassUtil.resolveNonProxyClass(namespaceName.getFQN(), PhpIndex.getInstance(element.project))
         }
 
         override fun getVariants(): Array<Any> = emptyArray()
@@ -88,12 +108,42 @@ class PointcutClassReferenceContributor : PsiReferenceContributor() {
      */
     private class PhpClassPatternReference(element: NamespacePattern) : PsiReferenceBase<NamespacePattern>(element, true) {
         override fun resolve(): PsiElement? {
-            val text = element.text
-            val fqn = if (text.startsWith("\\")) text else "\\$text"
-            val index = PhpIndex.getInstance(element.project)
-            return index.getClassesByFQN(fqn).firstOrNull()
-                ?: index.getInterfacesByFQN(fqn).firstOrNull()
-                ?: index.getTraitsByFQN(fqn).firstOrNull()
+            return PhpClassUtil.resolveNonProxyClass(element.text, PhpIndex.getInstance(element.project))
+        }
+
+        override fun getVariants(): Array<Any> = emptyArray()
+    }
+
+    /**
+     * Reference for a T_NAME_PART token inside the member NamePattern of a MemberReference.
+     * Resolves to the PHP method (execution context) or dynamic property (access context).
+     */
+    private class PhpMemberReference(
+        element: PsiElement,
+        private val memberRef: MemberReference
+    ) : PsiReferenceBase<PsiElement>(element, true) {
+
+        override fun resolve(): PsiElement? {
+            val memberName = element.text
+            val nsPatternText = memberRef.classFilter.namespacePattern.text
+            if (nsPatternText.contains('*')) return null
+
+            val phpIndex = PhpIndex.getInstance(element.project)
+            val phpClass = PhpClassUtil.resolveNonProxyClass(nsPatternText, phpIndex) ?: return null
+
+            val isExecution = PsiTreeUtil.getParentOfType(memberRef, ExecutionPointcut::class.java) != null
+            if (isExecution) {
+                return phpClass.findMethodByName(memberName)
+                    ?.takeIf { it.containingClass?.let { c -> !PhpClassUtil.isAopProxy(c) } != false }
+            }
+
+            val isAccess = PsiTreeUtil.getParentOfType(memberRef, AccessPointcut::class.java) != null
+            if (isAccess) {
+                return phpClass.findFieldByName(memberName, true)
+                    ?.takeIf { it.containingClass?.let { c -> !PhpClassUtil.isAopProxy(c) } != false }
+            }
+
+            return null
         }
 
         override fun getVariants(): Array<Any> = emptyArray()
