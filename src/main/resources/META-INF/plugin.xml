@@ -45,6 +45,8 @@
         <psi.referenceContributor language="Go! AOP Pointcut query"
                                   implementation="com.aopphp.go.reference.PointcutClassReferenceContributor"/>
 
+        <typedHandler implementation="com.aopphp.go.typing.PointcutMemberAccessTypingHandler"/>
+
         <gotoDeclarationHandler implementation="com.aopphp.go.reference.PointcutGotoDeclarationHandler"/>
 
         <lang.documentationProvider language="Go! AOP Pointcut query"
