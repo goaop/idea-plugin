@@ -4,7 +4,10 @@ import com.aopphp.go.PointcutQueryLanguage
 import com.aopphp.go.psi.AnnotatedAccessPointcut
 import com.aopphp.go.psi.AnnotatedExecutionPointcut
 import com.aopphp.go.psi.AnnotatedWithinPointcut
+import com.aopphp.go.psi.ClassFilter
+import com.aopphp.go.psi.MemberReference
 import com.aopphp.go.psi.NamespaceName
+import com.aopphp.go.psi.NamespacePattern
 import com.aopphp.go.psi.PointcutReference
 import com.aopphp.go.psi.PointcutTypes
 import com.intellij.patterns.ElementPattern
@@ -54,6 +57,66 @@ object CodePattern : PlatformPatterns() {
     @JvmStatic
     fun insidePointcutSelfReference(): ElementPattern<PsiElement> =
         psiElement(PointcutTypes.T_NAME_PART).withSuperParent(2, PointcutReference::class.java)
+
+    /**
+     * Matches T_NAME_PART tokens at the class-name position of a pointcut classFilter.
+     *
+     * Two cases are handled:
+     *
+     * Case 1 — Valid PSI: T_NAME_PART inside NamespacePattern → ClassFilter.
+     *   Fires when the expression is syntactically complete enough for the parser to
+     *   build a ClassFilter node (e.g., method name and argument list already present).
+     *
+     * Case 2 — Fallback for incomplete/invalid PSI: T_NAME_PART that follows an
+     *   execution/access/within/staticinitialization/initialization keyword after skipping
+     *   the opening paren, optional whitespace, and any visibility modifiers.
+     *   This fires while the user is still typing the class name and the expression is
+     *   not yet syntactically valid (missing -> methodName(*)).
+     */
+    @JvmStatic
+    fun insideClassFilter(): ElementPattern<PsiElement> = or(
+        psiElement(PointcutTypes.T_NAME_PART)
+            .inside(psiElement(NamespacePattern::class.java).withParent(ClassFilter::class.java)),
+        psiElement(PointcutTypes.T_NAME_PART).afterLeafSkipping(
+            or(
+                psiElement().whitespace(),
+                psiElement(PointcutTypes.T_LEFT_PAREN),
+                psiElement(PointcutTypes.PRIVATE),
+                psiElement(PointcutTypes.PROTECTED),
+                psiElement(PointcutTypes.PUBLIC),
+                psiElement(PointcutTypes.FINAL),
+                psiElement(PointcutTypes.T_ALTERNATION),
+            ),
+            or(
+                psiElement(PointcutTypes.EXECUTION),
+                psiElement(PointcutTypes.ACCESS),
+                psiElement(PointcutTypes.WITHIN),
+                psiElement(PointcutTypes.STATICINITIALIZATION),
+                psiElement(PointcutTypes.INITIALIZATION),
+            )
+        )
+    )
+
+    /**
+     * Matches T_NAME_PART tokens at the member-name position of a pointcut memberReference.
+     *
+     * Two cases are handled:
+     *
+     * Case 1 — Valid PSI: T_NAME_PART at depth 3 below MemberReference
+     *   (T_NAME_PART → NamePatternPart → NamePattern → MemberReference).
+     *
+     * Case 2 — Fallback for incomplete/invalid PSI: T_NAME_PART immediately after a
+     *   T_OBJECT_ACCESS (->) or T_STATIC_ACCESS (::) token.
+     *   The provider filters out `$this->` references to avoid conflicts with
+     *   [com.aopphp.go.completion.SelfPointcutReferenceCompletionProvider].
+     */
+    @JvmStatic
+    fun insideMemberNamePattern(): ElementPattern<PsiElement> = or(
+        psiElement(PointcutTypes.T_NAME_PART).withSuperParent(3, MemberReference::class.java),
+        psiElement(PointcutTypes.T_NAME_PART).afterLeaf(
+            or(psiElement(PointcutTypes.T_OBJECT_ACCESS), psiElement(PointcutTypes.T_STATIC_ACCESS))
+        )
+    )
 
     @JvmStatic
     fun startOfMemberModifiers(): ElementPattern<PsiElement> = psiElement().afterLeafSkipping(
