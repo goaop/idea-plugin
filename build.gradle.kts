@@ -1,5 +1,6 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 fun properties(key: String) = providers.gradleProperty(key)
 fun environment(key: String) = providers.environmentVariable(key)
@@ -27,7 +28,15 @@ dependencies {
     intellijPlatform {
         phpstorm(providers.gradleProperty("platformVersion"))
         bundledPlugin("com.jetbrains.php")
+        testFramework(TestFrameworkType.Platform)
     }
+    testImplementation(libs.junit5.api)
+    testImplementation(libs.junit5.params)
+    testRuntimeOnly(libs.junit5.engine)
+    testRuntimeOnly(libs.junit5.launcher)
+    testImplementation(libs.junit4)
+    testRuntimeOnly(libs.junitVintageEngine)
+    testImplementation(libs.mockito.kotlin)
 }
 
 kotlin {
@@ -61,6 +70,10 @@ koverReport {
 tasks {
     wrapper {
         gradleVersion = properties("gradleVersion").get()
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     patchPluginXml {

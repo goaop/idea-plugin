@@ -33,6 +33,54 @@ Additional features
 
   - PHP Language injection into the [Php-Deal Design-by-Contract framework](https://github.com/lisachenko/php-deal)
 
+## Testing
+
+The plugin has a comprehensive test suite covering the core functionality.
+
+### Running Tests
+
+```bash
+# Run all tests
+./gradlew test
+
+# Run a single test class
+./gradlew test --tests "com.aopphp.go.SomeTestClass"
+
+# Run tests with code coverage report
+./gradlew test koverXmlReport
+```
+
+The coverage report is generated at `build/reports/kover/report.xml`.
+
+### Test Structure
+
+Tests are located in `src/test/kotlin/` and organized by feature:
+
+| Package | Description |
+|---|---|
+| `parser/` | Lexer and parser tests using IntelliJ `LexerTestCase` / `ParsingTestCase` |
+| `pointcut/` | Unit tests for AOP pointcut matching logic (And/Or/Not, Signature, Attribute, etc.) |
+| `util/` | Unit tests for utility classes (`PhpClassUtil`, `PluginUtil`, `AttributeTargetUtil`) |
+| `completion/` | IDE integration tests for pointcut keyword and modifier completion |
+| `injector/` | IDE integration tests for pointcut language injection into PHP attributes |
+
+Test data files (`.goaop` fixtures) are in `src/test/testdata/parser/`.
+
+### Code Coverage
+
+Current line coverage by package:
+
+| Package | Line Coverage |
+|---|---|
+| `util` | 100% |
+| `parser` | 90.3% |
+| `pattern` | 88.2% |
+| `psi` | 73.8% |
+| `pointcut` | 71.5% |
+| `injector` | 42.1% |
+| `psi/impl` | 34.4% |
+| **Overall** | **52.3%** |
+
 ## Template ToDo list
 - [x] Create a new [IntelliJ Platform Plugin Template][template] project.
 - [ ] Get familiar with the [template documentation][template].
