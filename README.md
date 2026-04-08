@@ -1,121 +1,99 @@
-PhpStorm / Go! AOP Framework integration plugin
------------------
+# Go! AOP Framework — PhpStorm Plugin
 
-Provides Go! AOP Framework support for PhpStorm IDE such as pointcut highlighting, analysis, referencing and much more, allowing native feeling of AOP in project.
+> First-class Aspect-Oriented Programming support for PHP, right inside your IDE.
 
 [![GitHub release](https://img.shields.io/github/release/goaop/idea-plugin.svg)](https://github.com/goaop/idea-plugin/releases/latest)
-[![Minimum IDEA Version](http://img.shields.io/badge/IDEA-131-8892BF.svg)](http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html)
 [![License](https://img.shields.io/github/license/goaop/idea-plugin.svg)](https://github.com/goaop/idea-plugin)
+[![Build](https://github.com/goaop/intellij-idea/workflows/Build/badge.svg)](https://github.com/goaop/intellij-idea/actions)
+[![Version](https://img.shields.io/jetbrains/plugin/v/com.aopphp.go.framework.svg)](https://plugins.jetbrains.com/plugin/com.aopphp.go.framework)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/com.aopphp.go.framework.svg)](https://plugins.jetbrains.com/plugin/com.aopphp.go.framework)
 
-![Build](https://github.com/goaop/intellij-idea-goaop-plugin/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
+<!-- Plugin description -->
+## Go! AOP Framework Plugin
 
-Installation
----------------
+Bring the full power of **Aspect-Oriented Programming** to your PHP workflow. This plugin integrates the [Go! AOP Framework](https://github.com/goaop/framework) deeply into PhpStorm and IntelliJ IDEA with a dedicated language engine for pointcut expressions — so your cross-cutting concerns get the same IDE love as the rest of your code.
 
-Open "Settings > "Plugins", select "Browse Repositories" and type "Go! AOP" or install [plugin](https://plugins.jetbrains.com/plugin/7785) directly.
-Install it and [PHP Annotations Plugin](http://plugins.jetbrains.com/plugin/7320), then restart your IDE
+### What's inside
 
-Features
-----------
-  - Go! AOP pointcut syntax highlighting and parsing
-  - Analysis of pointcuts and insertion of line markers for navigation to the concrete advice ![IDEA Pointcut analysis](https://raw.githubusercontent.com/goaop/idea-plugin/master/images/advise-navigation.gif)
-  - Highlighting of incorrect doctrine annotations for @access, @execution and @within pointcuts
-  - Completion of doctrine annotations for @access, @execution and @within pointcuts ![Doctrine annotation completion](https://raw.githubusercontent.com/goaop/idea-plugin/master/images/doctrine-completion.gif)
-  - Completion of visibility modifiers and pointcut keywords
-  - Automatic injection of pointcut language into the Go\Lang\Annotation\* annotations
-  - Color settings adjustment for pointcut expressions
-  - Navigation from advices to the advised elements ![Navigate to advised elements](https://raw.githubusercontent.com/goaop/idea-plugin/master/images/navigate-to-advised.gif)
+- **Pointcut Language Engine** - A complete custom language implementation for Go! AOP pointcut expressions — with a full lexer, parser, and PSI tree. Write pointcuts with confidence: syntax errors are caught instantly, before you ever run your application.
 
-Additional features
--------------------
+ - **Smart Code Completion** - Auto-complete pointcut keywords, visibility modifiers, PHP class names, method names, and PHP attributes exactly where they are valid. The completion popup triggers automatically as you type inside pointcut expressions.
 
-  - PHP Language injection into the [Php-Deal Design-by-Contract framework](https://github.com/lisachenko/php-deal)
+ - **Syntax Highlighting & Color Customization** - Pointcut expressions are highlighted with dedicated token colors. Adjust every color to match your theme via **Settings > Editor > Color Scheme > Go! AOP Pointcut**.
 
-## Testing
+ - **Line Markers & Bi-directional Navigation** - Jump from any **advice method** directly to the PHP elements it intercepts and from any **advised class or method** back to all matching advices. Gutter icons make the AOP wiring visible at a glance — no more hunting through aspect classes.
 
-The plugin has a comprehensive test suite covering the core functionality.
+ - **Language Injection** - Pointcut expressions inside `Go\Lang\Attribute\*` PHP attributes are automatically recognized as the pointcut language, giving you full IDE support without leaving your PHP file.
 
-### Running Tests
+ - **Attribute Validation** - Invalid PHP attributes used in `@access`, `@execution`, and `@within` pointcuts are flagged inline with actionable error messages — catch mistakes at edit time, not at runtime.
+
+ - **Find Usages & Rename Refactoring** - PHP class names and member names referenced inside pointcut expressions participate in **Find Usages** and **Rename** refactoring. Rename a class or method and all pointcut references update automatically.
+
+ - **File-based Indexes** - Lightning-fast cross-file lookups power navigation and line markers even in large codebases, with a small performance penalty on project indexing.
+
+ - **Standalone `.goaop` File Support** - Work with pointcut expressions in standalone `.goaop` files with full language support — useful for documentation, snippets, and tooling integration.
+<!-- Plugin description end -->
+
+---
+
+## Installation
+
+**From the JetBrains Marketplace (recommended)**
+
+<kbd>Settings</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > search **"Go! AOP"** > <kbd>Install</kbd>
+
+Or install directly: [plugins.jetbrains.com/plugin/7785](https://plugins.jetbrains.com/plugin/7785)
+
+**Manually**
+
+Download the [latest release](https://github.com/goaop/intellij-idea-goaop-plugin/releases/latest) and install via:
+
+<kbd>Settings</kbd> > <kbd>Plugins</kbd> > <kbd>⚙</kbd> > <kbd>Install Plugin from Disk…</kbd>
+
+## Development
+
+### Build & Run
+
+```bash
+# Launch a sandboxed IDE with the plugin loaded
+./gradlew runIde
+
+# Build the distributable ZIP
+./gradlew buildPlugin
+
+# Verify compatibility across IDE versions
+./gradlew runPluginVerifier
+```
+
+### Testing
 
 ```bash
 # Run all tests
 ./gradlew test
 
-# Run a single test class
+# Run a specific test class
 ./gradlew test --tests "com.aopphp.go.SomeTestClass"
 
-# Run tests with code coverage report
+# Run tests with code coverage
 ./gradlew test koverXmlReport
 ```
 
-The coverage report is generated at `build/reports/kover/report.xml`.
+Coverage report: `build/reports/kover/report.xml`
 
 ### Test Structure
 
-Tests are located in `src/test/kotlin/` and organized by feature:
+| Package       | Description                                                               |
+|---------------|---------------------------------------------------------------------------|
+| `parser/`     | Lexer and parser tests (`LexerTestCase` / `ParsingTestCase`)              |
+| `pointcut/`   | AOP pointcut matching logic (And/Or/Not, Signature, Attribute…)           |
+| `util/`       | Utility class tests (`PhpClassUtil`, `PluginUtil`, `AttributeTargetUtil`) |
+| `completion/` | IDE integration tests for keyword and modifier completion                 |
+| `injector/`   | IDE integration tests for language injection into PHP attributes          |
 
-| Package | Description |
-|---|---|
-| `parser/` | Lexer and parser tests using IntelliJ `LexerTestCase` / `ParsingTestCase` |
-| `pointcut/` | Unit tests for AOP pointcut matching logic (And/Or/Not, Signature, Attribute, etc.) |
-| `util/` | Unit tests for utility classes (`PhpClassUtil`, `PluginUtil`, `AttributeTargetUtil`) |
-| `completion/` | IDE integration tests for pointcut keyword and modifier completion |
-| `injector/` | IDE integration tests for pointcut language injection into PHP attributes |
-
-Test data files (`.goaop` fixtures) are in `src/test/testdata/parser/`.
-
-### Code Coverage
-
-Current line coverage by package:
-
-| Package | Line Coverage |
-|---|---|
-| `util` | 100% |
-| `parser` | 90.3% |
-| `pattern` | 88.2% |
-| `psi` | 73.8% |
-| `pointcut` | 71.5% |
-| `injector` | 42.1% |
-| `psi/impl` | 34.4% |
-| **Overall** | **52.3%** |
-
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [pluginGroup](./gradle.properties), [plugin ID](./src/main/resources/META-INF/plugin.xml) and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin description in `README` (see [Tips][docs:plugin-description])
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `PLUGIN_ID` in the above README badges.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
-
-<!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
-
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
-
-To keep everything working, do not remove `<!-- ... -->` sections. 
-<!-- Plugin description end -->
-
-## Installation
-
-- Using the IDE built-in plugin system:
-  
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "intellij-idea-goaop-plugin"</kbd> >
-  <kbd>Install</kbd>
-  
-- Manually:
-
-  Download the [latest release](https://github.com/goaop/intellij-idea-goaop-plugin/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
-
+Test fixtures (`.goaop` files) live in `src/test/testdata/parser/`.
 
 ---
+
 Plugin based on the [IntelliJ Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation
