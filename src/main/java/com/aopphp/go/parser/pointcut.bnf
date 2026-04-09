@@ -27,6 +27,8 @@
     T_LOGICAL_OR='||'
     T_DOUBLE_ASTERISK='**'
     T_SUBNAMESPACE_SIGN='+'
+    T_COLON=':'
+    T_QUESTION_MARK='?'
     T_THIS='$this'
     T_COMMENT='regexp://.*'
     T_LINE_WS='regexp:[\ \t\f]'
@@ -92,11 +94,16 @@ matchInheritedPointcut ::= (matchInherited '(' ')');
 
 pointcutReference ::= ([namespaceName|'$this'] '->' namePatternPart);
 
-methodExecutionReference ::= (memberReference '(' argumentList ')');
+methodExecutionReference ::= (memberReference '(' argumentList ')' (':' returnTypePattern)?);
 
 functionExecutionReference ::= (namespacePattern '(' argumentList ')');
 
 memberReference ::= (memberModifiers classFilter memberAccessType namePattern) {methods=[getClassMemberReference]};
+
+returnTypePattern ::= '?'? returnTypeAtom;
+private returnTypeAtom ::= returnTypeAtomPart {'\' returnTypeAtomPart}*;
+private returnTypeAtomPart ::= returnTypeAtomItem+;
+private returnTypeAtomItem ::= '**' | '*' | T_NAME_PART;
 
 classFilter ::= namespacePattern '+'? {methods=[getClassFilterMatcher]};
 

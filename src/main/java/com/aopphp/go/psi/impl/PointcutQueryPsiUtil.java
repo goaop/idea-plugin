@@ -123,6 +123,20 @@ public class PointcutQueryPsiUtil {
             if (methodExecutionReference != null) {
                 ClassMemberReference memberReference = methodExecutionReference.getMemberReference().getClassMemberReference();
 
+                ReturnTypePattern returnTypePattern = methodExecutionReference.getReturnTypePattern();
+                if (returnTypePattern != null) {
+                    boolean nullable = returnTypePattern.getFirstChild().getNode().getElementType() == PointcutTypes.T_QUESTION_MARK;
+                    String patternText = returnTypePattern.getText();
+                    String typeText = nullable ? patternText.substring(1) : patternText;
+                    PointFilter modifierFilter = new AndPointFilter(
+                        new AndPointFilter(memberReference.getVisibilityFilter(), memberReference.getAccessTypeFilter()),
+                        new ReturnTypeFilter(typeText, nullable)
+                    );
+                    SignaturePointcut signaturePointcut = new SignaturePointcut(kindMethod, memberReference.getMemberNamePattern(), modifierFilter);
+                    signaturePointcut.setClassFilter(memberReference.getClassFilter());
+                    return signaturePointcut;
+                }
+
                 return getSignaturePointcut(memberReference, kindMethod);
             }
             // TODO: process function reference

@@ -35,6 +35,7 @@ public interface PointcutTypes {
   IElementType NEGATED_EXPRESSION = new PointcutElementType("NEGATED_EXPRESSION");
   IElementType POINTCUT_EXPRESSION = new PointcutElementType("POINTCUT_EXPRESSION");
   IElementType POINTCUT_REFERENCE = new PointcutElementType("POINTCUT_REFERENCE");
+  IElementType RETURN_TYPE_PATTERN = new PointcutElementType("RETURN_TYPE_PATTERN");
   IElementType SINGLE_POINTCUT = new PointcutElementType("SINGLE_POINTCUT");
   IElementType STATIC_INITIALIZATION_POINTCUT = new PointcutElementType("STATIC_INITIALIZATION_POINTCUT");
   IElementType WITHIN_POINTCUT = new PointcutElementType("WITHIN_POINTCUT");
@@ -53,6 +54,7 @@ public interface PointcutTypes {
   IElementType T_ALTERNATION = new PointcutTokenType("|");
   IElementType T_ANNOTATION = new PointcutTokenType("@");
   IElementType T_ASTERISK = new PointcutTokenType("*");
+  IElementType T_COLON = new PointcutTokenType(":");
   IElementType T_COMMENT = new PointcutTokenType("T_COMMENT");
   IElementType T_DOUBLE_ASTERISK = new PointcutTokenType("**");
   IElementType T_LEFT_PAREN = new PointcutTokenType("(");
@@ -62,6 +64,7 @@ public interface PointcutTypes {
   IElementType T_NEGATION = new PointcutTokenType("!");
   IElementType T_NS_SEPARATOR = new PointcutTokenType("\\");
   IElementType T_OBJECT_ACCESS = new PointcutTokenType("->");
+  IElementType T_QUESTION_MARK = new PointcutTokenType("?");
   IElementType T_RIGHT_PAREN = new PointcutTokenType(")");
   IElementType T_STATIC_ACCESS = new PointcutTokenType("::");
   IElementType T_SUBNAMESPACE_SIGN = new PointcutTokenType("+");
@@ -71,7 +74,7 @@ public interface PointcutTypes {
   class Factory {
     public static PsiElement createElement(ASTNode node) {
       IElementType type = node.getElementType();
-       if (type == ACCESS_POINTCUT) {
+      if (type == ACCESS_POINTCUT) {
         return new AccessPointcutImpl(node);
       }
       else if (type == ANNOTATED_ACCESS_POINTCUT) {
@@ -151,6 +154,9 @@ public interface PointcutTypes {
       }
       else if (type == POINTCUT_REFERENCE) {
         return new PointcutReferenceImpl(node);
+      }
+      else if (type == RETURN_TYPE_PATTERN) {
+        return new ReturnTypePatternImpl(node);
       }
       else if (type == SINGLE_POINTCUT) {
         return new SinglePointcutImpl(node);

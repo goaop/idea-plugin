@@ -13,4 +13,7 @@ public interface MethodExecutionReference extends PsiElement {
   @NotNull
   MemberReference getMemberReference();
 
+  @Nullable
+  ReturnTypePattern getReturnTypePattern();
+
 }

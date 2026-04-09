@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.changelog)
     alias(libs.plugins.qodana)
     alias(libs.plugins.kover)
+    alias(libs.plugins.grammarkit)
 }
 
 group = properties("pluginGroup").get()
@@ -22,6 +23,12 @@ repositories {
     intellijPlatform {
         defaultRepositories()
     }
+}
+
+val grammarKitExtra: Configuration by configurations.creating
+
+dependencies {
+    grammarKitExtra("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.8")
 }
 
 dependencies {
@@ -67,9 +74,52 @@ koverReport {
     }
 }
 
+// Add the IDE-bundled opentelemetry.jar to the generateParser classpath after all dependencies
+// are resolved. The Maven opentelemetry-api artifact breaks GrammarKit's PSI environment
+// due to version mismatch with PhpStorm's internal OpenTelemetry usage.
+afterEvaluate {
+    val otelJar = configurations.getByName("compileClasspath").files
+        .firstOrNull { jar -> jar.name == "opentelemetry.jar" && !jar.absolutePath.contains("/plugins/") }
+    if (otelJar != null) {
+        tasks.named<org.jetbrains.grammarkit.tasks.GenerateParserTask>("generateParser") {
+            classpath(otelJar)
+        }
+    }
+}
+
 tasks {
     wrapper {
         gradleVersion = properties("gradleVersion").get()
+    }
+
+    generateParser {
+        sourceFile.set(file("src/main/java/com/aopphp/go/parser/pointcut.bnf"))
+        targetRoot.set(file("src/main/java").absolutePath)
+        pathToParser.set("/com/aopphp/go/parser/PointcutParser.java")
+        pathToPsiRoot.set("/com/aopphp/go/psi")
+        purgeOldFiles.set(false)
+        classpath(grammarKitExtra)
+    }
+
+    generateLexer {
+        sourceFile.set(file("src/main/java/com/aopphp/go/parser/PointcutLexer.flex"))
+        targetDir.set(file("src/main/java/com/aopphp/go/parser").absolutePath)
+        targetClass.set("PointcutLexer")
+        purgeOldFiles.set(true)
+        mustRunAfter(generateParser)
+    }
+
+    // generateParser/generateLexer are NOT wired as automatic compile dependencies because
+    // GrammarKit cannot locate the compiled PointcutQueryPsiUtil class at generation time
+    // (chicken-and-egg: the util class depends on the generated PSI files).
+    // Run ./gradlew generateParser generateLexer only after manually ensuring the util class
+    // is compiled, or use IntelliJ's "Generate Parser Code" action which compiles first.
+    compileJava {
+        mustRunAfter(generateLexer, generateParser)
+    }
+
+    compileKotlin {
+        mustRunAfter(generateLexer, generateParser)
     }
 
     test {

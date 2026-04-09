@@ -115,6 +115,10 @@ public class Visitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitReturnTypePattern(@NotNull ReturnTypePattern o) {
+    visitPsiElement(o);
+  }
+
   public void visitSinglePointcut(@NotNull SinglePointcut o) {
     visitPsiElement(o);
   }

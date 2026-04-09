@@ -11,38 +11,20 @@ import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
 
-public class MethodExecutionReferenceImpl extends ASTWrapperPsiElement implements MethodExecutionReference {
+public class ReturnTypePatternImpl extends ASTWrapperPsiElement implements ReturnTypePattern {
 
-  public MethodExecutionReferenceImpl(@NotNull ASTNode node) {
+  public ReturnTypePatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull Visitor visitor) {
-    visitor.visitMethodExecutionReference(this);
+    visitor.visitReturnTypePattern(this);
   }
 
   @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof Visitor) accept((Visitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @NotNull
-  public ArgumentList getArgumentList() {
-    return findNotNullChildByClass(ArgumentList.class);
-  }
-
-  @Override
-  @NotNull
-  public MemberReference getMemberReference() {
-    return findNotNullChildByClass(MemberReference.class);
-  }
-
-  @Override
-  @Nullable
-  public ReturnTypePattern getReturnTypePattern() {
-    return findChildByClass(ReturnTypePattern.class);
   }
 
 }

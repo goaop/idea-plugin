@@ -34,7 +34,9 @@ class PointcutQuerySyntaxHighlighter : SyntaxHighlighterBase() {
         PointcutTypes.T_ASTERISK,
         PointcutTypes.T_STATIC_ACCESS,
         PointcutTypes.T_OBJECT_ACCESS,
-        PointcutTypes.T_SUBNAMESPACE_SIGN -> arrayOf(SEPARATOR)
+        PointcutTypes.T_SUBNAMESPACE_SIGN,
+        PointcutTypes.T_COLON,
+        PointcutTypes.T_QUESTION_MARK -> arrayOf(SEPARATOR)
 
         PointcutTypes.ACCESS,
         PointcutTypes.EXECUTION,

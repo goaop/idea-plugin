@@ -42,6 +42,8 @@ WHITE_SPACE=({T_LINE_WS}|{EOL})+
   "||"                      { return com.aopphp.go.psi.PointcutTypes.T_LOGICAL_OR; }
   "**"                      { return com.aopphp.go.psi.PointcutTypes.T_DOUBLE_ASTERISK; }
   "+"                       { return com.aopphp.go.psi.PointcutTypes.T_SUBNAMESPACE_SIGN; }
+  ":"                       { return com.aopphp.go.psi.PointcutTypes.T_COLON; }
+  "?"                       { return com.aopphp.go.psi.PointcutTypes.T_QUESTION_MARK; }
   "$this"                   { return com.aopphp.go.psi.PointcutTypes.T_THIS; }
   "access"                  { return com.aopphp.go.psi.PointcutTypes.ACCESS; }
   "execution"               { return com.aopphp.go.psi.PointcutTypes.EXECUTION; }
