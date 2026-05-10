@@ -16,7 +16,18 @@ plugins {
 }
 
 group = properties("pluginGroup").get()
-version = properties("pluginVersion").get()
+
+// Work around Provider resolution issue in IntelliJ Platform Gradle Plugin with Gradle 9.0:
+// the plugin sets project.version to an unresolved Provider whose toString() yields
+// "valueof(GradlePropertyValueSource)" instead of the actual version string.
+// afterEvaluate overrides it back to a plain String so the artifact filename is correct.
+val pluginVer: String = file("gradle.properties").readLines()
+    .first { it.startsWith("pluginVersion") }
+    .substringAfter("= ")
+    .trim()
+afterEvaluate {
+    version = pluginVer
+}
 
 repositories {
     mavenCentral()
@@ -133,7 +144,7 @@ tasks {
     }
 
     patchPluginXml {
-        version = properties("pluginVersion")
+        version = pluginVer
         sinceBuild = properties("pluginSinceBuild")
         untilBuild = provider { null }
 
