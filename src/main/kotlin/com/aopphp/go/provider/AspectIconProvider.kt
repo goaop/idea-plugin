@@ -13,12 +13,13 @@ import javax.swing.Icon
  */
 class AspectIconProvider : IconProvider() {
     override fun getIcon(element: PsiElement, flags: Int): Icon? {
-        val phpClass = when (element) {
-            is PhpClass -> element
-            is PhpFile  -> element.topLevelDefs.values().filterIsInstance<PhpClass>().firstOrNull()
-            else        -> return null
-        } ?: return null
-        if (phpClass.implementedInterfaces.none { it.fqn == "\\Go\\Aop\\Aspect" }) return null
-        return GoAopIcons.ASPECT
+        val isAspect = when (element) {
+            is PhpClass -> element.implementedInterfaces.any { it.fqn == "\\Go\\Aop\\Aspect" }
+            is PhpFile  -> element.topLevelDefs.values().filterIsInstance<PhpClass>().any { phpClass ->
+                phpClass.implementedInterfaces.any { it.fqn == "\\Go\\Aop\\Aspect" }
+            }
+            else        -> false
+        }
+        return if (isAspect) GoAopIcons.ASPECT else null
     }
 }

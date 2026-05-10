@@ -1,10 +1,14 @@
 package com.aopphp.go.reference
 
 import com.aopphp.go.index.AttributePointcutExpressionIndex
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.search.UseScopeEnlarger
+import com.intellij.psi.util.CachedValueProvider
+import com.intellij.psi.util.CachedValuesManager
 import com.intellij.util.indexing.FileBasedIndex
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 
@@ -22,16 +26,19 @@ class PointcutUseScopeEnlarger : UseScopeEnlarger() {
         if (element !is PhpNamedElement) return null
 
         val project = element.project
-        val fileIndex = FileBasedIndex.getInstance()
         val projectScope = GlobalSearchScope.projectScope(project)
 
-        val aspectFiles = mutableSetOf<com.intellij.openapi.vfs.VirtualFile>()
-        fileIndex.processAllKeys(AttributePointcutExpressionIndex.KEY, { key ->
-            aspectFiles.addAll(
-                fileIndex.getContainingFiles(AttributePointcutExpressionIndex.KEY, key, projectScope)
-            )
-            true
-        }, projectScope, null)
+        val aspectFiles = CachedValuesManager.getManager(project).getCachedValue(project) {
+            val fileIndex = FileBasedIndex.getInstance()
+            val files = mutableSetOf<VirtualFile>()
+            fileIndex.processAllKeys(AttributePointcutExpressionIndex.KEY, { key ->
+                files.addAll(
+                    fileIndex.getContainingFiles(AttributePointcutExpressionIndex.KEY, key, projectScope)
+                )
+                true
+            }, projectScope, null)
+            CachedValueProvider.Result.create(files, ProjectRootManager.getInstance(project))
+        }
 
         if (aspectFiles.isEmpty()) return null
         return GlobalSearchScope.filesWithoutLibrariesScope(project, aspectFiles)

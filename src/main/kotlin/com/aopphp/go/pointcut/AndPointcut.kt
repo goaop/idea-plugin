@@ -26,9 +26,9 @@ open class AndPointcut(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AndPointcut) return false
-        return _kind == other._kind && _classFilter == other._classFilter
+        return getKind() == other.getKind() && _classFilter == other._classFilter
             && first == other.first && second == other.second
     }
 
-    override fun hashCode() = 31 * (31 * (31 * _kind.hashCode() + _classFilter.hashCode()) + first.hashCode()) + second.hashCode()
+    override fun hashCode() = 31 * (31 * (31 * getKind().hashCode() + _classFilter.hashCode()) + first.hashCode()) + second.hashCode()
 }
