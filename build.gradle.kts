@@ -59,6 +59,12 @@ intellijPlatform {
             untilBuild = provider { null }
         }
     }
+
+    pluginVerification {
+        ides {
+            recommended()
+        }
+    }
 }
 
 changelog {
