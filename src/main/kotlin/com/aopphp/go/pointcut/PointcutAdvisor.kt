@@ -2,7 +2,7 @@ package com.aopphp.go.pointcut
 
 import com.aopphp.go.index.AttributePointcutExpressionIndex
 import com.aopphp.go.util.PluginUtil
-import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
@@ -76,7 +76,7 @@ object PointcutAdvisor {
         if (KindFilter.KIND_METHOD in pointcut.getKind()) {
             classList.forEach { phpClass ->
                 ProgressManager.checkCanceled()
-                ReadAction.run<RuntimeException> {
+                runReadAction {
                     phpClass.ownMethods.filter { isPointcutMatches(it, pointcut) }.forEach { result.add(it) }
                 }
             }
@@ -85,7 +85,7 @@ object PointcutAdvisor {
         if (KindFilter.KIND_PROPERTY in pointcut.getKind()) {
             classList.forEach { phpClass ->
                 ProgressManager.checkCanceled()
-                ReadAction.run<RuntimeException> {
+                runReadAction {
                     phpClass.ownFields.filter { isPointcutMatches(it, pointcut) }.forEach { result.add(it) }
                 }
             }

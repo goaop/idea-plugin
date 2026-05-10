@@ -4,14 +4,12 @@ import com.aopphp.go.parser.PointcutLexer
 import com.aopphp.go.psi.PointcutTypes
 import com.intellij.lexer.FlexAdapter
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
+import com.intellij.openapi.editor.HighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey
-import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase
 import com.intellij.psi.TokenType
 import com.intellij.psi.tree.IElementType
-import com.intellij.ui.JBColor
-import java.awt.Font
 
 class PointcutQuerySyntaxHighlighter : SyntaxHighlighterBase() {
 
@@ -22,8 +20,7 @@ class PointcutQuerySyntaxHighlighter : SyntaxHighlighterBase() {
         @JvmField val PARENTHESIS     = createTextAttributesKey("GO_POINTCUT_PARENTHESIS",      DefaultLanguageHighlighterColors.PARENTHESES)
         @JvmField val MEMBER_MODIFIER = createTextAttributesKey("GO_POINTCUT_MEMBER_MODIFIER",  DefaultLanguageHighlighterColors.KEYWORD)
         @JvmField val CLASS_REFERENCE = createTextAttributesKey("GO_POINTCUT_CLASS_REFERENCE",  DefaultLanguageHighlighterColors.CLASS_REFERENCE)
-        @JvmField val BAD_CHARACTER   = createTextAttributesKey("GO_POINTCUT_BAD_CHARACTER",
-            TextAttributes(JBColor.RED, null, null, null, Font.BOLD))
+        @JvmField val BAD_CHARACTER   = createTextAttributesKey("GO_POINTCUT_BAD_CHARACTER",  HighlighterColors.BAD_CHARACTER)
     }
 
     override fun getHighlightingLexer() = FlexAdapter(PointcutLexer(null))

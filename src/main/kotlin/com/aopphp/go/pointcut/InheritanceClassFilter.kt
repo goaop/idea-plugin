@@ -1,22 +1,28 @@
 package com.aopphp.go.pointcut
 
-import com.jetbrains.php.PhpIndex
 import com.jetbrains.php.lang.psi.elements.PhpClass
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 
 class InheritanceClassFilter(private val parentClassName: String) : PointFilter {
     private val _kind = setOf(KindFilter.KIND_CLASS)
+    private val normalizedFqn = if (parentClassName.startsWith("\\")) parentClassName else "\\$parentClassName"
 
     override fun getKind() = _kind
 
     override fun matches(element: PhpNamedElement): Boolean {
         if (element !is PhpClass) return false
-        val normalizedFqn = if (parentClassName.startsWith("\\")) parentClassName else "\\$parentClassName"
         val elementFqn = element.fqn ?: return false
-        // X+ matches X itself
         if (elementFqn == normalizedFqn) return true
-        // getAllSubclasses(String) is a fast index lookup that covers classes, interfaces, and traits
-        return PhpIndex.getInstance(element.project).getAllSubclasses(normalizedFqn).any { it.fqn == elementFqn }
+        return element.isSubclassOf(normalizedFqn)
+    }
+
+    private fun PhpClass.isSubclassOf(fqn: String): Boolean {
+        var current: PhpClass? = superClass
+        while (current != null) {
+            if (current.fqn == fqn) return true
+            current = current.superClass
+        }
+        return implementedInterfaces.any { it.fqn == fqn }
     }
 
     override fun equals(other: Any?): Boolean {
