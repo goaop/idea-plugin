@@ -1,0 +1,31 @@
+[versions]
+# libraries
+annotations = "24.1.0"
+junit5 = "5.10.3"
+mockitoKotlin = "5.4.0"
+
+# plugins
+kotlin = "2.2.0"
+changelog = "2.2.0"
+intellijPlatformGradle = "2.16.0"
+qodana = "2023.3.1"
+kover = "0.7.6"
+grammarkit = "2022.3.2"
+
+[libraries]
+annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
+junit5-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit5" }
+junit5-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit5" }
+junit5-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit5" }
+junit5-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version = "1.10.3" }
+junit4 = { group = "junit", name = "junit", version = "4.13.2" }
+junitVintageEngine = { group = "org.junit.vintage", name = "junit-vintage-engine", version.ref = "junit5" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+
+[plugins]
+changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
+intellijPlatformGradle = { id = "org.jetbrains.intellij.platform", version.ref = "intellijPlatformGradle" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+qodana = { id = "org.jetbrains.qodana", version.ref = "qodana" }
+grammarkit = { id = "org.jetbrains.grammarkit", version.ref = "grammarkit" }

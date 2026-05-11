@@ -1,0 +1,66 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>com.aopphp.go.framework</id>
+    <name>Go! AOP Framework</name>
+    <vendor email="lisachenko.it@gmail.com" url="https://go.aopphp.com">Go! AOP Framework</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.jetbrains.php</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType name="Go! AOP Pointcut"
+                  implementationClass="com.aopphp.go.GoAopFileType"
+                  fieldName="INSTANCE"
+                  language="Go! AOP Pointcut query"
+                  extensions="goaop"/>
+
+        <lang.parserDefinition language="Go! AOP Pointcut query"
+                               implementationClass="com.aopphp.go.PointcutQueryParserDefinition"/>
+
+        <lang.syntaxHighlighterFactory key="Go! AOP Pointcut query"
+                                       implementationClass="com.aopphp.go.PointcutQuerySyntaxHighlighterFactory"/>
+
+        <colorSettingsPage implementation="com.aopphp.go.PointcutQueryColorSettingsPage"/>
+
+        <completion.contributor language="Go! AOP Pointcut query"
+                                implementationClass="com.aopphp.go.PointcutCompletionContributor"/>
+
+        <lang.braceMatcher language="Go! AOP Pointcut query"
+                           implementationClass="com.aopphp.go.PointcutQueryPairedBraceMatcher"/>
+
+        <multiHostInjector implementation="com.aopphp.go.injector.PointcutQueryLanguageInjector"/>
+        <multiHostInjector implementation="com.aopphp.go.injector.PhpDealAssertInjector"/>
+
+        <annotator language="Go! AOP Pointcut query"
+                   implementationClass="com.aopphp.go.annotator.AttributeAnnotator"/>
+
+        <codeInsight.lineMarkerProvider language="PHP"
+                                        implementationClass="com.aopphp.go.line.marker.AdvisedElementsLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="PHP"
+                                        implementationClass="com.aopphp.go.line.marker.AdvisorLineMarkerProvider"/>
+
+        <fileBasedIndex implementation="com.aopphp.go.index.AttributePointcutExpressionIndex"/>
+        <fileBasedIndex implementation="com.aopphp.go.index.AttributePhpNamedElementIndex"/>
+
+        <psi.referenceContributor language="Go! AOP Pointcut query"
+                                  implementation="com.aopphp.go.reference.PointcutClassReferenceContributor"/>
+
+        <psi.referenceContributor language="PHP"
+                                  implementation="com.aopphp.go.reference.PointcutPhpReferenceContributor"/>
+
+        <referencesSearch implementation="com.aopphp.go.reference.PointcutReferencesSearcher"/>
+
+        <useScopeEnlarger implementation="com.aopphp.go.reference.PointcutUseScopeEnlarger"/>
+
+        <usageTypeProvider implementation="com.aopphp.go.reference.PointcutUsageTypeProvider"/>
+
+        <typedHandler implementation="com.aopphp.go.typing.PointcutMemberAccessTypingHandler"/>
+
+        <gotoDeclarationHandler implementation="com.aopphp.go.reference.PointcutGotoDeclarationHandler"/>
+
+        <lang.documentationProvider language="Go! AOP Pointcut query"
+                                    implementationClass="com.aopphp.go.reference.PointcutDocumentationProvider"/>
+
+        <iconProvider implementation="com.aopphp.go.provider.AspectIconProvider" order="first"/>
+    </extensions>
+</idea-plugin>
