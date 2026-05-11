@@ -2,7 +2,7 @@
 # libraries
 annotations = "24.1.0"
 junit5 = "5.10.3"
-mockitoKotlin = "5.4.0"
+mockitoKotlin = "6.3.0"
 
 # plugins
 kotlin = "2.2.0"
