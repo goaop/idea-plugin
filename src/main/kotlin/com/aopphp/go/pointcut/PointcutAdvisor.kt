@@ -8,6 +8,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
+import com.intellij.psi.stubs.StubIndexKey
 import com.intellij.util.indexing.FileBasedIndex
 import com.jetbrains.php.PhpIndex
 import com.jetbrains.php.lang.psi.elements.Field
@@ -16,6 +17,7 @@ import com.jetbrains.php.lang.psi.elements.PhpClass
 import com.jetbrains.php.lang.psi.elements.PhpClassMember
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 import com.jetbrains.php.lang.psi.stubs.indexes.PhpClassIndex
+import com.jetbrains.php.lang.psi.stubs.indexes.PhpTraitIndex
 
 object PointcutAdvisor {
 
@@ -57,21 +59,8 @@ object PointcutAdvisor {
         val result = mutableListOf<PhpNamedElement>()
         val classList = mutableSetOf<PhpClass>()
 
-        StubIndex.getInstance().getAllKeys(PhpClassIndex.KEY, project).forEach { classKey ->
-            ProgressManager.checkCanceled()
-            try {
-                StubIndex.getInstance().processElements(
-                    PhpClassIndex.KEY, classKey, project, scope, PhpClass::class.java
-                ) { instance ->
-                    if (pointcut.getClassFilter().matches(instance)) classList.add(instance)
-                    false
-                }
-            } catch (e: ProcessCanceledException) {
-                throw e
-            } catch (_: Exception) {
-                // Skip stale/outdated stub entries — the index will be updated on the next re-index pass
-            }
-        }
+        collectClassLikeElements(PhpClassIndex.KEY, pointcut, project, scope, classList)
+        collectClassLikeElements(PhpTraitIndex.KEY, pointcut, project, scope, classList)
 
         if (KindFilter.KIND_METHOD in pointcut.getKind()) {
             classList.forEach { phpClass ->
@@ -117,6 +106,31 @@ object PointcutAdvisor {
             is PhpClass -> !element.isInterface && !PluginUtil.isAspect(element)
                            && KindFilter.KIND_CLASS in filterKind
             else        -> false
+        }
+    }
+
+    private fun collectClassLikeElements(
+        indexKey: StubIndexKey<String, PhpClass>,
+        pointcut: Pointcut,
+        project: Project,
+        scope: GlobalSearchScope,
+        classList: MutableSet<PhpClass>
+    ) {
+        val classFilter = pointcut.getClassFilter()
+        StubIndex.getInstance().getAllKeys(indexKey, project).forEach { key ->
+            ProgressManager.checkCanceled()
+            try {
+                StubIndex.getInstance().processElements(
+                    indexKey, key, project, scope, PhpClass::class.java
+                ) { instance ->
+                    if (classFilter.matches(instance)) classList.add(instance)
+                    false
+                }
+            } catch (e: ProcessCanceledException) {
+                throw e
+            } catch (_: Exception) {
+                // Skip stale/outdated stub entries — the index will be updated on the next re-index pass
+            }
         }
     }
 }
