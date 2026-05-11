@@ -6,7 +6,7 @@ mockitoKotlin = "6.3.0"
 
 # plugins
 kotlin = "2.2.0"
-changelog = "2.2.0"
+changelog = "2.5.0"
 intellijPlatformGradle = "2.16.0"
 qodana = "2023.3.1"
 kover = "0.7.6"
