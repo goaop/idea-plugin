@@ -7,7 +7,7 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.codeInsight.completion.PlainPrefixMatcher
+import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.indexing.FileBasedIndex
 import com.jetbrains.php.PhpIndex
 import com.jetbrains.php.lang.psi.elements.Field
@@ -15,6 +15,7 @@ import com.jetbrains.php.lang.psi.elements.Method
 import com.jetbrains.php.lang.psi.elements.PhpClass
 import com.jetbrains.php.lang.psi.elements.PhpClassMember
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
+import com.jetbrains.php.lang.psi.stubs.indexes.PhpClassIndex
 
 object PointcutAdvisor {
 
@@ -56,18 +57,20 @@ object PointcutAdvisor {
         val result = mutableListOf<PhpNamedElement>()
         val classList = mutableSetOf<PhpClass>()
 
-        val phpIndex = PhpIndex.getInstance(project)
-        phpIndex.getAllClassFqns(PlainPrefixMatcher("\\")).forEach { fqn ->
+        StubIndex.getInstance().getAllKeys(PhpClassIndex.KEY, project).forEach { classKey ->
             ProgressManager.checkCanceled()
-            phpIndex.getClassesByFQN(fqn)
-                .filter { pointcut.getClassFilter().matches(it) }
-                .forEach { classList.add(it) }
-        }
-        phpIndex.getAllInterfacesFqns(PlainPrefixMatcher("\\")).forEach { fqn ->
-            ProgressManager.checkCanceled()
-            phpIndex.getInterfacesByFQN(fqn)
-                .filter { pointcut.getClassFilter().matches(it) }
-                .forEach { classList.add(it) }
+            try {
+                StubIndex.getInstance().processElements(
+                    PhpClassIndex.KEY, classKey, project, scope, PhpClass::class.java
+                ) { instance ->
+                    if (pointcut.getClassFilter().matches(instance)) classList.add(instance)
+                    false
+                }
+            } catch (e: ProcessCanceledException) {
+                throw e
+            } catch (_: Exception) {
+                // Skip stale/outdated stub entries — the index will be updated on the next re-index pass
+            }
         }
 
         if (KindFilter.KIND_METHOD in pointcut.getKind()) {
