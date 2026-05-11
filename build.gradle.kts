@@ -39,7 +39,7 @@ repositories {
 val grammarKitExtra: Configuration by configurations.creating
 
 dependencies {
-    grammarKitExtra("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.8")
+    grammarKitExtra("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0")
 }
 
 dependencies {
