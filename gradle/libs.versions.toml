@@ -9,7 +9,7 @@ kotlin = "2.2.0"
 changelog = "2.5.0"
 intellijPlatformGradle = "2.16.0"
 qodana = "2026.1.0"
-kover = "0.7.6"
+kover = "0.9.8"
 grammarkit = "2022.3.2"
 
 [libraries]
