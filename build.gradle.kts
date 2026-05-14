@@ -36,12 +36,6 @@ repositories {
     }
 }
 
-val grammarKitExtra: Configuration by configurations.creating
-
-dependencies {
-    grammarKitExtra("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0")
-}
-
 dependencies {
     intellijPlatform {
         phpstorm(providers.gradleProperty("platformVersion"))
@@ -93,18 +87,10 @@ kover {
     }
 }
 
-// Add the IDE-bundled opentelemetry.jar to the generateParser classpath after all dependencies
-// are resolved. The Maven opentelemetry-api artifact breaks GrammarKit's PSI environment
-// due to version mismatch with PhpStorm's internal OpenTelemetry usage.
-afterEvaluate {
-    val otelJar = configurations.getByName("compileClasspath").files
-        .firstOrNull { jar -> jar.name == "opentelemetry.jar" && !jar.absolutePath.contains("/plugins/") }
-    if (otelJar != null) {
-        tasks.named<org.jetbrains.grammarkit.tasks.GenerateParserTask>("generateParser") {
-            classpath(otelJar)
-        }
-    }
-}
+// The GrammarKit 2023.3.x plugin automatically wires the generateParser classpath
+// from grammarKitClassPath and intellijPlatformDependency configurations.
+// Manual classpath additions must be done via afterEvaluate to avoid
+// conflicting with GrammarKit's own classpath wiring during task creation.
 
 tasks {
     wrapper {
@@ -113,18 +99,16 @@ tasks {
 
     generateParser {
         sourceFile.set(file("src/main/java/com/aopphp/go/parser/pointcut.bnf"))
-        targetRoot.set(file("src/main/java").absolutePath)
+        targetRootOutputDir.set(layout.projectDirectory.dir("src/main/java"))
         pathToParser.set("/com/aopphp/go/parser/PointcutParser.java")
         pathToPsiRoot.set("/com/aopphp/go/psi")
         purgeOldFiles.set(false)
-        classpath(grammarKitExtra)
     }
 
     generateLexer {
         sourceFile.set(file("src/main/java/com/aopphp/go/parser/PointcutLexer.flex"))
-        targetDir.set(file("src/main/java/com/aopphp/go/parser").absolutePath)
-        targetClass.set("PointcutLexer")
-        purgeOldFiles.set(true)
+        targetOutputDir.set(layout.projectDirectory.dir("src/main/java/com/aopphp/go/parser"))
+        purgeOldFiles.set(false)
         mustRunAfter(generateParser)
     }
 
