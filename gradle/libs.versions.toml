@@ -5,7 +5,7 @@ junit5 = "6.0.3"
 mockitoKotlin = "6.3.0"
 
 # plugins
-kotlin = "2.2.0"
+kotlin = "2.3.21"
 changelog = "2.5.0"
 intellijPlatformGradle = "2.16.0"
 qodana = "2026.1.0"
