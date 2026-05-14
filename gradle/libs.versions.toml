@@ -1,6 +1,6 @@
 [versions]
 # libraries
-annotations = "24.1.0"
+annotations = "26.1.0"
 junit5 = "6.0.3"
 mockitoKotlin = "6.3.0"
 
