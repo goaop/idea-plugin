@@ -10,16 +10,20 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
-import com.aopphp.go.pointcut.PointFilter;
+import com.aopphp.go.psiutil.PointcutPsiUtil;
 
 public class ClassFilterImpl extends ASTWrapperPsiElement implements ClassFilter {
 
-  public ClassFilterImpl(ASTNode node) {
+  public ClassFilterImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  public void accept(@NotNull Visitor visitor) {
+    visitor.visitClassFilter(this);
+  }
+
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof Visitor) ((Visitor)visitor).visitClassFilter(this);
+    if (visitor instanceof Visitor) accept((Visitor)visitor);
     else super.accept(visitor);
   }
 
@@ -27,10 +31,6 @@ public class ClassFilterImpl extends ASTWrapperPsiElement implements ClassFilter
   @NotNull
   public NamespacePattern getNamespacePattern() {
     return findNotNullChildByClass(NamespacePattern.class);
-  }
-
-  public PointFilter getClassFilterMatcher() {
-    return PointcutQueryPsiUtil.getClassFilterMatcher(this);
   }
 
 }

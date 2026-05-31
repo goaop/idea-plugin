@@ -4,7 +4,6 @@ package com.aopphp.go.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.aopphp.go.pointcut.Pointcut;
 
 public interface ConjugatedExpression extends PsiElement {
 
@@ -13,7 +12,5 @@ public interface ConjugatedExpression extends PsiElement {
 
   @NotNull
   NegatedExpression getNegatedExpression();
-
-  Pointcut resolveConjugatedExpression();
 
 }

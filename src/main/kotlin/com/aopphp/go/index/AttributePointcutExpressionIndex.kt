@@ -1,7 +1,8 @@
 package com.aopphp.go.index
 
 import com.aopphp.go.pointcut.Pointcut
-import com.aopphp.go.psi.PointcutElementFactory
+import com.aopphp.go.pointcut.PointcutCompiler
+import com.aopphp.go.psiutil.PointcutElementFactory
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.indexing.DataIndexer
 import com.intellij.util.indexing.FileBasedIndexExtension
@@ -113,7 +114,7 @@ class AttributePointcutExpressionIndex : FileBasedIndexExtension<String, Pointcu
                 ?: continue
 
             val elementFqn = element.fqn ?: continue
-            map[elementFqn] = pointcutExpression.compile()
+            map[elementFqn] = PointcutCompiler.compile(pointcutExpression)
         }
     }
 

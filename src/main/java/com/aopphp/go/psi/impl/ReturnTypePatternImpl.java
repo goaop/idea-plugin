@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
+import com.aopphp.go.psiutil.PointcutPsiUtil;
 
 public class ReturnTypePatternImpl extends ASTWrapperPsiElement implements ReturnTypePattern {
 
@@ -21,7 +22,6 @@ public class ReturnTypePatternImpl extends ASTWrapperPsiElement implements Retur
     visitor.visitReturnTypePattern(this);
   }
 
-  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof Visitor) accept((Visitor)visitor);
     else super.accept(visitor);

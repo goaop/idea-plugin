@@ -2,6 +2,7 @@ package com.aopphp.go.reference
 
 import com.aopphp.go.pattern.CodePattern
 import com.aopphp.go.psi.*
+import com.aopphp.go.psiutil.PointcutElementFactory
 import com.aopphp.go.util.PhpClassUtil
 import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PlatformPatterns

@@ -4,7 +4,6 @@ package com.aopphp.go.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.aopphp.go.pointcut.Pointcut;
 
 public interface BrakedExpression extends PsiElement {
 
@@ -13,7 +12,5 @@ public interface BrakedExpression extends PsiElement {
 
   @Nullable
   SinglePointcut getSinglePointcut();
-
-  Pointcut resolveBrakedExpression();
 
 }

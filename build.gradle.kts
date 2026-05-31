@@ -87,14 +87,48 @@ kover {
     }
 }
 
-// The GrammarKit 2023.3.x plugin automatically wires the generateParser classpath
-// from grammarKitClassPath and intellijPlatformDependency configurations.
-// Manual classpath additions must be done via afterEvaluate to avoid
-// conflicting with GrammarKit's own classpath wiring during task creation.
+// GrammarKit 2023.3.x has a bug in its classpath wiring (apply$1$3$2 passes null
+// to classpath()), so we cannot add to the classpath — we must replace it entirely
+// after task creation to include the project's compiled PSI util classes.
+afterEvaluate {
+    tasks.named<org.jetbrains.grammarkit.tasks.GenerateParserTask>("generateParser") {
+        // Use plain file() to avoid creating a task dependency on compileJava
+        // (mustRunAfter constraints would otherwise create a circular chain)
+        classpath = files(
+            configurations.getByName("compileClasspath"),
+            file("$buildDir/classes/java/main"),
+            file("$buildDir/classes/kotlin/main")
+        )
+    }
+
+    // GrammarKit 2023.3.0.3 puts @Override on accept(Visitor) which doesn't
+    // override any supertype method — strip the annotation after generation.
+    tasks.named("generateParser") {
+        doLast {
+            fileTree("src/main/java/com/aopphp/go/psi/impl").matching {
+                include("*.java")
+            }.forEach { f ->
+                f.writeText(f.readText().replace("@Override\n  public void accept", "public void accept"))
+            }
+        }
+    }
+}
 
 tasks {
     wrapper {
         gradleVersion = properties("gradleVersion").get()
+    }
+
+    // Clean regeneration: deletes old PSI then regenerates fresh.
+    // Run after compiling so PointcutPsiUtil is on the classpath:
+    //   ./gradlew compileJava compileKotlin regenerateParser generateLexer
+    register("regenerateParser") {
+        group = "grammarkit"
+        description = "Clean-regenerates parser and lexer from scratch"
+        doFirst {
+            delete(file("src/main/java/com/aopphp/go/psi"))
+        }
+        finalizedBy(generateParser, generateLexer)
     }
 
     generateParser {
@@ -113,7 +147,7 @@ tasks {
     }
 
     // generateParser/generateLexer are NOT wired as automatic compile dependencies because
-    // GrammarKit cannot locate the compiled PointcutQueryPsiUtil class at generation time
+    // GrammarKit cannot locate the compiled psiImplUtilClass at generation time
     // (chicken-and-egg: the util class depends on the generated PSI files).
     // Run ./gradlew generateParser generateLexer only after manually ensuring the util class
     // is compiled, or use IntelliJ's "Generate Parser Code" action which compiles first.

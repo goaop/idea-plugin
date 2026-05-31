@@ -10,16 +10,20 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
-import com.aopphp.go.pointcut.Pointcut;
+import com.aopphp.go.psiutil.PointcutPsiUtil;
 
 public class ConjugatedExpressionImpl extends ASTWrapperPsiElement implements ConjugatedExpression {
 
-  public ConjugatedExpressionImpl(ASTNode node) {
+  public ConjugatedExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  public void accept(@NotNull Visitor visitor) {
+    visitor.visitConjugatedExpression(this);
+  }
+
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof Visitor) ((Visitor)visitor).visitConjugatedExpression(this);
+    if (visitor instanceof Visitor) accept((Visitor)visitor);
     else super.accept(visitor);
   }
 
@@ -33,10 +37,6 @@ public class ConjugatedExpressionImpl extends ASTWrapperPsiElement implements Co
   @NotNull
   public NegatedExpression getNegatedExpression() {
     return findNotNullChildByClass(NegatedExpression.class);
-  }
-
-  public Pointcut resolveConjugatedExpression() {
-    return PointcutQueryPsiUtil.resolveConjugatedExpression(this);
   }
 
 }

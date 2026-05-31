@@ -10,15 +10,20 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
+import com.aopphp.go.psiutil.PointcutPsiUtil;
 
 public class NamePatternImpl extends ASTWrapperPsiElement implements NamePattern {
 
-  public NamePatternImpl(ASTNode node) {
+  public NamePatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  public void accept(@NotNull Visitor visitor) {
+    visitor.visitNamePattern(this);
+  }
+
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof Visitor) ((Visitor)visitor).visitNamePattern(this);
+    if (visitor instanceof Visitor) accept((Visitor)visitor);
     else super.accept(visitor);
   }
 

@@ -10,16 +10,20 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
-import com.aopphp.go.pointcut.MemberAccessMatcherFilter;
+import com.aopphp.go.psiutil.PointcutPsiUtil;
 
 public class MemberModifiersImpl extends ASTWrapperPsiElement implements MemberModifiers {
 
-  public MemberModifiersImpl(ASTNode node) {
+  public MemberModifiersImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  public void accept(@NotNull Visitor visitor) {
+    visitor.visitMemberModifiers(this);
+  }
+
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof Visitor) ((Visitor)visitor).visitMemberModifiers(this);
+    if (visitor instanceof Visitor) accept((Visitor)visitor);
     else super.accept(visitor);
   }
 
@@ -27,10 +31,6 @@ public class MemberModifiersImpl extends ASTWrapperPsiElement implements MemberM
   @NotNull
   public List<MemberModifier> getMemberModifierList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, MemberModifier.class);
-  }
-
-  public MemberAccessMatcherFilter getMemberAccessMatcher() {
-    return PointcutQueryPsiUtil.getMemberAccessMatcher(this);
   }
 
 }

@@ -10,21 +10,27 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
+import com.aopphp.go.psiutil.PointcutPsiUtil;
 import com.jetbrains.php.lang.psi.elements.PhpModifier.Access;
 
 public class MemberModifierImpl extends ASTWrapperPsiElement implements MemberModifier {
 
-  public MemberModifierImpl(ASTNode node) {
+  public MemberModifierImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  public void accept(@NotNull Visitor visitor) {
+    visitor.visitMemberModifier(this);
+  }
+
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof Visitor) ((Visitor)visitor).visitMemberModifier(this);
+    if (visitor instanceof Visitor) accept((Visitor)visitor);
     else super.accept(visitor);
   }
 
+  @Override
   public Access getMemberAccess() {
-    return PointcutQueryPsiUtil.getMemberAccess(this);
+    return PointcutPsiUtil.getMemberAccess(this);
   }
 
 }

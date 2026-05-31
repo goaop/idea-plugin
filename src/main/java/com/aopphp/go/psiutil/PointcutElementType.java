@@ -1,4 +1,4 @@
-package com.aopphp.go.psi;
+package com.aopphp.go.psiutil;
 
 import com.aopphp.go.PointcutQueryLanguage;
 import com.intellij.psi.tree.IElementType;

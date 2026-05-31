@@ -10,15 +10,20 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
+import com.aopphp.go.psiutil.PointcutPsiUtil;
 
 public class AnnotatedAccessPointcutImpl extends ASTWrapperPsiElement implements AnnotatedAccessPointcut {
 
-  public AnnotatedAccessPointcutImpl(ASTNode node) {
+  public AnnotatedAccessPointcutImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  public void accept(@NotNull Visitor visitor) {
+    visitor.visitAnnotatedAccessPointcut(this);
+  }
+
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof Visitor) ((Visitor)visitor).visitAnnotatedAccessPointcut(this);
+    if (visitor instanceof Visitor) accept((Visitor)visitor);
     else super.accept(visitor);
   }
 

@@ -4,6 +4,8 @@ package com.aopphp.go.psi;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.PsiElement;
 import com.intellij.lang.ASTNode;
+import com.aopphp.go.psiutil.PointcutElementType;
+import com.aopphp.go.psiutil.PointcutTokenType;
 import com.aopphp.go.psi.impl.*;
 
 public interface PointcutTypes {
