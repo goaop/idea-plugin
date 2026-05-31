@@ -4,7 +4,6 @@ package com.aopphp.go.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.aopphp.go.pointcut.ClassMemberReference;
 
 public interface MemberReference extends PsiElement {
 
@@ -19,7 +18,5 @@ public interface MemberReference extends PsiElement {
 
   @NotNull
   NamePattern getNamePattern();
-
-  ClassMemberReference getClassMemberReference();
 
 }

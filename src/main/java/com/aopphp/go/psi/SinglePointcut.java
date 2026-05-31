@@ -4,7 +4,6 @@ package com.aopphp.go.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.aopphp.go.pointcut.Pointcut;
 
 public interface SinglePointcut extends PsiElement {
 
@@ -43,7 +42,5 @@ public interface SinglePointcut extends PsiElement {
 
   @Nullable
   WithinPointcut getWithinPointcut();
-
-  Pointcut resolveSinglePointcut();
 
 }

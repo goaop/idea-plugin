@@ -10,26 +10,27 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
-import com.aopphp.go.pointcut.MemberStateMatcherFilter;
+import com.aopphp.go.psiutil.PointcutPsiUtil;
 import com.jetbrains.php.lang.psi.elements.PhpModifier.State;
 
 public class MemberAccessTypeImpl extends ASTWrapperPsiElement implements MemberAccessType {
 
-  public MemberAccessTypeImpl(ASTNode node) {
+  public MemberAccessTypeImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  public void accept(@NotNull Visitor visitor) {
+    visitor.visitMemberAccessType(this);
+  }
+
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof Visitor) ((Visitor)visitor).visitMemberAccessType(this);
+    if (visitor instanceof Visitor) accept((Visitor)visitor);
     else super.accept(visitor);
   }
 
+  @Override
   public State getMemberAccessType() {
-    return PointcutQueryPsiUtil.getMemberAccessType(this);
-  }
-
-  public MemberStateMatcherFilter getMemberAccessTypeMatcher() {
-    return PointcutQueryPsiUtil.getMemberAccessTypeMatcher(this);
+    return PointcutPsiUtil.getMemberAccessType(this);
   }
 
 }

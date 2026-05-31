@@ -10,16 +10,20 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
-import com.aopphp.go.pointcut.ClassMemberReference;
+import com.aopphp.go.psiutil.PointcutPsiUtil;
 
 public class MemberReferenceImpl extends ASTWrapperPsiElement implements MemberReference {
 
-  public MemberReferenceImpl(ASTNode node) {
+  public MemberReferenceImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  public void accept(@NotNull Visitor visitor) {
+    visitor.visitMemberReference(this);
+  }
+
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof Visitor) ((Visitor)visitor).visitMemberReference(this);
+    if (visitor instanceof Visitor) accept((Visitor)visitor);
     else super.accept(visitor);
   }
 
@@ -45,10 +49,6 @@ public class MemberReferenceImpl extends ASTWrapperPsiElement implements MemberR
   @NotNull
   public NamePattern getNamePattern() {
     return findNotNullChildByClass(NamePattern.class);
-  }
-
-  public ClassMemberReference getClassMemberReference() {
-    return PointcutQueryPsiUtil.getClassMemberReference(this);
   }
 
 }

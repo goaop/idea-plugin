@@ -10,16 +10,20 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
-import com.aopphp.go.pointcut.Pointcut;
+import com.aopphp.go.psiutil.PointcutPsiUtil;
 
 public class SinglePointcutImpl extends ASTWrapperPsiElement implements SinglePointcut {
 
-  public SinglePointcutImpl(ASTNode node) {
+  public SinglePointcutImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  public void accept(@NotNull Visitor visitor) {
+    visitor.visitSinglePointcut(this);
+  }
+
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof Visitor) ((Visitor)visitor).visitSinglePointcut(this);
+    if (visitor instanceof Visitor) accept((Visitor)visitor);
     else super.accept(visitor);
   }
 
@@ -93,10 +97,6 @@ public class SinglePointcutImpl extends ASTWrapperPsiElement implements SinglePo
   @Nullable
   public WithinPointcut getWithinPointcut() {
     return findChildByClass(WithinPointcut.class);
-  }
-
-  public Pointcut resolveSinglePointcut() {
-    return PointcutQueryPsiUtil.resolveSinglePointcut(this);
   }
 
 }

@@ -7,11 +7,11 @@
   psiImplClassSuffix="Impl"
   psiPackage="com.aopphp.go.psi"
   psiImplPackage="com.aopphp.go.psi.impl"
-  psiImplUtilClass="com.aopphp.go.psi.impl.PointcutQueryPsiUtil"
+  psiImplUtilClass="com.aopphp.go.psiutil.PointcutPsiUtil"
 
   elementTypeHolderClass="com.aopphp.go.psi.PointcutTypes"
-  elementTypeClass="com.aopphp.go.psi.PointcutElementType"
-  tokenTypeClass="com.aopphp.go.psi.PointcutTokenType"
+  elementTypeClass="com.aopphp.go.psiutil.PointcutElementType"
+  tokenTypeClass="com.aopphp.go.psiutil.PointcutTokenType"
 
   tokens=[
     T_NS_SEPARATOR='\'
@@ -39,19 +39,19 @@ pointcutFile ::= pointcutExpression;
 
 pointcutExpression ::=
     (conjugatedExpression '||' pointcutExpression)
-  | conjugatedExpression {methods=[compile]};
+  | conjugatedExpression;
 
 conjugatedExpression ::=
     (negatedExpression '&&' conjugatedExpression)
-  | negatedExpression {methods=[resolveConjugatedExpression]};
+  | negatedExpression;
 
 negatedExpression ::=
     brakedExpression
-  | '!' brakedExpression {methods=[resolveNegatedExpression]};
+  | '!' brakedExpression;
 
 brakedExpression ::=
     singlePointcut
-  | '(' pointcutExpression ')' {methods=[resolveBrakedExpression]};
+  | '(' pointcutExpression ')';
 
 
 singlePointcut ::=
@@ -66,7 +66,7 @@ singlePointcut ::=
   | cflowbelowPointcut
   | dynamicExecutionPointcut
   | matchInheritedPointcut
-  | pointcutReference {methods=[resolveSinglePointcut]};
+  | pointcutReference;
 
 accessPointcut ::= access '(' memberReference ')'
 
@@ -98,18 +98,18 @@ methodExecutionReference ::= (memberReference '(' argumentList ')' (':' returnTy
 
 functionExecutionReference ::= (namespacePattern '(' argumentList ')');
 
-memberReference ::= (memberModifiers classFilter memberAccessType namePattern) {methods=[getClassMemberReference]};
+memberReference ::= (memberModifiers classFilter memberAccessType namePattern);
 
 returnTypePattern ::= '?'? returnTypeAtom;
 private returnTypeAtom ::= returnTypeAtomPart {'\' returnTypeAtomPart}*;
 private returnTypeAtomPart ::= returnTypeAtomItem+;
 private returnTypeAtomItem ::= '**' | '*' | T_NAME_PART;
 
-classFilter ::= namespacePattern '+'? {methods=[getClassFilterMatcher]};
+classFilter ::= namespacePattern '+'?;
 
 argumentList ::= '*';
 
-memberAccessType ::= ['::'|'->'] {methods=[getMemberAccessType getMemberAccessTypeMatcher]};
+memberAccessType ::= ['::'|'->'] {methods=[getMemberAccessType]};
 
 namespacePattern ::= namespacePatternPart {'\' namespacePatternPart}*;
 
@@ -123,6 +123,6 @@ private namePatternItem ::= '*'|T_NAME_PART;
 
 namespaceName ::= T_NAME_PART {'\' T_NAME_PART}* {methods=[getFQN]}
 
-memberModifiers ::= memberModifier {'|' memberModifier}* {methods=[getMemberAccessMatcher]}
+memberModifiers ::= memberModifier {'|' memberModifier}*
 
 memberModifier ::= private|protected|public|final {methods=[getMemberAccess]}

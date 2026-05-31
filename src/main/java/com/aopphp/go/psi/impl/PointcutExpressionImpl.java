@@ -10,16 +10,20 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.aopphp.go.psi.PointcutTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.aopphp.go.psi.*;
-import com.aopphp.go.pointcut.Pointcut;
+import com.aopphp.go.psiutil.PointcutPsiUtil;
 
 public class PointcutExpressionImpl extends ASTWrapperPsiElement implements PointcutExpression {
 
-  public PointcutExpressionImpl(ASTNode node) {
+  public PointcutExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  public void accept(@NotNull Visitor visitor) {
+    visitor.visitPointcutExpression(this);
+  }
+
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof Visitor) ((Visitor)visitor).visitPointcutExpression(this);
+    if (visitor instanceof Visitor) accept((Visitor)visitor);
     else super.accept(visitor);
   }
 
@@ -33,10 +37,6 @@ public class PointcutExpressionImpl extends ASTWrapperPsiElement implements Poin
   @Nullable
   public PointcutExpression getPointcutExpression() {
     return findChildByClass(PointcutExpression.class);
-  }
-
-  public Pointcut compile() {
-    return PointcutQueryPsiUtil.compile(this);
   }
 
 }

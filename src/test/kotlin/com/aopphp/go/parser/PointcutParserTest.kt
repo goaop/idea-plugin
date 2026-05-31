@@ -1,7 +1,7 @@
 package com.aopphp.go.parser
 
 import com.aopphp.go.PointcutQueryParserDefinition
-import com.aopphp.go.psi.PointcutFile
+import com.aopphp.go.psiutil.PointcutFile
 import com.intellij.psi.PsiErrorElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.ParsingTestCase

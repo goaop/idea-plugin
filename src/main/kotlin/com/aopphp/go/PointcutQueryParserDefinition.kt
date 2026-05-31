@@ -2,7 +2,7 @@ package com.aopphp.go
 
 import com.aopphp.go.parser.PointcutLexer
 import com.aopphp.go.parser.PointcutParser
-import com.aopphp.go.psi.PointcutFile
+import com.aopphp.go.psiutil.PointcutFile
 import com.aopphp.go.psi.PointcutTypes
 import com.intellij.lang.ASTNode
 import com.intellij.lang.Language
