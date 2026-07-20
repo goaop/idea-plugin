@@ -1,5 +1,7 @@
 package com.aopphp.go.pointcut
 
+import com.jetbrains.php.lang.psi.elements.Field
+import com.jetbrains.php.lang.psi.elements.Method
 import com.jetbrains.php.lang.psi.elements.PhpClass
 import com.jetbrains.php.lang.psi.elements.PhpClassMember
 import com.jetbrains.php.lang.psi.elements.PhpModifier
@@ -16,14 +18,14 @@ class SignaturePointcutTest {
     // ---- Exact name matching ----
 
     @Test
-    fun `matches PhpClassMember by exact name`() {
+    fun `matches Method by exact name`() {
         val pointcut = SignaturePointcut(setOf(KindFilter.KIND_METHOD), "doSomething", TruePointFilter)
         val method = mockMember("doSomething")
         assertTrue(pointcut.matches(method))
     }
 
     @Test
-    fun `does not match PhpClassMember with different name`() {
+    fun `does not match Method with different name`() {
         val pointcut = SignaturePointcut(setOf(KindFilter.KIND_METHOD), "doSomething", TruePointFilter)
         val method = mockMember("otherMethod")
         assertFalse(pointcut.matches(method))
@@ -44,19 +46,51 @@ class SignaturePointcutTest {
     }
 
     @Test
-    fun `returns empty string for non-member non-class element and does not match non-empty name`() {
+    fun `does not match non-member non-class element`() {
         val pointcut = SignaturePointcut(setOf(KindFilter.KIND_METHOD), "something", TruePointFilter)
         val element = mock<PhpNamedElement>()
-        // element is neither PhpClassMember nor PhpClass -> elementName = ""
+        // element is neither Method, Field nor PhpClass -> rejected by the kind gate
         assertFalse(pointcut.matches(element))
     }
 
     @Test
-    fun `matches element when name is empty string and pattern is also empty`() {
+    fun `does not match unsupported element kind even when name pattern is empty`() {
         val pointcut = SignaturePointcut(setOf(KindFilter.KIND_METHOD), "", TruePointFilter)
         val element = mock<PhpNamedElement>()
-        // elementName = "" and name = "" → exact match
-        assertTrue(pointcut.matches(element))
+        // the kind gate rejects the element before any name matching happens
+        assertFalse(pointcut.matches(element))
+    }
+
+    // ---- Kind gate ----
+
+    @Test
+    fun `does not match Field when kind is KIND_METHOD`() {
+        val pointcut = SignaturePointcut(setOf(KindFilter.KIND_METHOD), "get*", TruePointFilter)
+        val field = mock<Field>()
+        whenever(field.name).thenReturn("getUser")
+        assertFalse(pointcut.matches(field))
+    }
+
+    @Test
+    fun `does not match Method when kind is KIND_PROPERTY`() {
+        val pointcut = SignaturePointcut(setOf(KindFilter.KIND_PROPERTY), "get*", TruePointFilter)
+        val method = mock<Method>()
+        whenever(method.name).thenReturn("getUser")
+        assertFalse(pointcut.matches(method))
+    }
+
+    @Test
+    fun `matches Field by name when kind is KIND_PROPERTY`() {
+        val pointcut = SignaturePointcut(setOf(KindFilter.KIND_PROPERTY), "get*", TruePointFilter)
+        val field = mock<Field>()
+        whenever(field.name).thenReturn("getUser")
+        assertTrue(pointcut.matches(field))
+    }
+
+    @Test
+    fun `does not match PhpClass when kind excludes KIND_CLASS`() {
+        val pointcut = SignaturePointcut(setOf(KindFilter.KIND_METHOD), "App\\MyClass", TruePointFilter)
+        assertFalse(pointcut.matches(mockClass("\\App\\MyClass")))
     }
 
     // ---- Wildcard matching ----
@@ -115,7 +149,7 @@ class SignaturePointcutTest {
     fun `returns false when modifier filter rejects the member`() {
         val modFilter = MemberAccessMatcherFilter(setOf(PhpModifier.Access.PUBLIC))
         val pointcut = SignaturePointcut(setOf(KindFilter.KIND_METHOD), "doSomething", modFilter)
-        val method = mock<PhpClassMember>()
+        val method = mock<Method>()
         whenever(method.name).thenReturn("doSomething")
         whenever(method.modifier).thenReturn(PhpModifier.PRIVATE_IMPLEMENTED_DYNAMIC)
         assertFalse(pointcut.matches(method))
@@ -125,7 +159,7 @@ class SignaturePointcutTest {
     fun `returns true when modifier filter accepts the member`() {
         val modFilter = MemberAccessMatcherFilter(setOf(PhpModifier.Access.PUBLIC))
         val pointcut = SignaturePointcut(setOf(KindFilter.KIND_METHOD), "doSomething", modFilter)
-        val method = mock<PhpClassMember>()
+        val method = mock<Method>()
         whenever(method.name).thenReturn("doSomething")
         whenever(method.modifier).thenReturn(PhpModifier.PUBLIC_IMPLEMENTED_DYNAMIC)
         assertTrue(pointcut.matches(method))
@@ -190,7 +224,7 @@ class SignaturePointcutTest {
     // ---- Helpers ----
 
     private fun mockMember(name: String): PhpClassMember {
-        val m = mock<PhpClassMember>()
+        val m = mock<Method>()
         whenever(m.name).thenReturn(name)
         return m
     }
