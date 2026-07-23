@@ -28,6 +28,7 @@ class SignaturePointcut(
     override fun getClassFilter() = _classFilter
 
     override fun matches(element: PhpNamedElement): Boolean {
+        if (!filterKind.supports(element)) return false
         if (element is PhpClassMember && !modifierFilter.matches(element)) return false
 
         val elementName = when (element) {

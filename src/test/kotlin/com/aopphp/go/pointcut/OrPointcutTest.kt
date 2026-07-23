@@ -1,11 +1,16 @@
 package com.aopphp.go.pointcut
 
+import com.jetbrains.php.lang.psi.elements.Field
+import com.jetbrains.php.lang.psi.elements.Method
 import com.jetbrains.php.lang.psi.elements.PhpClass
 import com.jetbrains.php.lang.psi.elements.PhpClassMember
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 class OrPointcutTest {
@@ -56,11 +61,36 @@ class OrPointcutTest {
 
     @Test
     fun `matches returns false when containingClass is null`() {
-        val member = mock<PhpClassMember>()
+        val member = mock<Method>()
         whenever(member.containingClass).thenReturn(null)
         val first = mockTruePointcut()
         val second = mockTruePointcut()
         assertFalse(OrPointcut(first, second).matches(member))
+    }
+
+    @Test
+    fun `matches returns false when no child pointcut kind supports element kind`() {
+        val cls = mock<PhpClass>()
+        val field = mock<Field>()
+        whenever(field.containingClass).thenReturn(cls)
+        val first = mockPointcutMatching(field, cls, true, setOf(KindFilter.KIND_METHOD))
+        val second = mockPointcutMatching(field, cls, true, setOf(KindFilter.KIND_METHOD))
+        assertFalse(OrPointcut(first, second).matches(field))
+        // The kind gate must short-circuit before either child pointcut is consulted
+        verify(first, never()).matches(any())
+        verify(second, never()).matches(any())
+    }
+
+    @Test
+    fun `matches consults only the child whose kind supports the element`() {
+        val cls = mock<PhpClass>()
+        val field = mock<Field>()
+        whenever(field.containingClass).thenReturn(cls)
+        val methodOnly = mockPointcutMatching(field, cls, true, setOf(KindFilter.KIND_METHOD))
+        val propertyOnly = mockPointcutMatching(field, cls, true, setOf(KindFilter.KIND_PROPERTY))
+        assertTrue(OrPointcut(methodOnly, propertyOnly).matches(field))
+        verify(methodOnly, never()).matches(any())
+        verify(propertyOnly).matches(field)
     }
 
     @Test
@@ -93,19 +123,24 @@ class OrPointcutTest {
     // ---- Helpers ----
 
     private fun mockMemberInClass(cls: PhpClass): PhpClassMember {
-        val member = mock<PhpClassMember>()
+        val member = mock<Method>()
         whenever(member.containingClass).thenReturn(cls)
         return member
     }
 
-    private fun mockPointcutMatching(member: PhpClassMember, cls: PhpClass, matches: Boolean): Pointcut {
+    private fun mockPointcutMatching(
+        member: PhpClassMember,
+        cls: PhpClass,
+        matches: Boolean,
+        kinds: Set<KindFilter> = KindFilter.entries.toSet()
+    ): Pointcut {
         val classFilter = mock<PointFilter>()
         whenever(classFilter.matches(cls)).thenReturn(matches)
-        whenever(classFilter.getKind()).thenReturn(KindFilter.entries.toSet())
+        whenever(classFilter.getKind()).thenReturn(kinds)
         val pointcut = mock<Pointcut>()
         whenever(pointcut.matches(member)).thenReturn(matches)
         whenever(pointcut.getClassFilter()).thenReturn(classFilter)
-        whenever(pointcut.getKind()).thenReturn(KindFilter.entries.toSet())
+        whenever(pointcut.getKind()).thenReturn(kinds)
         return pointcut
     }
 

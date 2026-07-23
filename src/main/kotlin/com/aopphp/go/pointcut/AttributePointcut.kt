@@ -4,8 +4,6 @@ import com.aopphp.go.index.AttributePhpNamedElementIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
 import com.jetbrains.php.PhpIndex
-import com.jetbrains.php.lang.psi.elements.Field
-import com.jetbrains.php.lang.psi.elements.Method
 import com.jetbrains.php.lang.psi.elements.PhpAttributesOwner
 import com.jetbrains.php.lang.psi.elements.PhpClass
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
@@ -23,16 +21,9 @@ class AttributePointcut(
     override fun getClassFilter() = _classFilter
 
     override fun matches(element: PhpNamedElement): Boolean {
-        if (!canMatchElement(element)) return false
+        if (!filterKind.supports(element)) return false
         if (element !is PhpAttributesOwner) return false
         return element.getAttributes(expectedClass).isNotEmpty()
-    }
-
-    private fun canMatchElement(element: PhpNamedElement) = when (element) {
-        is Method    -> filterKind.contains(KindFilter.KIND_METHOD)
-        is Field     -> filterKind.contains(KindFilter.KIND_PROPERTY)
-        is PhpClass  -> filterKind.contains(KindFilter.KIND_CLASS)
-        else         -> false
     }
 
     override fun getKind() = filterKind

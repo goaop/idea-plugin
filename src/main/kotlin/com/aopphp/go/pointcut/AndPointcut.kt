@@ -19,6 +19,7 @@ open class AndPointcut(
 
     protected fun isMatchesPointcut(point: PhpNamedElement, pointcut: Pointcut): Boolean {
         if (point !is PhpClassMember) return false
+        if (!pointcut.getKind().supports(point)) return false
         val containingClass = point.containingClass ?: return false
         return pointcut.matches(point) && pointcut.getClassFilter().matches(containingClass)
     }
