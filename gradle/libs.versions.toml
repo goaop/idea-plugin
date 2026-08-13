@@ -10,7 +10,7 @@ changelog = "2.5.0"
 intellijPlatformGradle = "2.18.1"
 qodana = "2026.2.0"
 kover = "0.9.9"
-grammarkit = "2023.3.0.3"
+grammarkit = "2023.3.0.4"
 
 [libraries]
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
