@@ -4,7 +4,7 @@
 
 [![GitHub release](https://img.shields.io/github/release/goaop/idea-plugin.svg)](https://github.com/goaop/idea-plugin/releases/latest)
 [![License](https://img.shields.io/github/license/goaop/idea-plugin.svg)](https://github.com/goaop/idea-plugin)
-[![Build](https://github.com/goaop/intellij-idea/workflows/Build/badge.svg)](https://github.com/goaop/intellij-idea/actions)
+[![Build](https://github.com/goaop/idea-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/goaop/idea-plugin/actions/workflows/build.yml)
 [![Version](https://img.shields.io/jetbrains/plugin/v/com.aopphp.go.framework.svg)](https://plugins.jetbrains.com/plugin/com.aopphp.go.framework)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/com.aopphp.go.framework.svg)](https://plugins.jetbrains.com/plugin/com.aopphp.go.framework)
 
