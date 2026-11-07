@@ -63,6 +63,10 @@ public class Visitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitMatchReturningByReferencePointcut(@NotNull MatchReturningByReferencePointcut o) {
+    visitPsiElement(o);
+  }
+
   public void visitMemberAccessType(@NotNull MemberAccessType o) {
     visitPsiElement(o);
   }
@@ -80,6 +84,10 @@ public class Visitor extends PsiElementVisitor {
   }
 
   public void visitMethodExecutionReference(@NotNull MethodExecutionReference o) {
+    visitPsiElement(o);
+  }
+
+  public void visitModifierGroup(@NotNull ModifierGroup o) {
     visitPsiElement(o);
   }
 

@@ -6,6 +6,8 @@ import com.aopphp.go.psi.ClassFilter
 import com.aopphp.go.psi.ExecutionPointcut
 import com.aopphp.go.psi.MemberReference
 import com.aopphp.go.psi.NamePattern
+import com.aopphp.go.psi.NamespaceName
+import com.aopphp.go.psi.PointcutReference
 import com.aopphp.go.psi.NamespacePattern
 import com.aopphp.go.psi.PointcutTypes
 import com.aopphp.go.util.PhpClassUtil
@@ -51,7 +53,16 @@ class PointcutGotoDeclarationHandler : GotoDeclarationHandler {
             return resolveByPosition(sourceElement, nsPattern)
         }
 
-        // Case 3: T_NAME_PART inside the member NamePattern of a MemberReference.
+        // Case 3: named pointcut reference, `$this->pointcutName` or `Aspect\Class->pointcutName`
+        val pointcutRef = PsiTreeUtil.getParentOfType(sourceElement, PointcutReference::class.java)
+        if (pointcutRef != null) {
+            val namespaceName = sourceElement.parent as? NamespaceName
+            if (namespaceName != null) return resolveByPosition(sourceElement, namespaceName)
+            val method = PointcutReferenceResolver.resolveMethod(pointcutRef) ?: return null
+            return arrayOf(method)
+        }
+
+        // Case 4: T_NAME_PART inside the member NamePattern of a MemberReference.
         // Navigates to the PHP method (execution) or dynamic property (access) by name.
         val namePattern = PsiTreeUtil.getParentOfType(sourceElement, NamePattern::class.java)
         if (namePattern != null) {

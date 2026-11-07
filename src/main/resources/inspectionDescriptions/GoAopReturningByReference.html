@@ -1,0 +1,8 @@
+<html>
+<body>
+Reports methods declared <code>function &amp;name()</code> that are selected by an advice.
+Go! AOP 4.0 can not weave them, because the joinpoint would return a copy instead of the reference:
+weaving fails with a <code>WeavingException</code>.
+<p>Exclude such methods from the pointcut with <code>&amp;&amp; !matchReturningByReference()</code>.</p>
+</body>
+</html>

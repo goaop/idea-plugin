@@ -1,6 +1,6 @@
 package com.aopphp.go.reference
 
-import com.aopphp.go.pattern.CodePattern
+import com.aopphp.go.util.GoAopAttributes
 import com.aopphp.go.psi.*
 import com.aopphp.go.psiutil.PointcutElementFactory
 import com.aopphp.go.util.PhpClassUtil
@@ -61,17 +61,13 @@ class PointcutPhpReferenceContributor : PsiReferenceContributor() {
 
     companion object {
 
-        private const val GO_AOP_ATTR_PREFIX = "\\Go\\Lang\\Attribute"
-
         /**
          * Creates references for a [StringLiteralExpression] that hosts a Go! AOP pointcut.
          * Called both by the registered [PsiReferenceProvider] and by [PointcutReferencesSearcher].
          */
         @JvmStatic
         fun getReferencesForHost(host: StringLiteralExpression): Array<PsiReference> {
-            if (!CodePattern.isInsidePhpAttribute(host, GO_AOP_ATTR_PREFIX)
-                && !CodePattern.isInsidePointcutBuilderMethod(host)
-            ) {
+            if (!GoAopAttributes.isPointcutExpression(host)) {
                 return PsiReference.EMPTY_ARRAY
             }
 
@@ -95,10 +91,11 @@ class PointcutPhpReferenceContributor : PsiReferenceContributor() {
             contentOffset: Int,
             out: MutableList<PsiReference>
         ) {
-            // Case 1: annotation pointcuts — NamespaceName is the attribute class
+            // Case 1: annotation pointcuts — NamespaceName is the attribute class,
+            // pointcut references — NamespaceName is the aspect class (Ns\Aspect->pointcutName)
             for (nsName in PsiTreeUtil.collectElementsOfType(root, NamespaceName::class.java)) {
-                // Skip NamespaceName inside pointcutReference ($this->memberName or Ns\Class->method)
-                if (PsiTreeUtil.getParentOfType(nsName, PointcutReference::class.java) != null) continue
+                // A return-type pattern can name built-in types (string, null...), only classes are linked
+                if (nsName.parent is ReturnTypePattern) continue
 
                 val range = rangeOf(nsName, contentOffset)
                 out.add(PhpClassHostReference(host, range, nsName.getFQN()))
@@ -111,6 +108,14 @@ class PointcutPhpReferenceContributor : PsiReferenceContributor() {
 
                 val range = rangeOf(nsPattern, contentOffset)
                 out.add(PhpClassHostReference(host, range, nsPattern.text))
+            }
+
+            // Case 4: named pointcut reference — the member is the #[Pointcut] method of the aspect
+            for (pointcutRef in PsiTreeUtil.collectElementsOfType(root, PointcutReference::class.java)) {
+                val name = pointcutRef.namePatternPart ?: continue
+                if (name.text.contains('*')) continue
+                val classFqn = PointcutReferenceResolver.aspectClassFqn(pointcutRef, host) ?: continue
+                out.add(PhpMemberHostReference(host, rangeOf(name, contentOffset), classFqn, name.text, true, false))
             }
 
             // Case 3: member reference — NamePattern is the method/property name

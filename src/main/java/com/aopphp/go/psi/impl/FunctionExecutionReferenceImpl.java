@@ -39,4 +39,10 @@ public class FunctionExecutionReferenceImpl extends ASTWrapperPsiElement impleme
     return findNotNullChildByClass(NamespacePattern.class);
   }
 
+  @Override
+  @Nullable
+  public ReturnTypePattern getReturnTypePattern() {
+    return findChildByClass(ReturnTypePattern.class);
+  }
+
 }

@@ -8,6 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface NamePattern extends PsiElement {
 
   @NotNull
-  List<NamePatternPart> getNamePatternPartList();
+  NamePatternPart getNamePatternPart();
 
 }

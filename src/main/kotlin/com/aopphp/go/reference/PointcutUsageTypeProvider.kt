@@ -1,6 +1,6 @@
 package com.aopphp.go.reference
 
-import com.aopphp.go.pattern.CodePattern
+import com.aopphp.go.util.GoAopAttributes
 import com.intellij.psi.PsiElement
 import com.intellij.usages.impl.rules.UsageType
 import com.intellij.usages.impl.rules.UsageTypeProvider
@@ -14,16 +14,11 @@ class PointcutUsageTypeProvider : UsageTypeProvider {
 
     override fun getUsageType(element: PsiElement): UsageType? {
         val host = element as? StringLiteralExpression ?: return null
-        if (!CodePattern.isInsidePhpAttribute(host, GO_AOP_ATTR_PREFIX)
-            && !CodePattern.isInsidePointcutBuilderMethod(host)
-        ) {
-            return null
-        }
+        if (!GoAopAttributes.isPointcutExpression(host)) return null
         return POINTCUT_USAGE_TYPE
     }
 
     companion object {
-        private const val GO_AOP_ATTR_PREFIX = "\\Go\\Lang\\Attribute"
         private val POINTCUT_USAGE_TYPE = UsageType { "References in AOP pointcuts" }
     }
 }

@@ -8,7 +8,7 @@ import com.intellij.util.ProcessingContext
 
 class MemberModifierCompletionProvider : CompletionProvider<CompletionParameters>() {
 
-    private val modifiers = listOf("public", "protected", "private", "final")
+    private val modifiers = listOf("public", "protected", "private", "final", "readonly", "private(set)", "protected(set)")
 
     override fun addCompletions(
         parameters: CompletionParameters,

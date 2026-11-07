@@ -1,0 +1,12 @@
+<html>
+<body>
+Reports advice methods that the Go! AOP 4.0 aspect loader rejects with an <code>AspectException</code>:
+<ul>
+  <li>a method with <code>#[Before]</code>, <code>#[After]</code>, <code>#[Around]</code> or <code>#[AfterThrowing]</code>
+    that is not <code>public</code>: generated proxies call advices as first-class callables on the aspect instance;</li>
+  <li>a method with more than one advice attribute: split it into one method per advice.
+    <code>#[Pointcut]</code> may still be combined with an advice.</li>
+</ul>
+<p>The quick-fix makes the advice method public.</p>
+</body>
+</html>

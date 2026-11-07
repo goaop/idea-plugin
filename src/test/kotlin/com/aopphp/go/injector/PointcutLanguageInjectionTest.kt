@@ -9,106 +9,102 @@ import com.jetbrains.php.lang.PhpFileType
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression
 
 /**
- * Tests that the Go! AOP Pointcut query language is correctly injected into PHP string literals
- * that are arguments of `#[\Go\Lang\Attribute\*]` PHP 8 attributes.
- *
- * Extends [BasePlatformTestCase] which provides a lightweight headless IntelliJ Platform
- * environment. Since we target PhpStorm, the PHP plugin is available in the test sandbox.
+ * Tests that the Go! AOP Pointcut query language is injected into the pointcut expression of
+ * `#[\Go\Lang\Attribute\*]` attributes and `PointcutBuilder` calls, and nowhere else.
  */
 class PointcutLanguageInjectionTest : BasePlatformTestCase() {
 
-    fun testPointcutLanguageInjectedIntoExecutionAttribute() {
-        myFixture.configureByText(
-            PhpFileType.INSTANCE,
-            """
-<?php
-#[\Go\Lang\Attribute\Execution('execution(public *->*(*)')]
-class MyAspect {}
-            """.trimIndent()
-        )
-        assertPointcutInjected()
+    fun testPointcutLanguageInjectedIntoAdviceAttributes() {
+        for (attribute in listOf("Before", "After", "Around", "AfterThrowing", "Pointcut")) {
+            configure(
+                """
+                class MyAspect {
+                    #[\Go\Lang\Attribute\$attribute('execution(public MyService->*(*))')]
+                    public function advice() {}
+                }
+                """
+            )
+            assertTrue("Expected injection into #[$attribute]", isInjected(stringLiterals().single()))
+        }
     }
 
-    fun testPointcutLanguageInjectedIntoAccessAttribute() {
-        myFixture.configureByText(
-            PhpFileType.INSTANCE,
+    fun testPointcutLanguageInjectedIntoImportedAttribute() {
+        configure(
             """
-<?php
-#[\Go\Lang\Attribute\Access('access(public *->*)']
-class MyAspect {}
-            """.trimIndent()
+            use Go\Lang\Attribute\Before;
+            class MyAspect {
+                #[Before('within(App\**)')]
+                public function advice() {}
+            }
+            """
         )
-        assertPointcutInjected()
+        assertTrue(isInjected(stringLiterals().single()))
     }
 
-    fun testPointcutLanguageInjectedIntoWithinAttribute() {
-        myFixture.configureByText(
-            PhpFileType.INSTANCE,
+    fun testPointcutLanguageInjectedIntoNamedExpressionArgument() {
+        configure(
             """
-<?php
-#[\Go\Lang\Attribute\Within('within(MyNamespace\*+)']
-class MyAspect {}
-            """.trimIndent()
+            class MyAspect {
+                #[\Go\Lang\Attribute\Around(order: 10, expression: 'execution(public MyService->*(*))')]
+                public function advice() {}
+            }
+            """
         )
-        assertPointcutInjected()
+        assertTrue(isInjected(stringLiterals().single()))
     }
 
-    fun testPointcutLanguageInjectedIntoCustomSubAttribute() {
-        myFixture.configureByText(
-            PhpFileType.INSTANCE,
+    fun testOnlyExpressionOfDeclareParentsIsInjected() {
+        configure(
             """
-<?php
-#[\Go\Lang\Attribute\Before('execution(public MyService->*(*)']
-class MyAspect {}
-            """.trimIndent()
+            class MyAspect {
+                #[\Go\Lang\Attribute\DeclareParents('within(App\Service\**)', interfaceName: 'App\Countable', traitName: 'App\CountableTrait')]
+                protected ${'$'}introduction;
+            }
+            """
         )
-        assertPointcutInjected()
+        val (expression, interfaceName, traitName) = stringLiterals()
+        assertTrue(isInjected(expression))
+        assertFalse(isInjected(interfaceName))
+        assertFalse(isInjected(traitName))
+    }
+
+    fun testNoInjectionIntoUnknownAttributeOfTheNamespace() {
+        configure(
+            """
+            #[\Go\Lang\Attribute\Execution('execution(public *->*(*))')]
+            class MyAspect {}
+            """
+        )
+        assertFalse(isInjected(stringLiterals().single()))
     }
 
     fun testNoInjectionIntoUnrelatedAttribute() {
-        myFixture.configureByText(
-            PhpFileType.INSTANCE,
+        configure(
             """
-<?php
-#[\Other\Attribute('execution(public *->*(*)']
-class MyClass {}
-            """.trimIndent()
+            #[\Other\Attribute('execution(public *->*(*))')]
+            class MyClass {}
+            """
         )
-        val stringLiteral = PsiTreeUtil.findChildOfType(myFixture.file, StringLiteralExpression::class.java)
-        if (stringLiteral != null) {
-            val injectedFiles = InjectedLanguageManager.getInstance(project).getInjectedPsiFiles(stringLiteral)
-            val hasPointcut = injectedFiles?.any { it.first.language == PointcutQueryLanguage } ?: false
-            assertFalse("Should not inject pointcut language into unrelated attribute", hasPointcut)
-        }
+        assertFalse(isInjected(stringLiterals().single()))
     }
 
     fun testNoInjectionIntoNormalPhpString() {
-        myFixture.configureByText(
-            PhpFileType.INSTANCE,
-            """
-<?php
-${'$'}x = 'execution(public *->*(*)';
-            """.trimIndent()
-        )
-        val stringLiteral = PsiTreeUtil.findChildOfType(myFixture.file, StringLiteralExpression::class.java)
-        if (stringLiteral != null) {
-            val injectedFiles = InjectedLanguageManager.getInstance(project).getInjectedPsiFiles(stringLiteral)
-            val hasPointcut = injectedFiles?.any { it.first.language == PointcutQueryLanguage } ?: false
-            assertFalse("Should not inject pointcut language into a plain string", hasPointcut)
-        }
+        configure("${'$'}x = 'execution(public *->*(*))';")
+        assertFalse(isInjected(stringLiterals().single()))
     }
 
-    // ----- helper -----
+    // ----- helpers -----
 
-    private fun assertPointcutInjected() {
+    private fun configure(code: String) {
+        myFixture.configureByText(PhpFileType.INSTANCE, "<?php\n" + code.trimIndent())
         PsiDocumentManager.getInstance(project).commitAllDocuments()
-        val stringLiteral = PsiTreeUtil.findChildOfType(myFixture.file, StringLiteralExpression::class.java)
-        assertNotNull("Expected a string literal argument in the PHP file", stringLiteral)
-        val injectedFiles = InjectedLanguageManager.getInstance(project).getInjectedPsiFiles(stringLiteral!!)
-        assertNotNull("Expected injected PSI in string literal", injectedFiles)
-        assertTrue(
-            "Expected Go! AOP Pointcut query language to be injected",
-            injectedFiles!!.any { it.first.language == PointcutQueryLanguage }
-        )
+    }
+
+    private fun stringLiterals(): List<StringLiteralExpression> =
+        PsiTreeUtil.findChildrenOfType(myFixture.file, StringLiteralExpression::class.java).toList()
+
+    private fun isInjected(literal: StringLiteralExpression): Boolean {
+        val injectedFiles = InjectedLanguageManager.getInstance(project).getInjectedPsiFiles(literal) ?: return false
+        return injectedFiles.any { it.first.language == PointcutQueryLanguage }
     }
 }

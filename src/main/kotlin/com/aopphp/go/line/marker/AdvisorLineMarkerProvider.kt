@@ -38,10 +38,18 @@ class AdvisorLineMarkerProvider : RelatedItemLineMarkerProvider() {
         val matched = PointcutAdvisor.getMatchedElements(aspectMember)
         if (matched.isNullOrEmpty()) return
 
-        val builder = NavigationGutterIconBuilder.create(GoAopIcons.ADVISED_ELEMENT)
+        // Only #[DeclareParents] introductions are declared on aspect properties
+        val isIntroduction = aspectMember is Field
+        val builder = NavigationGutterIconBuilder.create(
+            if (isIntroduction) GoAopIcons.INTRODUCTION else GoAopIcons.ADVISED_ELEMENT
+        )
         builder.setTooltipText(
-            if (matched.size > 1) "Navigate to advised elements"
-            else "Advising '${matched[0].fqn}'"
+            when {
+                matched.size > 1 && isIntroduction -> "Navigate to classes with this introduction"
+                matched.size > 1 -> "Navigate to advised elements"
+                isIntroduction -> "Introducing into '${matched[0].fqn}'"
+                else -> "Advising '${matched[0].fqn}'"
+            }
         )
         builder.setTargets(matched)
         result.add(builder.createLineMarkerInfo(element))

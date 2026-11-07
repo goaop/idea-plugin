@@ -13,11 +13,9 @@ import com.aopphp.go.psi.PointcutTypes
 import com.intellij.patterns.ElementPattern
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
-import com.jetbrains.php.lang.psi.elements.MethodReference
 import com.jetbrains.php.lang.psi.elements.ParameterList
 import com.jetbrains.php.lang.psi.elements.PhpAttribute
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression
-import com.jetbrains.php.lang.psi.elements.impl.MethodImpl
 
 object CodePattern : PlatformPatterns() {
 
@@ -85,6 +83,9 @@ object CodePattern : PlatformPatterns() {
                 psiElement(PointcutTypes.PROTECTED),
                 psiElement(PointcutTypes.PUBLIC),
                 psiElement(PointcutTypes.FINAL),
+                psiElement(PointcutTypes.READONLY),
+                psiElement(PointcutTypes.PRIVATE_SET),
+                psiElement(PointcutTypes.PROTECTED_SET),
                 psiElement(PointcutTypes.T_ALTERNATION),
             ),
             or(
@@ -126,6 +127,9 @@ object CodePattern : PlatformPatterns() {
             psiElement(PointcutTypes.PROTECTED),
             psiElement(PointcutTypes.PUBLIC),
             psiElement(PointcutTypes.FINAL),
+            psiElement(PointcutTypes.READONLY),
+            psiElement(PointcutTypes.PRIVATE_SET),
+            psiElement(PointcutTypes.PROTECTED_SET),
             psiElement(PointcutTypes.T_ALTERNATION),
             psiElement().whitespace(),
         ),
@@ -148,15 +152,4 @@ object CodePattern : PlatformPatterns() {
         return attr.fqn?.startsWith(attributePrefix) == true
     }
 
-    /**
-     * Returns true when [host] is the first argument of a PointcutBuilder method call:
-     *   PointcutBuilder->method('<pointcutExpression>', ...)
-     */
-    @JvmStatic
-    fun isInsidePointcutBuilderMethod(host: StringLiteralExpression): Boolean {
-        val paramList = host.parent as? ParameterList ?: return false
-        val methodRef = paramList.parent as? MethodReference ?: return false
-        val resolved = methodRef.resolve() as? MethodImpl ?: return false
-        return resolved.fqn?.startsWith("\\Go\\Aop\\Support\\PointcutBuilder") == true
-    }
 }

@@ -149,4 +149,25 @@ class PointcutLexerTest : LexerTestCase() {
             "PointcutTokenType.) (')')"
         )
     }
+
+    fun testGoAop4Tokens() {
+        doTest(
+            "matchReturningByReference readonly private(set) protected(set) private & && ?",
+            "PointcutTokenType.matchReturningByReference ('matchReturningByReference')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.readonly ('readonly')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.private(set) ('private(set)')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.protected(set) ('protected(set)')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.private ('private')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.& ('&')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.&& ('&&')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.? ('?')"
+        )
+    }
 }
