@@ -89,7 +89,10 @@ class PointcutMemberAccessTypingHandler : TypedHandlerDelegate() {
                 if (prevType == PointcutTypes.PUBLIC    ||
                     prevType == PointcutTypes.PROTECTED ||
                     prevType == PointcutTypes.PRIVATE   ||
-                    prevType == PointcutTypes.FINAL
+                    prevType == PointcutTypes.FINAL     ||
+                    prevType == PointcutTypes.READONLY  ||
+                    prevType == PointcutTypes.PRIVATE_SET ||
+                    prevType == PointcutTypes.PROTECTED_SET
                 ) {
                     AutoPopupController.getInstance(project).scheduleAutoPopup(editor)
                 }

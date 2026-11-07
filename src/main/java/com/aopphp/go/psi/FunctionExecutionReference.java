@@ -13,4 +13,7 @@ public interface FunctionExecutionReference extends PsiElement {
   @NotNull
   NamespacePattern getNamespacePattern();
 
+  @Nullable
+  ReturnTypePattern getReturnTypePattern();
+
 }

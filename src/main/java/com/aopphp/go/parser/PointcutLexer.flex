@@ -44,6 +44,7 @@ WHITE_SPACE=({T_LINE_WS}|{EOL})+
   "+"                       { return com.aopphp.go.psi.PointcutTypes.T_SUBNAMESPACE_SIGN; }
   ":"                       { return com.aopphp.go.psi.PointcutTypes.T_COLON; }
   "?"                       { return com.aopphp.go.psi.PointcutTypes.T_QUESTION_MARK; }
+  "&"                       { return com.aopphp.go.psi.PointcutTypes.T_AMPERSAND; }
   "$this"                   { return com.aopphp.go.psi.PointcutTypes.T_THIS; }
   "access"                  { return com.aopphp.go.psi.PointcutTypes.ACCESS; }
   "execution"               { return com.aopphp.go.psi.PointcutTypes.EXECUTION; }
@@ -53,10 +54,15 @@ WHITE_SPACE=({T_LINE_WS}|{EOL})+
   "cflowbelow"              { return com.aopphp.go.psi.PointcutTypes.CFLOWBELOW; }
   "dynamic"                 { return com.aopphp.go.psi.PointcutTypes.DYNAMIC; }
   "matchInherited"          { return com.aopphp.go.psi.PointcutTypes.MATCHINHERITED; }
+  "matchReturningByReference" { return com.aopphp.go.psi.PointcutTypes.MATCHRETURNINGBYREFERENCE; }
   "private"                 { return com.aopphp.go.psi.PointcutTypes.PRIVATE; }
   "protected"               { return com.aopphp.go.psi.PointcutTypes.PROTECTED; }
   "public"                  { return com.aopphp.go.psi.PointcutTypes.PUBLIC; }
   "final"                   { return com.aopphp.go.psi.PointcutTypes.FINAL; }
+  "readonly"                { return com.aopphp.go.psi.PointcutTypes.READONLY; }
+  // Asymmetric visibility modifiers (PHP 8.4+) are single tokens: the longest match wins over "private" + "("
+  "private(set)"            { return com.aopphp.go.psi.PointcutTypes.PRIVATE_SET; }
+  "protected(set)"          { return com.aopphp.go.psi.PointcutTypes.PROTECTED_SET; }
 
   {T_COMMENT}               { return com.aopphp.go.psi.PointcutTypes.T_COMMENT; }
   {T_NAME_PART}             { return com.aopphp.go.psi.PointcutTypes.T_NAME_PART; }

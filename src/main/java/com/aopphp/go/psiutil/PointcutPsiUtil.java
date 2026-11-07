@@ -1,7 +1,6 @@
 package com.aopphp.go.psiutil;
 
 import com.aopphp.go.psi.MemberAccessType;
-import com.aopphp.go.psi.MemberModifier;
 import com.aopphp.go.psi.NamespaceName;
 import com.jetbrains.php.lang.psi.elements.PhpModifier;
 
@@ -15,10 +14,6 @@ public class PointcutPsiUtil {
         fqn += namespaceName.getText();
 
         return fqn;
-    }
-
-    public static PhpModifier.Access getMemberAccess(MemberModifier element) {
-        return PhpModifier.Access.valueOf(element.getText().toUpperCase());
     }
 
     public static PhpModifier.State getMemberAccessType(MemberAccessType element) {

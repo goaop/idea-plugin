@@ -128,11 +128,33 @@ class SignaturePointcutTest {
     }
 
     @Test
-    fun `question mark wildcard matches single character`() {
+    fun `question mark is not a wildcard since Go AOP 4_0`() {
         val pointcut = SignaturePointcut(setOf(KindFilter.KIND_METHOD), "?etUser", TruePointFilter)
-        assertTrue(pointcut.matches(mockMember("getUser")))
+        assertFalse(pointcut.matches(mockMember("getUser")))
+        assertFalse(pointcut.matches(mockMember("setUser")))
+    }
+
+    @Test
+    fun `star wildcard also matches nothing`() {
+        val pointcut = SignaturePointcut(setOf(KindFilter.KIND_METHOD), "set*", TruePointFilter)
+        assertTrue(pointcut.matches(mockMember("set")))
         assertTrue(pointcut.matches(mockMember("setUser")))
-        assertFalse(pointcut.matches(mockMember("fetchUser")))
+        assertFalse(pointcut.matches(mockMember("reset")))
+    }
+
+    @Test
+    fun `star wildcard matches the class itself`() {
+        val pointcut = SignaturePointcut(setOf(KindFilter.KIND_CLASS), "App\\Sensor*", TruePointFilter)
+        assertTrue(pointcut.matches(mockClass("\\App\\Sensor")))
+        assertTrue(pointcut.matches(mockClass("\\App\\SensorReader")))
+    }
+
+    @Test
+    fun `pipe alternatives stay inside their name part`() {
+        val pointcut = SignaturePointcut(setOf(KindFilter.KIND_CLASS), "Ns\\A|B", TruePointFilter)
+        assertTrue(pointcut.matches(mockClass("\\Ns\\A")))
+        assertTrue(pointcut.matches(mockClass("\\Ns\\B")))
+        assertFalse(pointcut.matches(mockClass("\\B")))
     }
 
     @Test
@@ -147,7 +169,7 @@ class SignaturePointcutTest {
 
     @Test
     fun `returns false when modifier filter rejects the member`() {
-        val modFilter = MemberAccessMatcherFilter(setOf(PhpModifier.Access.PUBLIC))
+        val modFilter = ModifierMatcherFilter(andMask = ModifierMatcherFilter.PUBLIC)
         val pointcut = SignaturePointcut(setOf(KindFilter.KIND_METHOD), "doSomething", modFilter)
         val method = mock<Method>()
         whenever(method.name).thenReturn("doSomething")
@@ -157,7 +179,7 @@ class SignaturePointcutTest {
 
     @Test
     fun `returns true when modifier filter accepts the member`() {
-        val modFilter = MemberAccessMatcherFilter(setOf(PhpModifier.Access.PUBLIC))
+        val modFilter = ModifierMatcherFilter(andMask = ModifierMatcherFilter.PUBLIC)
         val pointcut = SignaturePointcut(setOf(KindFilter.KIND_METHOD), "doSomething", modFilter)
         val method = mock<Method>()
         whenever(method.name).thenReturn("doSomething")
@@ -167,7 +189,7 @@ class SignaturePointcutTest {
 
     @Test
     fun `modifier filter is not applied to PhpClass elements`() {
-        val modFilter = MemberAccessMatcherFilter(setOf(PhpModifier.Access.PUBLIC))
+        val modFilter = ModifierMatcherFilter(andMask = ModifierMatcherFilter.PUBLIC)
         val pointcut = SignaturePointcut(setOf(KindFilter.KIND_CLASS), "App\\MyClass", modFilter)
         val cls = mockClass("\\App\\MyClass")
         // PhpClass is not a PhpClassMember, so modifier filter is skipped

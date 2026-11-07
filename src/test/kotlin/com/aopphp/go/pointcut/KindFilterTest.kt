@@ -16,16 +16,15 @@ class KindFilterTest {
         assertTrue(values.contains(KindFilter.KIND_METHOD))
         assertTrue(values.contains(KindFilter.KIND_PROPERTY))
         assertTrue(values.contains(KindFilter.KIND_CLASS))
-        assertTrue(values.contains(KindFilter.KIND_TRAIT))
         assertTrue(values.contains(KindFilter.KIND_FUNCTION))
         assertTrue(values.contains(KindFilter.KIND_INIT))
         assertTrue(values.contains(KindFilter.KIND_STATIC_INIT))
-        assertTrue(values.contains(KindFilter.KIND_DYNAMIC))
+        assertTrue(values.contains(KindFilter.KIND_INTRODUCTION))
     }
 
     @Test
-    fun `enum has exactly eight values`() {
-        assertEquals(8, KindFilter.entries.size)
+    fun `enum has exactly seven values`() {
+        assertEquals(7, KindFilter.entries.size)
     }
 
     @Test
@@ -38,7 +37,7 @@ class KindFilterTest {
     @Test
     fun `all entries form a full set`() {
         val allKinds = KindFilter.entries.toSet()
-        assertEquals(8, allKinds.size)
+        assertEquals(7, allKinds.size)
     }
 
     // ---- supports ----

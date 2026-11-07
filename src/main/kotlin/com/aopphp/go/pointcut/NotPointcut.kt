@@ -1,6 +1,5 @@
 package com.aopphp.go.pointcut
 
-import com.jetbrains.php.lang.psi.elements.PhpClassMember
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 
 class NotPointcut(private val pointcut: Pointcut) : Pointcut {
@@ -11,8 +10,7 @@ class NotPointcut(private val pointcut: Pointcut) : Pointcut {
     override fun getClassFilter() = _classFilter
 
     override fun matches(element: PhpNamedElement): Boolean {
-        if (element !is PhpClassMember) return false
-        val containing = element.containingClass ?: return false
+        val containing = contextClassOf(element) ?: return false
         if (!pointcut.getClassFilter().matches(containing)) return true
         return !pointcut.matches(element)
     }

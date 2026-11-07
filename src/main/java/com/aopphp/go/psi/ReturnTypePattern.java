@@ -7,4 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface ReturnTypePattern extends PsiElement {
 
+  @NotNull
+  List<NamespaceName> getNamespaceNameList();
+
 }

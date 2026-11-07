@@ -8,7 +8,7 @@ import org.mockito.kotlin.mock
 class ClassMemberReferenceTest {
 
     private val classFilter = mock<PointFilter>()
-    private val visibilityFilter = MemberAccessMatcherFilter(setOf(PhpModifier.Access.PUBLIC))
+    private val visibilityFilter = ModifierMatcherFilter(andMask = ModifierMatcherFilter.PUBLIC)
     private val accessTypeFilter = MemberStateMatcherFilter(PhpModifier.State.DYNAMIC)
 
     @Test

@@ -27,4 +27,10 @@ public class ReturnTypePatternImpl extends ASTWrapperPsiElement implements Retur
     else super.accept(visitor);
   }
 
+  @Override
+  @NotNull
+  public List<NamespaceName> getNamespaceNameList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, NamespaceName.class);
+  }
+
 }

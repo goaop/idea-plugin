@@ -1,5 +1,7 @@
 package com.aopphp.go.completion
 
+import com.aopphp.go.pointcut.ModifierMatcherFilter
+import com.aopphp.go.pointcut.PointcutCompiler
 import com.aopphp.go.psi.AccessPointcut
 import com.aopphp.go.psi.ExecutionPointcut
 import com.aopphp.go.psi.MemberReference
@@ -38,10 +40,16 @@ class MemberNameCompletionProvider : CompletionProvider<CompletionParameters>() 
     private data class MemberContext(
         val classFqn: String,
         val isStatic: Boolean,
-        val allowedAccess: Set<PhpModifier.Access>,  // empty = any visibility
-        val requireFinal: Boolean,
+        val modifierFilter: ModifierMatcherFilter,  // no bits = any modifiers
         val isExecution: Boolean
     )
+
+    private companion object {
+        val MODIFIER_TOKENS = setOf(
+            PointcutTypes.PUBLIC, PointcutTypes.PROTECTED, PointcutTypes.PRIVATE, PointcutTypes.FINAL,
+            PointcutTypes.READONLY, PointcutTypes.PRIVATE_SET, PointcutTypes.PROTECTED_SET,
+        )
+    }
 
     override fun addCompletions(
         parameters: CompletionParameters,
@@ -63,9 +71,7 @@ class MemberNameCompletionProvider : CompletionProvider<CompletionParameters>() 
                     if (method.name == "__construct") return@filter false
                     if (ctx.isStatic && !method.isStatic) return@filter false
                     if (!ctx.isStatic && method.isStatic) return@filter false
-                    if (ctx.requireFinal && !method.modifier.isFinal) return@filter false
-                    if (ctx.allowedAccess.isNotEmpty() && method.modifier.access !in ctx.allowedAccess) return@filter false
-                    true
+                    ctx.modifierFilter.matches(method)
                 }
                 .forEach { method ->
                     result.addElement(
@@ -88,9 +94,7 @@ class MemberNameCompletionProvider : CompletionProvider<CompletionParameters>() 
                     if (field.isConstant) return@filter false
                     if (ctx.isStatic && !field.modifier.isStatic) return@filter false
                     if (!ctx.isStatic && field.modifier.isStatic) return@filter false
-                    if (ctx.requireFinal) return@filter false  // PHP fields are never final in class sense
-                    if (ctx.allowedAccess.isNotEmpty() && field.modifier.access !in ctx.allowedAccess) return@filter false
-                    true
+                    ctx.modifierFilter.matches(field)
                 }
                 .forEach { field ->
                     result.addElement(
@@ -118,36 +122,16 @@ class MemberNameCompletionProvider : CompletionProvider<CompletionParameters>() 
 
             val nsText = memberRef.classFilter.namespacePattern.text
             val accessType = memberRef.memberAccessType.memberAccessType  // DYNAMIC or STATIC
-            val (allowedAccess, requireFinal) = parseModifiers(memberRef)
-
             return MemberContext(
-                classFqn    = nsText,
-                isStatic    = accessType == PhpModifier.State.STATIC,
-                allowedAccess = allowedAccess,
-                requireFinal  = requireFinal,
-                isExecution   = isExecution
+                classFqn       = nsText,
+                isStatic       = accessType == PhpModifier.State.STATIC,
+                modifierFilter = PointcutCompiler.getModifierMatcher(memberRef.memberModifiers),
+                isExecution    = isExecution
             )
         }
 
         // Path 2: broken PSI — walk the token stream
         return resolveMemberContextFromTokens(position)
-    }
-
-    /**
-     * Extracts allowed visibility modifiers and 'final' flag from a [MemberReference].
-     */
-    private fun parseModifiers(memberRef: MemberReference): Pair<Set<PhpModifier.Access>, Boolean> {
-        val allowedAccess = mutableSetOf<PhpModifier.Access>()
-        var requireFinal = false
-        memberRef.memberModifiers.memberModifierList.forEach { modifier ->
-            when (modifier.node.firstChildNode?.elementType) {
-                PointcutTypes.PUBLIC    -> allowedAccess.add(PhpModifier.Access.PUBLIC)
-                PointcutTypes.PROTECTED -> allowedAccess.add(PhpModifier.Access.PROTECTED)
-                PointcutTypes.PRIVATE   -> allowedAccess.add(PhpModifier.Access.PRIVATE)
-                PointcutTypes.FINAL     -> requireFinal = true
-            }
-        }
-        return Pair(allowedAccess, requireFinal)
     }
 
     /**
@@ -182,20 +166,22 @@ class MemberNameCompletionProvider : CompletionProvider<CompletionParameters>() 
         val classText = classParts.joinToString("").trimStart('\\')
         if (classText.isEmpty()) return null
 
-        // Collect modifiers and identify the enclosing keyword
-        val allowedAccess = mutableSetOf<PhpModifier.Access>()
-        var requireFinal = false
+        // Collect modifier groups (walking backwards) and identify the enclosing keyword
+        // Only '|' joins modifiers into one group of alternatives, whitespace is not significant
+        val groups = mutableListOf(mutableListOf<String>())
         var keyword: IElementType? = null
+        var joinWithNext = false
 
         while (current != null) {
             when (current.node?.elementType) {
-                PointcutTypes.PUBLIC         -> allowedAccess.add(PhpModifier.Access.PUBLIC)
-                PointcutTypes.PROTECTED      -> allowedAccess.add(PhpModifier.Access.PROTECTED)
-                PointcutTypes.PRIVATE        -> allowedAccess.add(PhpModifier.Access.PRIVATE)
-                PointcutTypes.FINAL          -> requireFinal = true
-                PointcutTypes.T_ALTERNATION,
-                PointcutTypes.T_LEFT_PAREN,
-                TokenType.WHITE_SPACE        -> { /* skip */ }
+                in MODIFIER_TOKENS           -> {
+                    if (groups.last().isEmpty() || joinWithNext) groups.last().add(current.text)
+                    else groups.add(mutableListOf(current.text))
+                    joinWithNext = false
+                }
+                PointcutTypes.T_ALTERNATION  -> joinWithNext = true
+                TokenType.WHITE_SPACE,
+                PointcutTypes.T_LEFT_PAREN   -> { /* skip */ }
                 PointcutTypes.EXECUTION      -> { keyword = PointcutTypes.EXECUTION; break }
                 PointcutTypes.ACCESS         -> { keyword = PointcutTypes.ACCESS; break }
                 else                         -> break
@@ -205,12 +191,17 @@ class MemberNameCompletionProvider : CompletionProvider<CompletionParameters>() 
 
         if (keyword == null) return null
 
+        var modifierFilter = ModifierMatcherFilter()
+        for (group in groups.filter { it.isNotEmpty() }) {
+            val bits = group.fold(0) { mask, modifier -> mask or ModifierMatcherFilter.bitOf(modifier) }
+            modifierFilter = if (group.size == 1) modifierFilter.andMatch(bits) else modifierFilter.orMatch(bits)
+        }
+
         return MemberContext(
-            classFqn      = classText,
-            isStatic      = accessType == PointcutTypes.T_STATIC_ACCESS,
-            allowedAccess = allowedAccess,
-            requireFinal  = requireFinal,
-            isExecution   = keyword == PointcutTypes.EXECUTION
+            classFqn       = classText,
+            isStatic       = accessType == PointcutTypes.T_STATIC_ACCESS,
+            modifierFilter = modifierFilter,
+            isExecution    = keyword == PointcutTypes.EXECUTION
         )
     }
 

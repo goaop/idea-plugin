@@ -37,7 +37,8 @@ class PointcutCompletionTest : BasePlatformTestCase() {
             "within",
             "initialization",
             "staticinitialization",
-            "matchInherited"
+            "matchInherited",
+            "matchReturningByReference"
         )
     }
 
@@ -84,6 +85,21 @@ class PointcutCompletionTest : BasePlatformTestCase() {
         val completions = myFixture.complete(CompletionType.BASIC) ?: return
         val lookupStrings = completions.map { it.lookupString }
         assertContainsElements(lookupStrings, "public", "protected", "private", "final")
+    }
+
+    fun testPropertyModifiersOfPhp84AreOffered() {
+        myFixture.configureByText("test.goaop", "access(<caret>public MyClass->property)")
+        val completions = myFixture.complete(CompletionType.BASIC) ?: return
+        val lookupStrings = completions.map { it.lookupString }
+        assertContainsElements(lookupStrings, "readonly", "private(set)", "protected(set)")
+    }
+
+    fun testModifierAfterSpaceSeparatedGroup() {
+        // 'final public' is final AND public since Go! AOP 4.0, a second modifier group is valid
+        myFixture.configureByText("test.goaop", "execution(final <caret>public MyClass->method(*))")
+        val completions = myFixture.complete(CompletionType.BASIC) ?: return
+        val lookupStrings = completions.map { it.lookupString }
+        assertContainsElements(lookupStrings, "public", "protected")
     }
 
     fun testModifierPipeChaining() {

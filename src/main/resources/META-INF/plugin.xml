@@ -33,6 +33,8 @@
 
         <annotator language="Go! AOP Pointcut query"
                    implementationClass="com.aopphp.go.annotator.AttributeAnnotator"/>
+        <annotator language="Go! AOP Pointcut query"
+                   implementationClass="com.aopphp.go.annotator.PointcutAnnotator"/>
 
         <codeInsight.lineMarkerProvider language="PHP"
                                         implementationClass="com.aopphp.go.line.marker.AdvisedElementsLineMarkerProvider"/>
@@ -40,7 +42,6 @@
                                         implementationClass="com.aopphp.go.line.marker.AdvisorLineMarkerProvider"/>
 
         <fileBasedIndex implementation="com.aopphp.go.index.AttributePointcutExpressionIndex"/>
-        <fileBasedIndex implementation="com.aopphp.go.index.AttributePhpNamedElementIndex"/>
 
         <psi.referenceContributor language="Go! AOP Pointcut query"
                                   implementation="com.aopphp.go.reference.PointcutClassReferenceContributor"/>
@@ -62,5 +63,18 @@
                                     implementationClass="com.aopphp.go.reference.PointcutDocumentationProvider"/>
 
         <iconProvider implementation="com.aopphp.go.provider.AspectIconProvider" order="first"/>
+
+        <localInspection language="PHP" shortName="GoAopAdviceMethod" groupName="Go! AOP"
+                         displayName="Invalid advice method"
+                         enabledByDefault="true" level="ERROR"
+                         implementationClass="com.aopphp.go.inspection.AdviceMethodInspection"/>
+        <localInspection language="PHP" shortName="GoAopRemovedAttribute" groupName="Go! AOP"
+                         displayName="Attribute removed in Go! AOP 4.0"
+                         enabledByDefault="true" level="WARNING"
+                         implementationClass="com.aopphp.go.inspection.RemovedAttributeInspection"/>
+        <localInspection language="PHP" shortName="GoAopReturningByReference" groupName="Go! AOP"
+                         displayName="Advised method returns by reference"
+                         enabledByDefault="true" level="WARNING"
+                         implementationClass="com.aopphp.go.inspection.ReturningByReferenceInspection"/>
     </extensions>
 </idea-plugin>

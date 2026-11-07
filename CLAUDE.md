@@ -30,44 +30,55 @@ This is a **PhpStorm/IntelliJ IDEA plugin** that provides IDE support for the [G
 
 ## Architecture
 
-### Dual source roots
+### Source roots
 
-The project has two source roots — a legacy Java root and a modern Kotlin root from the IntelliJ Platform Plugin Template:
-
-- `src/com/aopphp/go/` — **all the real plugin code** (Java), organized around the Go! AOP feature set
-- `src/main/kotlin/com/github/lisachenko/intellijideagoaopplugin/` — template scaffolding (MyBundle, MyProjectService, MyToolWindowFactory) that is mostly unused
-
-There are also **two** `plugin.xml` files:
-- `META-INF/plugin.xml` — the **active** plugin descriptor (id `com.aopphp.go.framework`), lists all extensions
-- `src/main/resources/META-INF/plugin.xml` — the template stub (id `com.github.lisachenko.intellijideagoaopplugin`), not the active one
+- `src/main/java/com/aopphp/go/` — the GrammarKit grammar, the generated lexer/parser/PSI, and small Java PSI helpers (`psiutil/`)
+- `src/main/kotlin/com/aopphp/go/` — all hand-written plugin code (Kotlin)
+- `src/main/resources/META-INF/plugin.xml` — the plugin descriptor (id `com.aopphp.go.framework`), lists all extensions
+- `src/main/resources/inspectionDescriptions/` — one HTML description per inspection short name
 
 ### Custom language pipeline
 
-The plugin defines a custom language called **"Go! AOP Pointcut query"**:
+The plugin defines a custom language called **"Go! AOP Pointcut query"**, following the `PointcutGrammar`/`PointcutLexer`
+of the Go! AOP framework (`src/Aop/Pointcut/` in goaop/framework, currently 4.0):
 
 1. `parser/pointcut.bnf` — GrammarKit BNF grammar (source of truth for the language)
 2. `parser/PointcutLexer.flex` — JFlex lexer definition
-3. `parser/PointcutLexer.java` / `PointcutParser.java` — **generated** files; do not edit directly
+3. `parser/PointcutLexer.java` / `PointcutParser.java` and `psi/` — **generated** files; do not edit directly
 4. `PointcutQueryParserDefinition` — wires lexer + parser into IntelliJ's language framework
-5. `psi/` — 55+ PSI element types and their `impl/` implementations (generated from the BNF)
 
-When modifying the grammar, regenerate the lexer/parser via GrammarKit (Run > Generate Parser Code in IntelliJ).
+After changing the grammar, regenerate the lexer/parser (PointcutPsiUtil must be compiled first; the configuration-cache
+error printed at the end is harmless, the files are generated):
+
+```bash
+./gradlew compileJava compileKotlin regenerateParser generateLexer
+```
+
+`dynamic(...)` and `cflowbelow(...)` were removed in Go! AOP 4.0 but are still parsed, so that `PointcutAnnotator`
+can explain the migration.
 
 ### Key extension points
 
-| Component         | Class                                                                 | Purpose                                                               |
-|-------------------|-----------------------------------------------------------------------|-----------------------------------------------------------------------|
-| File type         | `GoAopFileTypeFactory`                                                | Registers `.goaop` files                                              |
-| Language injector | `PointcutQueryLanguageInjector`                                       | Injects pointcut language into `Go\Lang\Annotation\*` PHP annotations |
-| Language injector | `PhpDealAssertInjector`                                               | Injects PHP into Php-Deal assertions                                  |
-| Completion        | `PointcutCompletionContributor` → `completion/`                       | Keywords, modifiers, Doctrine annotations                             |
-| Line markers      | `AdvisedElementsLineMarkerProvider` / `AdvisorLineMarkerProvider`     | Navigation between advice and advised PHP elements                    |
-| Indexes           | `AnnotationPointcutExpressionIndex` / `AnnotatedPhpNamedElementIndex` | File-based indexes for fast cross-file lookups                        |
-| Annotator         | `DoctrineAnnotator`                                                   | Highlights invalid Doctrine annotation usages in pointcuts            |
+| Component         | Class                                                             | Purpose                                                                       |
+|-------------------|-------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| File type         | `GoAopFileType`                                                   | Registers `.goaop` files                                                      |
+| Language injector | `PointcutQueryLanguageInjector`                                   | Injects pointcut language into the expression of `Go\Lang\Attribute\*` attributes and `PointcutBuilder` calls (`GoAopAttributes.isPointcutExpression`) |
+| Language injector | `PhpDealAssertInjector`                                           | Injects PHP into Php-Deal assertions                                          |
+| Completion        | `PointcutCompletionContributor` → `completion/`                   | Keywords, modifiers, classes, members, attributes, `$this->` pointcuts        |
+| Line markers      | `AdvisedElementsLineMarkerProvider` / `AdvisorLineMarkerProvider` | Navigation between advices/introductions and advised PHP elements             |
+| Index             | `AttributePointcutExpressionIndex`                                | Compiled pointcut of every aspect member (Java-serialized: bump `getVersion()` when pointcut classes change) |
+| Annotators        | `AttributeAnnotator` / `PointcutAnnotator`                        | Attribute class checks; Go! AOP 4.0 errors and migration hints in pointcuts   |
+| Inspections       | `inspection/`                                                     | PHP-side aspect rules: public advices, one advice per method, removed attributes, advised by-reference methods |
+| References        | `reference/`                                                      | Navigation, Find Usages and Rename for classes, members and named pointcuts   |
 
 ### Pointcut engine (`pointcut/`)
 
-Pure Java implementation of AOP pointcut matching — no IDE dependencies. Composite pattern: `AndPointcut`, `OrPointcut`, `NotPointcut` wrap leaf types (`SignaturePointcut`, `AnnotationPointcut`, `AccessPointcut`, `ExecutionPointcut`, `WithinPointcut`). The `PointFilter` hierarchy mirrors this for member-level matching.
+Kotlin implementation of the framework's pointcut matching over PHP PSI. `PointcutCompiler` turns the PSI into a tree
+of composites (`AndPointcut`, `OrPointcut`, `NotPointcut`) over leaf pointcuts (`SignaturePointcut`, `AttributePointcut`,
+`TruePointcut`, `MatchInheritedPointcut`, `MatchReturningByReferencePointcut`, `PointcutReferencePointcut`,
+`IntroductionPointcut`); the `PointFilter` hierarchy (`ModifierMatcherFilter`, `ReturnTypeFilter`,
+`InheritanceClassFilter`...) matches classes and modifiers. Keep the semantics in line with the framework classes of the
+same name. Members are matched in the class that declares them; `PointcutAdvisor` runs the matching for line markers.
 
 ### Plugin dependencies
 

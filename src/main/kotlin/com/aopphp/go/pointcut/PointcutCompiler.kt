@@ -4,16 +4,20 @@ import com.aopphp.go.psi.BrakedExpression
 import com.aopphp.go.psi.ClassFilter
 import com.aopphp.go.psi.ConjugatedExpression
 import com.aopphp.go.psi.MemberAccessType
-import com.aopphp.go.psi.MemberModifier
 import com.aopphp.go.psi.MemberModifiers
 import com.aopphp.go.psi.MemberReference
 import com.aopphp.go.psi.NegatedExpression
 import com.aopphp.go.psi.PointcutExpression
+import com.aopphp.go.psi.PointcutReference
 import com.aopphp.go.psi.PointcutTypes
+import com.aopphp.go.psi.ReturnTypePattern
 import com.aopphp.go.psi.SinglePointcut
-import com.jetbrains.php.lang.psi.elements.PhpModifier
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 
+/**
+ * Compiles the PSI of a pointcut expression into a [Pointcut] that matches PHP elements,
+ * following the semantics of the Go! AOP 4.0 `PointcutGrammar`.
+ */
 object PointcutCompiler {
 
     private val NEVER_MATCHES = NeverMatchesPointcut()
@@ -24,162 +28,188 @@ object PointcutCompiler {
         override fun getKind() = emptySet<KindFilter>()
         override fun hashCode() = 0
         override fun equals(other: Any?) = other is NeverMatchesPointcut
+        private fun readResolve(): Any = NEVER_MATCHES
     }
 
-    fun compile(element: PointcutExpression): Pointcut {
+    /**
+     * Compiles [element]. [aspectClassFqn] is the FQN of the aspect that declares the expression,
+     * used to resolve `$this->pointcutName` references.
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun compile(element: PointcutExpression, aspectClassFqn: String? = null): Pointcut {
         val innerExpression = element.pointcutExpression
-        val pointcut = resolveConjugatedExpression(element.conjugatedExpression)
+        val pointcut = resolveConjugatedExpression(element.conjugatedExpression, aspectClassFqn)
 
         if (innerExpression != null) {
-            val secondPointcut = compile(innerExpression)
-            return OrPointcut(pointcut, secondPointcut)
+            return OrPointcut(pointcut, compile(innerExpression, aspectClassFqn))
         }
 
         return pointcut
     }
 
-    fun resolveConjugatedExpression(element: ConjugatedExpression): Pointcut {
+    private fun resolveConjugatedExpression(element: ConjugatedExpression, aspectClassFqn: String?): Pointcut {
         val innerExpression = element.conjugatedExpression
-        val pointcut = resolveNegatedExpression(element.negatedExpression)
+        val pointcut = resolveNegatedExpression(element.negatedExpression, aspectClassFqn)
 
         if (innerExpression != null) {
-            val secondPointcut = resolveConjugatedExpression(innerExpression)
-            return AndPointcut(pointcut, secondPointcut)
+            return AndPointcut(pointcut, resolveConjugatedExpression(innerExpression, aspectClassFqn))
         }
 
         return pointcut
     }
 
-    fun resolveNegatedExpression(element: NegatedExpression): Pointcut {
-        val pointcut = resolveBrakedExpression(element.brakedExpression)
+    private fun resolveNegatedExpression(element: NegatedExpression, aspectClassFqn: String?): Pointcut {
+        val pointcut = resolveBrakedExpression(element.brakedExpression, aspectClassFqn)
 
-        if (element.firstChild.text == "!") {
+        if (element.firstChild.node.elementType == PointcutTypes.T_NEGATION) {
             return NotPointcut(pointcut)
         }
 
         return pointcut
     }
 
-    fun resolveBrakedExpression(element: BrakedExpression): Pointcut {
-        val pointcutExpression = element.pointcutExpression
-        if (pointcutExpression != null) {
-            return compile(pointcutExpression)
-        }
+    private fun resolveBrakedExpression(element: BrakedExpression, aspectClassFqn: String?): Pointcut {
+        element.pointcutExpression?.let { return compile(it, aspectClassFqn) }
+        val singlePointcut = element.singlePointcut ?: return NEVER_MATCHES
 
-        return resolveSinglePointcut(element.singlePointcut!!)
+        return resolveSinglePointcut(singlePointcut, aspectClassFqn)
     }
 
-    fun resolveSinglePointcut(element: SinglePointcut): Pointcut {
+    @JvmStatic
+    @JvmOverloads
+    fun resolveSinglePointcut(element: SinglePointcut, aspectClassFqn: String? = null): Pointcut {
         val kindProperty = setOf(KindFilter.KIND_PROPERTY)
         val kindMethod = setOf(KindFilter.KIND_METHOD)
         val kindClass = setOf(KindFilter.KIND_CLASS)
 
         element.accessPointcut?.let { accessPointcut ->
-            val memberReference = getClassMemberReference(accessPointcut.memberReference!!)
-            return getSignaturePointcut(memberReference, kindProperty)
+            val memberReference = accessPointcut.memberReference ?: return NEVER_MATCHES
+            return getSignaturePointcut(getClassMemberReference(memberReference), kindProperty, null)
         }
 
         element.executionPointcut?.let { executionPointcut ->
-            val methodExecRef = executionPointcut.methodExecutionReference
-            if (methodExecRef != null) {
-                val memberReference = getClassMemberReference(methodExecRef.memberReference!!)
-                val returnTypePattern = methodExecRef.returnTypePattern
-                if (returnTypePattern != null) {
-                    val nullable =
-                        returnTypePattern.firstChild.node.elementType == PointcutTypes.T_QUESTION_MARK
-                    val patternText = returnTypePattern.text
-                    val typeText = if (nullable) patternText.substring(1) else patternText
-                    val modifierFilter = AndPointFilter(
-                        AndPointFilter(memberReference.visibilityFilter, memberReference.accessTypeFilter),
-                        ReturnTypeFilter(typeText, nullable)
-                    )
-                    val signaturePointcut =
-                        SignaturePointcut(kindMethod, memberReference.memberNamePattern, modifierFilter)
-                    signaturePointcut._classFilter = memberReference.classFilter
-                    return signaturePointcut
-                }
-                return getSignaturePointcut(memberReference, kindMethod)
+            executionPointcut.methodExecutionReference?.let { methodExecRef ->
+                val memberReference = methodExecRef.memberReference
+                return getSignaturePointcut(
+                    getClassMemberReference(memberReference),
+                    kindMethod,
+                    methodExecRef.returnTypePattern
+                )
             }
+            executionPointcut.functionExecutionReference?.let { functionExecRef ->
+                // Function joinpoints are calls of system functions from a namespace, there is no PHP element to mark
+                return SignaturePointcut(
+                    setOf(KindFilter.KIND_FUNCTION),
+                    functionExecRef.namespacePattern.text,
+                    TruePointFilter
+                )
+            }
+            return NEVER_MATCHES
         }
 
         element.withinPointcut?.let { withinPointcut ->
-            val pointcut = TruePointcut()
-            pointcut._classFilter = getClassFilterMatcher(withinPointcut.classFilter!!)
-            return pointcut
+            val classFilter = withinPointcut.classFilter ?: return NEVER_MATCHES
+            return TruePointcut(KIND_ALL, getClassFilterMatcher(classFilter))
         }
 
         element.annotatedExecutionPointcut?.let {
-            val annotationName = it.namespaceName!!.getFQN()
-            return AttributePointcut(kindMethod, annotationName)
+            val attributeName = it.namespaceName?.getFQN() ?: return NEVER_MATCHES
+            return AttributePointcut(kindMethod, attributeName)
         }
 
         element.annotatedAccessPointcut?.let {
-            val annotationName = it.namespaceName!!.getFQN()
-            return AttributePointcut(kindProperty, annotationName)
+            val attributeName = it.namespaceName?.getFQN() ?: return NEVER_MATCHES
+            return AttributePointcut(kindProperty, attributeName)
         }
 
         element.annotatedWithinPointcut?.let {
-            val pointcut = TruePointcut()
-            pointcut._classFilter = AttributePointcut(kindClass, it.namespaceName!!.getFQN())
-            return pointcut
+            val attributeName = it.namespaceName?.getFQN() ?: return NEVER_MATCHES
+            return TruePointcut(KIND_ALL, AttributePointcut(kindClass, attributeName))
         }
 
         element.initializationPointcut?.let {
-            val pointcut = TruePointcut(kindClass)
-            pointcut._classFilter = getClassFilterMatcher(it.classFilter!!)
-            return pointcut
+            val classFilter = it.classFilter ?: return NEVER_MATCHES
+            return TruePointcut(setOf(KindFilter.KIND_CLASS, KindFilter.KIND_INIT), getClassFilterMatcher(classFilter))
         }
 
         element.staticInitializationPointcut?.let {
-            val pointcut = TruePointcut(kindClass)
-            pointcut._classFilter = getClassFilterMatcher(it.classFilter!!)
-            return pointcut
+            val classFilter = it.classFilter ?: return NEVER_MATCHES
+            return TruePointcut(setOf(KindFilter.KIND_CLASS, KindFilter.KIND_STATIC_INIT), getClassFilterMatcher(classFilter))
         }
 
+        element.matchInheritedPointcut?.let { return MatchInheritedPointcut() }
+
+        element.matchReturningByReferencePointcut?.let { return MatchReturningByReferencePointcut() }
+
+        element.pointcutReference?.let { return resolvePointcutReference(it, aspectClassFqn) }
+
+        // cflowbelow() and dynamic() are removed in Go! AOP 4.0, the annotator reports them
         return NEVER_MATCHES
+    }
+
+    private fun resolvePointcutReference(reference: PointcutReference, aspectClassFqn: String?): Pointcut {
+        val pointcutName = reference.namePatternPart?.text ?: return NEVER_MATCHES
+        val classFqn = if (reference.firstChild.node.elementType == PointcutTypes.T_THIS) {
+            aspectClassFqn ?: return NEVER_MATCHES
+        } else {
+            reference.namespaceName?.getFQN() ?: return NEVER_MATCHES
+        }
+        return PointcutReferencePointcut(classFqn, pointcutName)
     }
 
     private fun getSignaturePointcut(
         memberReference: ClassMemberReference,
-        propertyKind: Set<KindFilter>
+        kind: Set<KindFilter>,
+        returnTypePattern: ReturnTypePattern?
     ): SignaturePointcut {
-        val signaturePointcut = SignaturePointcut(
-            propertyKind,
-            memberReference.memberNamePattern,
-            AndPointFilter(memberReference.visibilityFilter, memberReference.accessTypeFilter)
-        )
+        var modifierFilter: PointFilter = AndPointFilter(memberReference.visibilityFilter, memberReference.accessTypeFilter)
+        if (returnTypePattern != null) {
+            modifierFilter = AndPointFilter(modifierFilter, ReturnTypeFilter(returnTypePattern.text))
+        }
+        val signaturePointcut = SignaturePointcut(kind, memberReference.memberNamePattern, modifierFilter)
         signaturePointcut._classFilter = memberReference.classFilter
         return signaturePointcut
     }
 
+    @JvmStatic
     fun getClassMemberReference(element: MemberReference): ClassMemberReference {
         return ClassMemberReference(
-            getClassFilterMatcher(element.classFilter!!),
-            getMemberAccessMatcher(element.memberModifiers!!),
-            getMemberAccessTypeMatcher(element.memberAccessType!!),
-            element.namePattern!!.text
+            getClassFilterMatcher(element.classFilter),
+            getModifierMatcher(element.memberModifiers),
+            getMemberAccessTypeMatcher(element.memberAccessType),
+            element.namePattern.text
         )
     }
 
+    @JvmStatic
     fun getClassFilterMatcher(element: ClassFilter): PointFilter {
-        val namespacePattern = element.namespacePattern!!.text
+        val namespacePattern = element.namespacePattern.text
+        if (element.lastChild.node.elementType == PointcutTypes.T_SUBNAMESPACE_SIGN) {
+            return InheritanceClassFilter(namespacePattern)
+        }
         if (namespacePattern == "**") {
             return TruePointFilter
-        }
-        if (element.lastChild.text == "+") {
-            return InheritanceClassFilter(namespacePattern)
         }
         return SignaturePointcut(setOf(KindFilter.KIND_CLASS), namespacePattern, TruePointFilter)
     }
 
-    fun getMemberAccessMatcher(element: MemberModifiers): MemberAccessMatcherFilter {
-        val allowedAccess = HashSet<PhpModifier.Access>()
-        for (memberModifier in element.memberModifierList) {
-            allowedAccess.add(memberModifier.memberAccess)
+    /**
+     * Space-separated modifier groups must all be present, `|` alternatives inside a group bind tighter:
+     * `final public|protected` is final AND (public OR protected).
+     */
+    @JvmStatic
+    fun getModifierMatcher(element: MemberModifiers): ModifierMatcherFilter {
+        var filter = ModifierMatcherFilter()
+        for (group in element.modifierGroupList) {
+            val modifiers = group.memberModifierList
+            val bits = modifiers.fold(0) { mask, modifier -> mask or ModifierMatcherFilter.bitOf(modifier.text) }
+            filter = if (modifiers.size == 1) filter.andMatch(bits) else filter.orMatch(bits)
         }
-        return MemberAccessMatcherFilter(allowedAccess)
+        return filter
     }
 
+    @JvmStatic
     fun getMemberAccessTypeMatcher(element: MemberAccessType): MemberStateMatcherFilter {
         return MemberStateMatcherFilter(element.memberAccessType)
     }

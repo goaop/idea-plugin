@@ -125,5 +125,34 @@ class InheritanceClassFilterTest {
         assertNotEquals(filter, null)
         assertNotEquals(filter, "App\\MyClass")
     }
-}
 
+    @Test
+    fun `matches classes using the trait directly or through a parent class`() {
+        val parent = mock<PhpClass>()
+        whenever(parent.fqn).thenReturn("\\App\\Base")
+        whenever(parent.traitNames).thenReturn(arrayOf("\\App\\LoggerTrait"))
+
+        val cls = mock<PhpClass>()
+        whenever(cls.fqn).thenReturn("\\App\\Child")
+        whenever(cls.superClass).thenReturn(parent)
+
+        assertTrue(InheritanceClassFilter("App\\LoggerTrait").matches(cls))
+        assertTrue(InheritanceClassFilter("App\\LoggerTrait").matches(parent))
+        assertFalse(InheritanceClassFilter("App\\OtherTrait").matches(cls))
+    }
+
+    @Test
+    fun `matches interfaces inherited through parent interfaces`() {
+        val baseInterface = mock<PhpClass>()
+        whenever(baseInterface.fqn).thenReturn("\\App\\Base")
+        val childInterface = mock<PhpClass>()
+        whenever(childInterface.fqn).thenReturn("\\App\\Child")
+        whenever(childInterface.implementedInterfaces).thenReturn(arrayOf(baseInterface))
+
+        val cls = mock<PhpClass>()
+        whenever(cls.fqn).thenReturn("\\App\\Service")
+        whenever(cls.implementedInterfaces).thenReturn(arrayOf(childInterface))
+
+        assertTrue(InheritanceClassFilter("App\\Base").matches(cls))
+    }
+}

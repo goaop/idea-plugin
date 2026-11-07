@@ -23,13 +23,13 @@ class OrPointcutKindMatchingTest {
     private val executionClause = SignaturePointcut(
         setOf(KindFilter.KIND_METHOD),
         "data*",
-        MemberAccessMatcherFilter(setOf(PhpModifier.Access.PUBLIC))
+        ModifierMatcherFilter(andMask = ModifierMatcherFilter.PUBLIC)
     )
 
     private val accessClause = SignaturePointcut(
         setOf(KindFilter.KIND_PROPERTY),
         "id*",
-        MemberAccessMatcherFilter(setOf(PhpModifier.Access.PUBLIC))
+        ModifierMatcherFilter(andMask = ModifierMatcherFilter.PUBLIC)
     )
 
     private val orPointcut = OrPointcut(executionClause, accessClause)
