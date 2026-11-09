@@ -68,10 +68,7 @@ class MemberNameCompletionProvider : CompletionProvider<CompletionParameters>() 
         if (ctx.isExecution) {
             phpClass.methods
                 .filter { method ->
-                    if (method.name == "__construct") return@filter false
-                    if (ctx.isStatic && !method.isStatic) return@filter false
-                    if (!ctx.isStatic && method.isStatic) return@filter false
-                    ctx.modifierFilter.matches(method)
+                    method.name != "__construct" && method.isStatic == ctx.isStatic && ctx.modifierFilter.matches(method)
                 }
                 .forEach { method ->
                     result.addElement(
@@ -91,10 +88,7 @@ class MemberNameCompletionProvider : CompletionProvider<CompletionParameters>() 
         } else {
             phpClass.fields
                 .filter { field ->
-                    if (field.isConstant) return@filter false
-                    if (ctx.isStatic && !field.modifier.isStatic) return@filter false
-                    if (!ctx.isStatic && field.modifier.isStatic) return@filter false
-                    ctx.modifierFilter.matches(field)
+                    !field.isConstant && field.modifier.isStatic == ctx.isStatic && ctx.modifierFilter.matches(field)
                 }
                 .forEach { field ->
                     result.addElement(
