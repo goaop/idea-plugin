@@ -11,8 +11,7 @@ class NotPointcut(private val pointcut: Pointcut) : Pointcut {
 
     override fun matches(element: PhpNamedElement): Boolean {
         val containing = contextClassOf(element) ?: return false
-        if (!pointcut.getClassFilter().matches(containing)) return true
-        return !pointcut.matches(element)
+        return !pointcut.getClassFilter().matches(containing) || !pointcut.matches(element)
     }
 
     override fun equals(other: Any?): Boolean {
