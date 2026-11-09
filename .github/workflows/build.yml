@@ -136,6 +136,8 @@ jobs:
         uses: JetBrains/qodana-action@v2026.2.2
         with:
           cache-default-branch-only: true
+          # Keep the SARIF report as a job artifact: the PR comment only lists counts, not locations
+          upload-result: true
 
   # Run plugin structure verification along with IntelliJ Plugin Verifier
   verify:
