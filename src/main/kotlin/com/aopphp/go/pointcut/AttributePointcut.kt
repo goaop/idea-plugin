@@ -20,8 +20,7 @@ class AttributePointcut(
     override fun getClassFilter() = _classFilter
 
     override fun matches(element: PhpNamedElement): Boolean {
-        if (!filterKind.supports(element)) return false
-        return hasAttribute(element, expectedClass)
+        return filterKind.supports(element) && hasAttribute(element, expectedClass)
     }
 
     override fun getKind() = filterKind
@@ -66,9 +65,10 @@ class AttributePointcut(
         /** True when [element] carries the attribute [attributeFqn] or an attribute extending it */
         @JvmStatic
         fun hasAttribute(element: PhpNamedElement, attributeFqn: String): Boolean {
-            if (element !is PhpAttributesOwner) return false
-            return element.getAttributes(attributeFqn).isNotEmpty() ||
-                element.attributes.any { isAttributeSubclass(it, attributeFqn) }
+            return element is PhpAttributesOwner && (
+                element.getAttributes(attributeFqn).isNotEmpty() ||
+                    element.attributes.any { isAttributeSubclass(it, attributeFqn) }
+                )
         }
 
         private fun isAttributeSubclass(attribute: PhpAttribute, expectedFqn: String): Boolean {

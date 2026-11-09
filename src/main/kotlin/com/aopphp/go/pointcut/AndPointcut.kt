@@ -18,8 +18,8 @@ open class AndPointcut(
 
     protected fun isMatchesPointcut(point: PhpNamedElement, pointcut: Pointcut): Boolean {
         val context = contextClassOf(point) ?: return false
-        if (!pointcut.getKind().supports(point)) return false
-        return pointcut.matches(point) && pointcut.getClassFilter().matches(context)
+        return pointcut.getKind().supports(point) && pointcut.matches(point) &&
+            pointcut.getClassFilter().matches(context)
     }
 
     override fun equals(other: Any?): Boolean {
