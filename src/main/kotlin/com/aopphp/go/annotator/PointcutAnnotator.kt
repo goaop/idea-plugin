@@ -21,7 +21,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.SmartPointerManager
 import com.intellij.psi.SmartPsiElementPointer
-import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * Reports pointcut constructs that Go! AOP 4.0 rejects or never matches:
@@ -60,13 +59,11 @@ class PointcutAnnotator : Annotator {
             "The dynamic() pointcut was removed in Go! AOP 4.0: intercept the magic method and read the invoked name from the arguments"
         ).range(element.firstChild)
         val memberReference = element.memberReference
-        if (memberReference != null) {
-            val isStatic = memberReference.memberAccessType.text == "::"
-            val replacement = "execution(" + memberReference.memberModifiers.text + " " +
-                memberReference.classFilter.text + memberReference.memberAccessType.text +
-                (if (isStatic) "__callStatic" else "__call") + "(*))"
-            builder.withFix(ReplaceInjectedTextFix(element, replacement, "Replace with execution of the magic method"))
-        }
+        val isStatic = memberReference.memberAccessType.text == "::"
+        val replacement = "execution(" + memberReference.memberModifiers.text + " " +
+            memberReference.classFilter.text + memberReference.memberAccessType.text +
+            (if (isStatic) "__callStatic" else "__call") + "(*))"
+        builder.withFix(ReplaceInjectedTextFix(element, replacement, "Replace with execution of the magic method"))
         builder.create()
     }
 
@@ -90,7 +87,7 @@ class PointcutAnnotator : Annotator {
     }
 
     private fun annotateAccess(element: AccessPointcut, holder: AnnotationHolder) {
-        val memberReference = element.memberReference ?: return
+        val memberReference = element.memberReference
         if (memberReference.memberAccessType.text == "::") {
             holder.newAnnotation(HighlightSeverity.WARNING, "Static properties are never intercepted")
                 .range(memberReference.memberAccessType).create()
@@ -106,7 +103,7 @@ class PointcutAnnotator : Annotator {
     }
 
     private fun annotateReference(element: PointcutReference, holder: AnnotationHolder) {
-        val name = element.namePatternPart ?: return
+        val name = element.namePatternPart
         if (name.text.contains('*') || name.text.contains('|')) {
             holder.newAnnotation(HighlightSeverity.ERROR, "A pointcut reference names one pointcut, patterns are not allowed")
                 .range(name).create()

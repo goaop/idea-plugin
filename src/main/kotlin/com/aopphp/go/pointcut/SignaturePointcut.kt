@@ -24,7 +24,7 @@ class SignaturePointcut(
 
         val elementName = when (element) {
             is PhpClassMember -> element.name
-            is PhpClass -> element.fqn?.removePrefix("\\") ?: ""
+            is PhpClass -> element.fqn.removePrefix("\\")
             else -> ""
         }
 

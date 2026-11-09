@@ -1,6 +1,5 @@
 package com.aopphp.go.parser
 
-import com.aopphp.go.parser.PointcutLexer
 import com.intellij.lexer.FlexAdapter
 import com.intellij.testFramework.LexerTestCase
 

@@ -24,11 +24,10 @@ object PhpClassUtil {
      */
     @JvmStatic
     fun isAopProxy(cls: PhpClass): Boolean {
-        val fqn: String = cls.fqn ?: return false
+        val fqn: String = cls.fqn
         if (fqn.contains("__AopProx")) return true
         if (fqn.endsWith(ORIGINAL_TRAIT_SUFFIX) && cls.isTrait) return true
-        val interfaceNames: Array<String>? = cls.interfaceNames
-        return interfaceNames?.any { it == AOP_PROXY_INTERFACE } == true
+        return cls.interfaceNames.any { it == AOP_PROXY_INTERFACE }
     }
 
     /**

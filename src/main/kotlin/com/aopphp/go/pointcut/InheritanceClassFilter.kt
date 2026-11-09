@@ -16,13 +16,13 @@ class InheritanceClassFilter(private val parentClassName: String) : PointFilter 
 
     override fun matches(element: PhpNamedElement): Boolean {
         if (element !is PhpClass) return false
-        val elementFqn: String = element.fqn ?: return false
+        val elementFqn: String = element.fqn
         if (elementFqn == normalizedFqn) return true
 
         val visited = mutableSetOf<String>()
         var current: PhpClass? = element
         while (current != null) {
-            val currentFqn: String = current.fqn ?: break
+            val currentFqn: String = current.fqn
             if (!visited.add(currentFqn)) break
             if (current !== element && currentFqn == normalizedFqn) return true
             if (usesTrait(current) || implementsInterface(current, mutableSetOf())) return true
@@ -32,14 +32,13 @@ class InheritanceClassFilter(private val parentClassName: String) : PointFilter 
     }
 
     private fun usesTrait(phpClass: PhpClass): Boolean {
-        val traitNames: Array<String>? = phpClass.traitNames
-        return traitNames?.any { it == normalizedFqn } == true
+        return phpClass.traitNames.any { it == normalizedFqn }
     }
 
     private fun implementsInterface(phpClass: PhpClass, visited: MutableSet<String>): Boolean {
         val interfaces: Array<PhpClass>? = phpClass.implementedInterfaces
         for (iface in interfaces ?: return false) {
-            val ifaceFqn: String = iface.fqn ?: continue
+            val ifaceFqn: String = iface.fqn
             if (ifaceFqn == normalizedFqn) return true
             if (visited.add(ifaceFqn) && implementsInterface(iface, visited)) return true
         }

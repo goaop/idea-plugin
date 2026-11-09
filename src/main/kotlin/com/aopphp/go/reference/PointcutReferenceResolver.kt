@@ -35,7 +35,7 @@ object PointcutReferenceResolver {
     @JvmStatic
     fun resolveMethod(reference: PointcutReference, host: PsiElement? = null): Method? {
         val classFqn = aspectClassFqn(reference, host) ?: return null
-        val name = reference.namePatternPart?.text ?: return null
+        val name = reference.namePatternPart.text
         val phpClass = PhpIndex.getInstance(reference.project).getClassesByFQN(classFqn).firstOrNull() ?: return null
         return phpClass.findMethodByName(name)
     }

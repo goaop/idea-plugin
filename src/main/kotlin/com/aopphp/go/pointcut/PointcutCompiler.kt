@@ -84,8 +84,7 @@ object PointcutCompiler {
         val kindClass = setOf(KindFilter.KIND_CLASS)
 
         element.accessPointcut?.let { accessPointcut ->
-            val memberReference = accessPointcut.memberReference ?: return NEVER_MATCHES
-            return getSignaturePointcut(getClassMemberReference(memberReference), kindProperty, null)
+            return getSignaturePointcut(getClassMemberReference(accessPointcut.memberReference), kindProperty, null)
         }
 
         element.executionPointcut?.let { executionPointcut ->
@@ -109,33 +108,27 @@ object PointcutCompiler {
         }
 
         element.withinPointcut?.let { withinPointcut ->
-            val classFilter = withinPointcut.classFilter ?: return NEVER_MATCHES
-            return TruePointcut(KIND_ALL, getClassFilterMatcher(classFilter))
+            return TruePointcut(KIND_ALL, getClassFilterMatcher(withinPointcut.classFilter))
         }
 
         element.annotatedExecutionPointcut?.let {
-            val attributeName = it.namespaceName?.getFQN() ?: return NEVER_MATCHES
-            return AttributePointcut(kindMethod, attributeName)
+            return AttributePointcut(kindMethod, it.namespaceName.getFQN())
         }
 
         element.annotatedAccessPointcut?.let {
-            val attributeName = it.namespaceName?.getFQN() ?: return NEVER_MATCHES
-            return AttributePointcut(kindProperty, attributeName)
+            return AttributePointcut(kindProperty, it.namespaceName.getFQN())
         }
 
         element.annotatedWithinPointcut?.let {
-            val attributeName = it.namespaceName?.getFQN() ?: return NEVER_MATCHES
-            return TruePointcut(KIND_ALL, AttributePointcut(kindClass, attributeName))
+            return TruePointcut(KIND_ALL, AttributePointcut(kindClass, it.namespaceName.getFQN()))
         }
 
         element.initializationPointcut?.let {
-            val classFilter = it.classFilter ?: return NEVER_MATCHES
-            return TruePointcut(setOf(KindFilter.KIND_CLASS, KindFilter.KIND_INIT), getClassFilterMatcher(classFilter))
+            return TruePointcut(setOf(KindFilter.KIND_CLASS, KindFilter.KIND_INIT), getClassFilterMatcher(it.classFilter))
         }
 
         element.staticInitializationPointcut?.let {
-            val classFilter = it.classFilter ?: return NEVER_MATCHES
-            return TruePointcut(setOf(KindFilter.KIND_CLASS, KindFilter.KIND_STATIC_INIT), getClassFilterMatcher(classFilter))
+            return TruePointcut(setOf(KindFilter.KIND_CLASS, KindFilter.KIND_STATIC_INIT), getClassFilterMatcher(it.classFilter))
         }
 
         element.matchInheritedPointcut?.let { return MatchInheritedPointcut() }
@@ -149,7 +142,7 @@ object PointcutCompiler {
     }
 
     private fun resolvePointcutReference(reference: PointcutReference, aspectClassFqn: String?): Pointcut {
-        val pointcutName = reference.namePatternPart?.text ?: return NEVER_MATCHES
+        val pointcutName = reference.namePatternPart.text
         val classFqn = if (reference.firstChild.node.elementType == PointcutTypes.T_THIS) {
             aspectClassFqn ?: return NEVER_MATCHES
         } else {

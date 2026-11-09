@@ -5,7 +5,6 @@ import com.jetbrains.php.lang.psi.elements.Function
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 import com.jetbrains.php.lang.psi.elements.PhpReturnType
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
 import java.util.regex.Pattern
 
 /**
@@ -29,7 +28,7 @@ class ReturnTypeFilter(typePattern: String) : PointFilter {
 
     override fun matches(element: PhpNamedElement): Boolean {
         if (element !is Function) return false
-        val declaredType = declaredTypeOf(element.returnType ?: return false) ?: return false
+        val declaredType = declaredTypeOf(element.typeDeclaration ?: return false) ?: return false
         return matchesType(declaredType)
     }
 
@@ -121,10 +120,10 @@ class ReturnTypeFilter(typePattern: String) : PointFilter {
             val current = StringBuilder()
             var depth = 0
             for (c in type) {
-                when {
-                    c == '(' -> { depth++; current.append(c) }
-                    c == ')' -> { depth--; current.append(c) }
-                    c == '|' && depth == 0 -> { members.add(current.toString()); current.clear() }
+                when (c) {
+                    '(' -> { depth++; current.append(c) }
+                    ')' -> { depth--; current.append(c) }
+                    '|' -> if (depth == 0) { members.add(current.toString()); current.clear() } else current.append(c)
                     else -> current.append(c)
                 }
             }

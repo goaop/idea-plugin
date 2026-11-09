@@ -12,8 +12,6 @@ import com.jetbrains.php.lang.psi.elements.impl.ParameterListImpl
  * The attributes of the Go! AOP 4.0 `Go\Lang\Attribute` namespace and the PHP strings that hold pointcut expressions.
  */
 object GoAopAttributes {
-    const val NAMESPACE = "\\Go\\Lang\\Attribute\\"
-
     const val BEFORE = "\\Go\\Lang\\Attribute\\Before"
     const val AFTER = "\\Go\\Lang\\Attribute\\After"
     const val AFTER_THROWING = "\\Go\\Lang\\Attribute\\AfterThrowing"

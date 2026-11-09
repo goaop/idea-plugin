@@ -8,7 +8,9 @@ import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 
 /**
@@ -23,82 +25,58 @@ import com.intellij.psi.util.PsiTreeUtil
  *              → class-name completion popup immediately, so the user does not need to
  *                type the first character of the class name manually.
  *
- *  SPACE typed after a visibility modifier (public/protected/private/final)
+ *  SPACE typed after a modifier (public/protected/private/final/readonly/private(set)/protected(set))
  *              → class-name completion popup (the modifier has been chosen, time to pick a class).
  */
 class PointcutMemberAccessTypingHandler : TypedHandlerDelegate() {
 
+    private companion object {
+        /** Keywords whose `(` opens a class pattern */
+        val CLASS_PATTERN_KEYWORDS = setOf(
+            PointcutTypes.EXECUTION, PointcutTypes.ACCESS, PointcutTypes.WITHIN,
+            PointcutTypes.STATICINITIALIZATION, PointcutTypes.INITIALIZATION,
+        )
+
+        /** Modifiers followed by the class pattern */
+        val MEMBER_MODIFIERS = setOf(
+            PointcutTypes.PUBLIC, PointcutTypes.PROTECTED, PointcutTypes.PRIVATE, PointcutTypes.FINAL,
+            PointcutTypes.READONLY, PointcutTypes.PRIVATE_SET, PointcutTypes.PROTECTED_SET,
+        )
+    }
+
     override fun charTyped(c: Char, project: Project, editor: Editor, file: PsiFile): Result {
-        if (c != '>' && c != ':' && c != '(' && c != ' ') return Result.CONTINUE
-
         val offset = editor.caretModel.offset
-        val injectionManager = InjectedLanguageManager.getInstance(project)
-
-        when (c) {
-            // ------------------------------------------------------------------ -> / ::
+        val text = editor.document.charsSequence
+        val showPopup = when (c) {
+            // -> or :: inside a member reference (execution/access), not within() etc.
             '>', ':' -> {
-                if (offset < 2) return Result.CONTINUE
-                val text = editor.document.charsSequence
-                val prevChar = text[offset - 2]
-                val twoChars = "$prevChar$c"
-                if (twoChars != "->" && twoChars != "::") return Result.CONTINUE
-
-                val injectedElement = injectionManager.findInjectedElementAt(file, offset - 2)
-                    ?: return Result.CONTINUE
-                if (injectedElement.containingFile?.language != PointcutQueryLanguage) return Result.CONTINUE
-
-                // Only inside a MemberReference (execution/access) — not within() etc.
-                val memberRef = PsiTreeUtil.getParentOfType(injectedElement, MemberReference::class.java)
-                    ?: return Result.CONTINUE
-
-                AutoPopupController.getInstance(project).scheduleAutoPopup(editor)
+                val isMemberAccess = offset >= 2 && text[offset - 2] == (if (c == '>') '-' else ':')
+                val injectedElement = if (isMemberAccess) injectedPointcutElementAt(project, file, offset - 2) else null
+                injectedElement != null && PsiTreeUtil.getParentOfType(injectedElement, MemberReference::class.java) != null
             }
-
-            // ------------------------------------------------------------------ ( after keyword
-            '(' -> {
-                if (offset < 1) return Result.CONTINUE
-                // The '(' we just typed is at offset-1 in the document.
-                val injectedElement = injectionManager.findInjectedElementAt(file, offset - 1)
-                    ?: return Result.CONTINUE
-                if (injectedElement.containingFile?.language != PointcutQueryLanguage) return Result.CONTINUE
-
-                // T_LEFT_PAREN; check what keyword comes before it
-                val prevLeaf = PsiTreeUtil.prevLeaf(injectedElement) ?: return Result.CONTINUE
-                val prevType = prevLeaf.node?.elementType
-                if (prevType == PointcutTypes.EXECUTION ||
-                    prevType == PointcutTypes.ACCESS     ||
-                    prevType == PointcutTypes.WITHIN     ||
-                    prevType == PointcutTypes.STATICINITIALIZATION ||
-                    prevType == PointcutTypes.INITIALIZATION
-                ) {
-                    AutoPopupController.getInstance(project).scheduleAutoPopup(editor)
-                }
-            }
-
-            // ------------------------------------------------------------------ SPACE after modifier
-            ' ' -> {
-                if (offset < 1) return Result.CONTINUE
-                // Space at offset-1; check the token just before the space
-                val injectedElement = injectionManager.findInjectedElementAt(file, offset - 1)
-                    ?: return Result.CONTINUE
-                if (injectedElement.containingFile?.language != PointcutQueryLanguage) return Result.CONTINUE
-
-                // WHITE_SPACE; prev token is the modifier keyword
-                val prevLeaf = PsiTreeUtil.prevLeaf(injectedElement) ?: return Result.CONTINUE
-                val prevType = prevLeaf.node?.elementType
-                if (prevType == PointcutTypes.PUBLIC    ||
-                    prevType == PointcutTypes.PROTECTED ||
-                    prevType == PointcutTypes.PRIVATE   ||
-                    prevType == PointcutTypes.FINAL     ||
-                    prevType == PointcutTypes.READONLY  ||
-                    prevType == PointcutTypes.PRIVATE_SET ||
-                    prevType == PointcutTypes.PROTECTED_SET
-                ) {
-                    AutoPopupController.getInstance(project).scheduleAutoPopup(editor)
-                }
-            }
+            // ( after a keyword that takes a class pattern
+            '(' -> previousTokenType(project, file, offset) in CLASS_PATTERN_KEYWORDS
+            // space after a modifier
+            ' ' -> previousTokenType(project, file, offset) in MEMBER_MODIFIERS
+            else -> false
+        }
+        if (showPopup) {
+            AutoPopupController.getInstance(project).scheduleAutoPopup(editor)
         }
 
         return Result.CONTINUE
+    }
+
+    /** Returns the pointcut PSI element injected at [offset] of the host [file], if any */
+    private fun injectedPointcutElementAt(project: Project, file: PsiFile, offset: Int): PsiElement? {
+        val injectedElement = InjectedLanguageManager.getInstance(project).findInjectedElementAt(file, offset)
+        return injectedElement?.takeIf { it.containingFile?.language == PointcutQueryLanguage }
+    }
+
+    /** Returns the type of the pointcut token before the character just typed at [caretOffset] - 1 */
+    private fun previousTokenType(project: Project, file: PsiFile, caretOffset: Int): IElementType? {
+        if (caretOffset < 1) return null
+        val typedElement = injectedPointcutElementAt(project, file, caretOffset - 1) ?: return null
+        return PsiTreeUtil.prevLeaf(typedElement)?.node?.elementType
     }
 }

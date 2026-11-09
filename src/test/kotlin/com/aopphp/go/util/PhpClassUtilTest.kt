@@ -12,13 +12,6 @@ class PhpClassUtilTest {
     // ---- isAopProxy ----
 
     @Test
-    fun `isAopProxy returns false when FQN is null`() {
-        val cls = mock<PhpClass>()
-        whenever(cls.fqn).thenReturn(null)
-        assertFalse(PhpClassUtil.isAopProxy(cls))
-    }
-
-    @Test
     fun `isAopProxy returns true when FQN contains __AopProx`() {
         val cls = mock<PhpClass>()
         whenever(cls.fqn).thenReturn("\\App\\Foo__AopProxied")

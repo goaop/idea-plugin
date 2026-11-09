@@ -6,6 +6,7 @@ import com.aopphp.go.pointcut.PointcutCompiler
 import com.aopphp.go.psiutil.PointcutElementFactory
 import com.aopphp.go.util.GoAopAttributes
 import com.intellij.util.indexing.DataIndexer
+import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.util.indexing.FileBasedIndexExtension
 import com.intellij.util.indexing.FileContent
 import com.intellij.util.indexing.ID
@@ -149,9 +150,9 @@ class AttributePointcutExpressionIndex : FileBasedIndexExtension<String, Pointcu
         }
     }
 
-    override fun getInputFilter() = PhpConstantNameIndex.PHP_INPUT_FILTER
+    override fun getInputFilter(): FileBasedIndex.InputFilter = PhpConstantNameIndex.PHP_INPUT_FILTER
 
     override fun dependsOnFileContent() = true
 
-    override fun getVersion() = 10
+    override fun getVersion() = 11
 }

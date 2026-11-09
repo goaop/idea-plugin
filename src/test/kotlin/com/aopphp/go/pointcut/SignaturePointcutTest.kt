@@ -13,8 +13,6 @@ import org.mockito.kotlin.whenever
 
 class SignaturePointcutTest {
 
-    private val allKinds = KindFilter.entries.toSet()
-
     // ---- Exact name matching ----
 
     @Test

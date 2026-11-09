@@ -112,10 +112,10 @@ class PointcutPhpReferenceContributor : PsiReferenceContributor() {
 
             // Case 4: named pointcut reference — the member is the #[Pointcut] method of the aspect
             for (pointcutRef in PsiTreeUtil.collectElementsOfType(root, PointcutReference::class.java)) {
-                val name = pointcutRef.namePatternPart ?: continue
+                val name = pointcutRef.namePatternPart
                 if (name.text.contains('*')) continue
                 val classFqn = PointcutReferenceResolver.aspectClassFqn(pointcutRef, host) ?: continue
-                out.add(PhpMemberHostReference(host, rangeOf(name, contentOffset), classFqn, name.text, true, false))
+                out.add(PhpMemberHostReference(host, rangeOf(name, contentOffset), classFqn, name.text, isExecution = true, isAccess = false))
             }
 
             // Case 3: member reference — NamePattern is the method/property name

@@ -47,7 +47,6 @@ class ModifierMatcherFilter(
                 PhpModifier.Access.PUBLIC -> PUBLIC
                 PhpModifier.Access.PROTECTED -> PROTECTED
                 PhpModifier.Access.PRIVATE -> PRIVATE
-                null -> 0
             }
             if (modifier.isFinal) bits = bits or FINAL
             if (element is Field) {
@@ -67,17 +66,11 @@ class ModifierMatcherFilter(
 
     override fun getKind() = _kind
 
-    /** True when this filter has `|` alternatives */
-    fun hasAlternatives() = orMask != 0
-
     /** Returns a filter that also requires all bits of [bitMask] */
     fun andMatch(bitMask: Int) = ModifierMatcherFilter(andMask or bitMask, orMask)
 
     /** Returns a filter that also accepts any bit of [bitMask] */
     fun orMatch(bitMask: Int) = ModifierMatcherFilter(andMask, orMask or bitMask)
-
-    /** True when [bit] is required or accepted by this filter */
-    fun mentions(bit: Int) = ((andMask or orMask) and bit) != 0
 
     override fun matches(element: PhpNamedElement): Boolean {
         if (element !is PhpElementWithModifier) return false

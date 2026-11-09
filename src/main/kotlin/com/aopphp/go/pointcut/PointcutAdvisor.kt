@@ -53,7 +53,7 @@ object PointcutAdvisor {
     fun getMatchedElements(aspectMember: PhpNamedElement): List<PhpNamedElement>? {
         val project = aspectMember.project
         val scope = GlobalSearchScope.projectScope(project)
-        val pointcutFQN = aspectMember.fqn ?: return null
+        val pointcutFQN = aspectMember.fqn
         val pointcut = fileBasedIndex.getValues(index, pointcutFQN, scope).firstOrNull() ?: return null
 
         val result = mutableListOf<PhpNamedElement>()

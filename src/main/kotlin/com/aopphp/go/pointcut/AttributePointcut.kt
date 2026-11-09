@@ -67,10 +67,8 @@ class AttributePointcut(
         @JvmStatic
         fun hasAttribute(element: PhpNamedElement, attributeFqn: String): Boolean {
             if (element !is PhpAttributesOwner) return false
-            val exact: Collection<PhpAttribute>? = element.getAttributes(attributeFqn)
-            if (!exact.isNullOrEmpty()) return true
-            val attributes: Collection<PhpAttribute>? = element.attributes
-            return attributes?.any { isAttributeSubclass(it, attributeFqn) } == true
+            if (element.getAttributes(attributeFqn).isNotEmpty()) return true
+            return element.attributes.any { isAttributeSubclass(it, attributeFqn) }
         }
 
         private fun isAttributeSubclass(attribute: PhpAttribute, expectedFqn: String): Boolean {
