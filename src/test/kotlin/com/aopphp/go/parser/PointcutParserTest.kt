@@ -141,7 +141,70 @@ class PointcutParserTest : ParsingTestCase("", "goaop", PointcutQueryParserDefin
         assertParses("execution(public MyClass->method(*)) // this is a comment")
     }
 
+    // ----- Go! AOP 4.0 syntax -----
+
+    fun testMatchReturningByReferencePointcut() {
+        assertParses("execution(public **->*(*)) && !matchReturningByReference()")
+    }
+
+    fun testSpaceSeparatedModifierGroups() {
+        assertParses("execution(final public|protected Example\\Aspect\\*->method*(*))")
+        assertParses("access(final readonly Example->*)")
+    }
+
+    fun testReadonlyAndAsymmetricVisibilityModifiers() {
+        assertParses("access(readonly **->*)")
+        assertParses("access(public|readonly **->*)")
+        assertParses("access(private(set) Example\\Aspect\\*->property*)")
+        assertParses("access(protected(set) **->*)")
+    }
+
+    fun testUnionAndIntersectionReturnTypes() {
+        assertParses("execution(public Example->method(*): string|int)")
+        assertParses("execution(public Example->method(*): Countable&Iterator)")
+        assertParses("execution(public Example->method(*): Iterator|Countable&Iterator|null)")
+        assertParses("execution(public Example->method(*): ?App\\Entity)")
+    }
+
+    fun testFunctionReturnType() {
+        assertParses("execution(Demo\\Namespace\\*(*): string|null)")
+        assertParses("execution(Demo\\*\\Test\\**\\*(*): bool)")
+    }
+
+    fun testAlternativesInsideClassNamePart() {
+        assertParses("within(App\\Cart|Order)")
+        assertParses("execution(public App\\Cart|Order->get*|is*(*))")
+    }
+
+    fun testQualifiedPointcutReference() {
+        assertParses("Demo\\Aspect\\LoggingAspect->publicMethods && !\$this->excluded")
+    }
+
+    fun testDynamicPointcutStillParsesForTheMigrationHint() {
+        assertParses("dynamic(public MyClass->save*(*))")
+    }
+
     // ----- invalid input should produce PsiErrorElement -----
+
+    fun testQuestionMarkWildcardHasErrors() {
+        assertHasErrors("execution(public MyClass->?etName(*))")
+    }
+
+    fun testWildcardInReturnTypeHasErrors() {
+        assertHasErrors("execution(public MyClass->*(*): App\\*)")
+    }
+
+    fun testNullableUnionHasErrors() {
+        assertHasErrors("execution(public MyClass->*(*): ?string|int)")
+    }
+
+    fun testPointcutReferenceWithoutOwnerHasErrors() {
+        assertHasErrors("->myPointcut")
+    }
+
+    fun testModifiersAreRequired() {
+        assertHasErrors("execution(MyClass->method(*))")
+    }
 
     fun testEmptyExpressionHasErrors() {
         assertHasErrors("")

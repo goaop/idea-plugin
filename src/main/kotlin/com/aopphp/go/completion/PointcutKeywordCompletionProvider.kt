@@ -11,7 +11,8 @@ import com.intellij.util.ProcessingContext
 class PointcutKeywordCompletionProvider : CompletionProvider<CompletionParameters>() {
 
     private val pointcutTypes = listOf(
-        "execution", "access", "within", "initialization", "staticinitialization", "matchInherited"
+        "execution", "access", "within", "initialization", "staticinitialization", "matchInherited",
+        "matchReturningByReference"
     )
 
     override fun addCompletions(

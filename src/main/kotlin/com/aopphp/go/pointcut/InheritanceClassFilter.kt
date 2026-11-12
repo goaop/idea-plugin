@@ -3,6 +3,11 @@ package com.aopphp.go.pointcut
 import com.jetbrains.php.lang.psi.elements.PhpClass
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 
+/**
+ * Class filter of the `Foo+` pattern, mirroring the framework's `ClassInheritancePointcut`: matches the type
+ * `Foo` itself, its subclasses and implementers, and classes that use the trait `Foo` directly or through
+ * a parent class.
+ */
 class InheritanceClassFilter(private val parentClassName: String) : PointFilter {
     private val _kind = setOf(KindFilter.KIND_CLASS)
     private val normalizedFqn = if (parentClassName.startsWith("\\")) parentClassName else "\\$parentClassName"
@@ -11,18 +16,33 @@ class InheritanceClassFilter(private val parentClassName: String) : PointFilter 
 
     override fun matches(element: PhpNamedElement): Boolean {
         if (element !is PhpClass) return false
-        val elementFqn = element.fqn ?: return false
+        val elementFqn: String = element.fqn
         if (elementFqn == normalizedFqn) return true
-        return element.isSubclassOf(normalizedFqn)
-    }
 
-    private fun PhpClass.isSubclassOf(fqn: String): Boolean {
-        var current: PhpClass? = superClass
+        val visited = mutableSetOf<String>()
+        var current: PhpClass? = element
         while (current != null) {
-            if (current.fqn == fqn) return true
+            val currentFqn: String = current.fqn
+            if (!visited.add(currentFqn)) break
+            if (current !== element && currentFqn == normalizedFqn) return true
+            if (usesTrait(current) || implementsInterface(current, mutableSetOf())) return true
             current = current.superClass
         }
-        return implementedInterfaces.any { it.fqn == fqn }
+        return false
+    }
+
+    private fun usesTrait(phpClass: PhpClass): Boolean {
+        return phpClass.traitNames.any { it == normalizedFqn }
+    }
+
+    private fun implementsInterface(phpClass: PhpClass, visited: MutableSet<String>): Boolean {
+        val interfaces: Array<PhpClass>? = phpClass.implementedInterfaces
+        for (iface in interfaces ?: return false) {
+            val ifaceFqn: String = iface.fqn
+            if (ifaceFqn == normalizedFqn) return true
+            if (visited.add(ifaceFqn) && implementsInterface(iface, visited)) return true
+        }
+        return false
     }
 
     override fun equals(other: Any?): Boolean {

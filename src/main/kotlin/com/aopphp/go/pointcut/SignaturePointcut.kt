@@ -11,16 +11,7 @@ class SignaturePointcut(
     private val modifierFilter: PointFilter
 ) : Pointcut {
 
-    private val regexp: Pattern = run {
-        val escaped = name.replace(Regex("([\\\\.\\[{(*+?^\$|])"), "\\\\$1")
-        Pattern.compile(
-            escaped
-                .replace("\\*\\*", ".+?")
-                .replace("\\*", "[^\\\\]+?")
-                .replace("\\?", ".")
-                .replace("\\|", "|")
-        )
-    }
+    private val regexp: Pattern = NamePatterns.compile(name)
 
     @set:JvmName("setClassFilter")
     var _classFilter: PointFilter = TruePointFilter
@@ -33,11 +24,11 @@ class SignaturePointcut(
 
         val elementName = when (element) {
             is PhpClassMember -> element.name
-            is PhpClass -> element.fqn?.removePrefix("\\") ?: ""
+            is PhpClass -> element.fqn.removePrefix("\\")
             else -> ""
         }
 
-        return elementName == name || regexp.matcher(elementName).matches()
+        return NamePatterns.matches(name, regexp, elementName)
     }
 
     override fun getKind() = filterKind

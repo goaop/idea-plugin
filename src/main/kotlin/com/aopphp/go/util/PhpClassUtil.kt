@@ -9,21 +9,25 @@ import com.jetbrains.php.lang.psi.elements.PhpClass
 object PhpClassUtil {
 
     private const val AOP_PROXY_INTERFACE = "\\Go\\Aop\\Proxy"
+    private const val ORIGINAL_TRAIT_SUFFIX = "OriginalTrait"
 
     /**
      * Returns true if [cls] is a Go! AOP-generated proxy class that should be excluded from
      * pointcut completion and navigation.
      *
-     * Two detection strategies:
-     *  1. FQN contains "__AopProx" — matches generated trait names like `Foo__AopProxied`.
-     *  2. The class directly implements `\Go\Aop\Proxy` — matches runtime proxy classes that
-     *     PhpStorm may index from the framework's cache folder with the same FQN as the original.
+     * Detection strategies:
+     *  1. The class directly implements `\Go\Aop\Proxy` — matches the proxy classes that PhpStorm
+     *     may index from the framework's cache folder with the same FQN as the original.
+     *  2. A trait whose name ends with `OriginalTrait` — the original class body that Go! AOP 4.0
+     *     moves into `<Class>OriginalTrait` next to the proxy in the cache folder.
+     *  3. FQN contains "__AopProx" — the `Foo__AopProxied` parent classes of Go! AOP 3.x caches.
      */
     @JvmStatic
     fun isAopProxy(cls: PhpClass): Boolean {
-        val fqn = cls.fqn ?: return false
-        if (fqn.contains("__AopProx")) return true
-        return cls.interfaceNames.any { it == AOP_PROXY_INTERFACE }
+        val fqn: String = cls.fqn
+        return fqn.contains("__AopProx") ||
+            (fqn.endsWith(ORIGINAL_TRAIT_SUFFIX) && cls.isTrait) ||
+            cls.interfaceNames.any { it == AOP_PROXY_INTERFACE }
     }
 
     /**

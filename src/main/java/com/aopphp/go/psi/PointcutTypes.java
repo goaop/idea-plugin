@@ -24,11 +24,13 @@ public interface PointcutTypes {
   IElementType FUNCTION_EXECUTION_REFERENCE = new PointcutElementType("FUNCTION_EXECUTION_REFERENCE");
   IElementType INITIALIZATION_POINTCUT = new PointcutElementType("INITIALIZATION_POINTCUT");
   IElementType MATCH_INHERITED_POINTCUT = new PointcutElementType("MATCH_INHERITED_POINTCUT");
+  IElementType MATCH_RETURNING_BY_REFERENCE_POINTCUT = new PointcutElementType("MATCH_RETURNING_BY_REFERENCE_POINTCUT");
   IElementType MEMBER_ACCESS_TYPE = new PointcutElementType("MEMBER_ACCESS_TYPE");
   IElementType MEMBER_MODIFIER = new PointcutElementType("MEMBER_MODIFIER");
   IElementType MEMBER_MODIFIERS = new PointcutElementType("MEMBER_MODIFIERS");
   IElementType MEMBER_REFERENCE = new PointcutElementType("MEMBER_REFERENCE");
   IElementType METHOD_EXECUTION_REFERENCE = new PointcutElementType("METHOD_EXECUTION_REFERENCE");
+  IElementType MODIFIER_GROUP = new PointcutElementType("MODIFIER_GROUP");
   IElementType NAMESPACE_NAME = new PointcutElementType("NAMESPACE_NAME");
   IElementType NAMESPACE_PATTERN = new PointcutElementType("NAMESPACE_PATTERN");
   IElementType NAMESPACE_PATTERN_PART = new PointcutElementType("NAMESPACE_PATTERN_PART");
@@ -49,11 +51,16 @@ public interface PointcutTypes {
   IElementType FINAL = new PointcutTokenType("final");
   IElementType INITIALIZATION = new PointcutTokenType("initialization");
   IElementType MATCHINHERITED = new PointcutTokenType("matchInherited");
+  IElementType MATCHRETURNINGBYREFERENCE = new PointcutTokenType("matchReturningByReference");
   IElementType PRIVATE = new PointcutTokenType("private");
+  IElementType PRIVATE_SET = new PointcutTokenType("private(set)");
   IElementType PROTECTED = new PointcutTokenType("protected");
+  IElementType PROTECTED_SET = new PointcutTokenType("protected(set)");
   IElementType PUBLIC = new PointcutTokenType("public");
+  IElementType READONLY = new PointcutTokenType("readonly");
   IElementType STATICINITIALIZATION = new PointcutTokenType("staticinitialization");
   IElementType T_ALTERNATION = new PointcutTokenType("|");
+  IElementType T_AMPERSAND = new PointcutTokenType("&");
   IElementType T_ANNOTATION = new PointcutTokenType("@");
   IElementType T_ASTERISK = new PointcutTokenType("*");
   IElementType T_COLON = new PointcutTokenType(":");
@@ -118,6 +125,9 @@ public interface PointcutTypes {
       else if (type == MATCH_INHERITED_POINTCUT) {
         return new MatchInheritedPointcutImpl(node);
       }
+      else if (type == MATCH_RETURNING_BY_REFERENCE_POINTCUT) {
+        return new MatchReturningByReferencePointcutImpl(node);
+      }
       else if (type == MEMBER_ACCESS_TYPE) {
         return new MemberAccessTypeImpl(node);
       }
@@ -132,6 +142,9 @@ public interface PointcutTypes {
       }
       else if (type == METHOD_EXECUTION_REFERENCE) {
         return new MethodExecutionReferenceImpl(node);
+      }
+      else if (type == MODIFIER_GROUP) {
+        return new ModifierGroupImpl(node);
       }
       else if (type == NAMESPACE_NAME) {
         return new NamespaceNameImpl(node);

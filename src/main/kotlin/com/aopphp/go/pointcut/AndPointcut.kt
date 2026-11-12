@@ -1,6 +1,5 @@
 package com.aopphp.go.pointcut
 
-import com.jetbrains.php.lang.psi.elements.PhpClassMember
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
 
 open class AndPointcut(
@@ -18,10 +17,9 @@ open class AndPointcut(
         isMatchesPointcut(element, first) && isMatchesPointcut(element, second)
 
     protected fun isMatchesPointcut(point: PhpNamedElement, pointcut: Pointcut): Boolean {
-        if (point !is PhpClassMember) return false
-        if (!pointcut.getKind().supports(point)) return false
-        val containingClass = point.containingClass ?: return false
-        return pointcut.matches(point) && pointcut.getClassFilter().matches(containingClass)
+        val context = contextClassOf(point) ?: return false
+        return pointcut.getKind().supports(point) && pointcut.matches(point) &&
+            pointcut.getClassFilter().matches(context)
     }
 
     override fun equals(other: Any?): Boolean {

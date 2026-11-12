@@ -53,7 +53,7 @@ object PointcutAdvisor {
     fun getMatchedElements(aspectMember: PhpNamedElement): List<PhpNamedElement>? {
         val project = aspectMember.project
         val scope = GlobalSearchScope.projectScope(project)
-        val pointcutFQN = aspectMember.fqn ?: return null
+        val pointcutFQN = aspectMember.fqn
         val pointcut = fileBasedIndex.getValues(index, pointcutFQN, scope).firstOrNull() ?: return null
 
         val result = mutableListOf<PhpNamedElement>()
@@ -80,10 +80,31 @@ object PointcutAdvisor {
             }
         }
 
+        // initialization(), staticinitialization() and #[DeclareParents] select whole classes
+        if (isClassLevelPointcut(pointcut)) {
+            classList.forEach { phpClass ->
+                ProgressManager.checkCanceled()
+                runReadAction {
+                    if (isPointcutMatches(phpClass, pointcut)) result.add(phpClass)
+                }
+            }
+        }
+
         return result
     }
 
-    private fun isPointcutMatches(element: PhpNamedElement, pointcut: Pointcut): Boolean {
+    /** True when [pointcut] selects classes as a whole instead of their members */
+    @JvmStatic
+    fun isClassLevelPointcut(pointcut: Pointcut): Boolean {
+        val kind = pointcut.getKind()
+        return KindFilter.KIND_CLASS in kind && kind.any { it in CLASS_LEVEL_KINDS }
+            && KindFilter.KIND_METHOD !in kind && KindFilter.KIND_PROPERTY !in kind
+    }
+
+    @JvmStatic
+    fun isPointcutMatches(element: PhpNamedElement, pointcut: Pointcut): Boolean {
+        // A trait is never instantiated or loaded on its own, only its members are joinpoints
+        if (element is PhpClass && element.isTrait) return false
         if (!canMatchElement(element, pointcut.getKind())) return false
 
         val parentElement: PhpNamedElement? = when (element) {
@@ -99,10 +120,18 @@ object PointcutAdvisor {
         return pointcut.matches(element)
     }
 
+    /**
+     * Go! AOP 4.0 intercepts properties with native property hooks: class constants, static, readonly and
+     * already-hooked properties are never intercepted.
+     */
+    @JvmStatic
+    fun isInterceptableProperty(field: Field): Boolean =
+        !field.isConstant && !field.modifier.isStatic && !field.isReadonly && !field.hasPropertyHooksContainer()
+
     private fun canMatchElement(element: PhpNamedElement?, filterKind: Set<KindFilter>): Boolean {
         return when (element) {
             is Method   -> KindFilter.KIND_METHOD in filterKind
-            is Field    -> KindFilter.KIND_PROPERTY in filterKind
+            is Field    -> KindFilter.KIND_PROPERTY in filterKind && isInterceptableProperty(element)
             is PhpClass -> !element.isInterface && !PluginUtil.isAspect(element)
                            && KindFilter.KIND_CLASS in filterKind
             else        -> false

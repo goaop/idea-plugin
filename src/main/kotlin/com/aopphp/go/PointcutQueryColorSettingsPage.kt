@@ -21,7 +21,12 @@ class PointcutQueryColorSettingsPage : ColorSettingsPage {
 
     override fun getIcon(): Icon = GoAopIcons.FILE
     override fun getHighlighter() = PointcutQuerySyntaxHighlighter()
-    override fun getDemoText() = "execution (public|protected Some\\Name*\\**->methodName(*))"
+    override fun getDemoText() = """
+        // Public or protected methods below Some\Name*, except the ones returning by reference
+        execution(public|protected Some\Name*\**->methodName(*): ?Some\Entity) && !matchReturningByReference()
+            || access(public private(set) Some\Name->property)
+            || @within(Some\Attribute)
+    """.trimIndent()
     override fun getAdditionalHighlightingTagToDescriptorMap(): Map<String, TextAttributesKey>? = null
     override fun getAttributeDescriptors() = DESCRIPTORS
     override fun getColorDescriptors(): Array<ColorDescriptor> = ColorDescriptor.EMPTY_ARRAY

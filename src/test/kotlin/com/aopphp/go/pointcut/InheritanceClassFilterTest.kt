@@ -9,6 +9,12 @@ import org.mockito.kotlin.whenever
 
 class InheritanceClassFilterTest {
 
+    /** A class mock without traits and interfaces: PhpStorm never returns null arrays */
+    private fun phpClass(): PhpClass = mock<PhpClass>().also {
+        whenever(it.traitNames).thenReturn(emptyArray())
+        whenever(it.implementedInterfaces).thenReturn(emptyArray())
+    }
+
     @Test
     fun `matches returns false for non-PhpClass element`() {
         val filter = InheritanceClassFilter("App\\MyClass")
@@ -17,17 +23,9 @@ class InheritanceClassFilterTest {
     }
 
     @Test
-    fun `matches returns false when PhpClass FQN is null`() {
-        val filter = InheritanceClassFilter("App\\MyClass")
-        val cls = mock<PhpClass>()
-        whenever(cls.fqn).thenReturn(null)
-        assertFalse(filter.matches(cls))
-    }
-
-    @Test
     fun `matches returns true for exact FQN match with leading backslash`() {
         val filter = InheritanceClassFilter("\\App\\MyClass")
-        val cls = mock<PhpClass>()
+        val cls = phpClass()
         whenever(cls.fqn).thenReturn("\\App\\MyClass")
         assertTrue(filter.matches(cls))
     }
@@ -35,17 +33,17 @@ class InheritanceClassFilterTest {
     @Test
     fun `matches returns true for exact FQN match when parentClassName has no leading backslash`() {
         val filter = InheritanceClassFilter("App\\MyClass")
-        val cls = mock<PhpClass>()
+        val cls = phpClass()
         whenever(cls.fqn).thenReturn("\\App\\MyClass")
         assertTrue(filter.matches(cls))
     }
 
     @Test
     fun `matches returns true when class is a subclass via hierarchy`() {
-        val parent = mock<PhpClass>()
+        val parent = phpClass()
         whenever(parent.fqn).thenReturn("\\App\\Base")
 
-        val cls = mock<PhpClass>()
+        val cls = phpClass()
         whenever(cls.fqn).thenReturn("\\App\\Child")
         whenever(cls.superClass).thenReturn(parent)
         whenever(parent.superClass).thenReturn(null)
@@ -57,10 +55,10 @@ class InheritanceClassFilterTest {
 
     @Test
     fun `matches returns true when class implements the target interface`() {
-        val iface = mock<PhpClass>()
+        val iface = phpClass()
         whenever(iface.fqn).thenReturn("\\App\\TargetInterface")
 
-        val cls = mock<PhpClass>()
+        val cls = phpClass()
         whenever(cls.fqn).thenReturn("\\App\\SomeClass")
         whenever(cls.superClass).thenReturn(null)
         whenever(cls.implementedInterfaces).thenReturn(arrayOf(iface))
@@ -71,10 +69,10 @@ class InheritanceClassFilterTest {
 
     @Test
     fun `matches returns false when class is not in hierarchy`() {
-        val unrelated = mock<PhpClass>()
+        val unrelated = phpClass()
         whenever(unrelated.fqn).thenReturn("\\App\\Unrelated")
 
-        val cls = mock<PhpClass>()
+        val cls = phpClass()
         whenever(cls.fqn).thenReturn("\\App\\Unrelated")
         whenever(cls.superClass).thenReturn(null)
         whenever(cls.implementedInterfaces).thenReturn(emptyArray<PhpClass>())
@@ -85,10 +83,10 @@ class InheritanceClassFilterTest {
 
     @Test
     fun `matches returns false when class has different parent`() {
-        val otherParent = mock<PhpClass>()
+        val otherParent = phpClass()
         whenever(otherParent.fqn).thenReturn("\\App\\OtherBase")
 
-        val cls = mock<PhpClass>()
+        val cls = phpClass()
         whenever(cls.fqn).thenReturn("\\App\\Child")
         whenever(cls.superClass).thenReturn(otherParent)
         whenever(otherParent.superClass).thenReturn(null)
@@ -125,5 +123,34 @@ class InheritanceClassFilterTest {
         assertNotEquals(filter, null)
         assertNotEquals(filter, "App\\MyClass")
     }
-}
 
+    @Test
+    fun `matches classes using the trait directly or through a parent class`() {
+        val parent = phpClass()
+        whenever(parent.fqn).thenReturn("\\App\\Base")
+        whenever(parent.traitNames).thenReturn(arrayOf("\\App\\LoggerTrait"))
+
+        val cls = phpClass()
+        whenever(cls.fqn).thenReturn("\\App\\Child")
+        whenever(cls.superClass).thenReturn(parent)
+
+        assertTrue(InheritanceClassFilter("App\\LoggerTrait").matches(cls))
+        assertTrue(InheritanceClassFilter("App\\LoggerTrait").matches(parent))
+        assertFalse(InheritanceClassFilter("App\\OtherTrait").matches(cls))
+    }
+
+    @Test
+    fun `matches interfaces inherited through parent interfaces`() {
+        val baseInterface = phpClass()
+        whenever(baseInterface.fqn).thenReturn("\\App\\Base")
+        val childInterface = phpClass()
+        whenever(childInterface.fqn).thenReturn("\\App\\Child")
+        whenever(childInterface.implementedInterfaces).thenReturn(arrayOf(baseInterface))
+
+        val cls = phpClass()
+        whenever(cls.fqn).thenReturn("\\App\\Service")
+        whenever(cls.implementedInterfaces).thenReturn(arrayOf(childInterface))
+
+        assertTrue(InheritanceClassFilter("App\\Base").matches(cls))
+    }
+}

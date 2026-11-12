@@ -241,7 +241,7 @@ public class PointcutParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // namespacePattern '(' argumentList ')'
+  // namespacePattern '(' argumentList ')' (':' returnTypePattern)?
   public static boolean functionExecutionReference(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "functionExecutionReference")) return false;
     boolean result_;
@@ -250,7 +250,26 @@ public class PointcutParser implements PsiParser, LightPsiParser {
     result_ = result_ && consumeToken(builder_, T_LEFT_PAREN);
     result_ = result_ && argumentList(builder_, level_ + 1);
     result_ = result_ && consumeToken(builder_, T_RIGHT_PAREN);
+    result_ = result_ && functionExecutionReference_4(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
+    return result_;
+  }
+
+  // (':' returnTypePattern)?
+  private static boolean functionExecutionReference_4(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "functionExecutionReference_4")) return false;
+    functionExecutionReference_4_0(builder_, level_ + 1);
+    return true;
+  }
+
+  // ':' returnTypePattern
+  private static boolean functionExecutionReference_4_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "functionExecutionReference_4_0")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, T_COLON);
+    result_ = result_ && returnTypePattern(builder_, level_ + 1);
+    exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 
@@ -281,6 +300,18 @@ public class PointcutParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // matchReturningByReference '(' ')'
+  public static boolean matchReturningByReferencePointcut(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "matchReturningByReferencePointcut")) return false;
+    if (!nextTokenIs(builder_, MATCHRETURNINGBYREFERENCE)) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeTokens(builder_, 0, MATCHRETURNINGBYREFERENCE, T_LEFT_PAREN, T_RIGHT_PAREN);
+    exit_section_(builder_, marker_, MATCH_RETURNING_BY_REFERENCE_POINTCUT, result_);
+    return result_;
+  }
+
+  /* ********************************************************** */
   // ['::'|'->']
   public static boolean memberAccessType(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "memberAccessType")) return false;
@@ -300,7 +331,7 @@ public class PointcutParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // private|protected|public|final
+  // private|protected|public|final|readonly|'private(set)'|'protected(set)'
   public static boolean memberModifier(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "memberModifier")) return false;
     boolean result_;
@@ -309,41 +340,26 @@ public class PointcutParser implements PsiParser, LightPsiParser {
     if (!result_) result_ = consumeToken(builder_, PROTECTED);
     if (!result_) result_ = consumeToken(builder_, PUBLIC);
     if (!result_) result_ = consumeToken(builder_, FINAL);
+    if (!result_) result_ = consumeToken(builder_, READONLY);
+    if (!result_) result_ = consumeToken(builder_, PRIVATE_SET);
+    if (!result_) result_ = consumeToken(builder_, PROTECTED_SET);
     exit_section_(builder_, level_, marker_, result_, false, null);
     return result_;
   }
 
   /* ********************************************************** */
-  // memberModifier {'|' memberModifier}*
+  // modifierGroup+
   public static boolean memberModifiers(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "memberModifiers")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, MEMBER_MODIFIERS, "<member modifiers>");
-    result_ = memberModifier(builder_, level_ + 1);
-    result_ = result_ && memberModifiers_1(builder_, level_ + 1);
-    exit_section_(builder_, level_, marker_, result_, false, null);
-    return result_;
-  }
-
-  // {'|' memberModifier}*
-  private static boolean memberModifiers_1(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "memberModifiers_1")) return false;
-    while (true) {
+    result_ = modifierGroup(builder_, level_ + 1);
+    while (result_) {
       int pos_ = current_position_(builder_);
-      if (!memberModifiers_1_0(builder_, level_ + 1)) break;
-      if (!empty_element_parsed_guard_(builder_, "memberModifiers_1", pos_)) break;
+      if (!modifierGroup(builder_, level_ + 1)) break;
+      if (!empty_element_parsed_guard_(builder_, "memberModifiers", pos_)) break;
     }
-    return true;
-  }
-
-  // '|' memberModifier
-  private static boolean memberModifiers_1_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "memberModifiers_1_0")) return false;
-    boolean result_;
-    Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, T_ALTERNATION);
-    result_ = result_ && memberModifier(builder_, level_ + 1);
-    exit_section_(builder_, marker_, null, result_);
+    exit_section_(builder_, level_, marker_, result_, false, null);
     return result_;
   }
 
@@ -395,37 +411,48 @@ public class PointcutParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // namePatternPart {'|' namePatternPart}*
+  // memberModifier {'|' memberModifier}*
+  public static boolean modifierGroup(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "modifierGroup")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, MODIFIER_GROUP, "<modifier group>");
+    result_ = memberModifier(builder_, level_ + 1);
+    result_ = result_ && modifierGroup_1(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, result_, false, null);
+    return result_;
+  }
+
+  // {'|' memberModifier}*
+  private static boolean modifierGroup_1(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "modifierGroup_1")) return false;
+    while (true) {
+      int pos_ = current_position_(builder_);
+      if (!modifierGroup_1_0(builder_, level_ + 1)) break;
+      if (!empty_element_parsed_guard_(builder_, "modifierGroup_1", pos_)) break;
+    }
+    return true;
+  }
+
+  // '|' memberModifier
+  private static boolean modifierGroup_1_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "modifierGroup_1_0")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, T_ALTERNATION);
+    result_ = result_ && memberModifier(builder_, level_ + 1);
+    exit_section_(builder_, marker_, null, result_);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // namePatternPart
   public static boolean namePattern(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "namePattern")) return false;
     if (!nextTokenIs(builder_, "<name pattern>", T_ASTERISK, T_NAME_PART)) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, NAME_PATTERN, "<name pattern>");
     result_ = namePatternPart(builder_, level_ + 1);
-    result_ = result_ && namePattern_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
-    return result_;
-  }
-
-  // {'|' namePatternPart}*
-  private static boolean namePattern_1(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "namePattern_1")) return false;
-    while (true) {
-      int pos_ = current_position_(builder_);
-      if (!namePattern_1_0(builder_, level_ + 1)) break;
-      if (!empty_element_parsed_guard_(builder_, "namePattern_1", pos_)) break;
-    }
-    return true;
-  }
-
-  // '|' namePatternPart
-  private static boolean namePattern_1_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "namePattern_1_0")) return false;
-    boolean result_;
-    Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, T_ALTERNATION);
-    result_ = result_ && namePatternPart(builder_, level_ + 1);
-    exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 
@@ -441,19 +468,67 @@ public class PointcutParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // namePatternItem+
+  // namePatternItem+ {'|' namePatternItem+}*
   public static boolean namePatternPart(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "namePatternPart")) return false;
     if (!nextTokenIs(builder_, "<name pattern part>", T_ASTERISK, T_NAME_PART)) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, NAME_PATTERN_PART, "<name pattern part>");
+    result_ = namePatternPart_0(builder_, level_ + 1);
+    result_ = result_ && namePatternPart_1(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, result_, false, null);
+    return result_;
+  }
+
+  // namePatternItem+
+  private static boolean namePatternPart_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "namePatternPart_0")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
     result_ = namePatternItem(builder_, level_ + 1);
     while (result_) {
       int pos_ = current_position_(builder_);
       if (!namePatternItem(builder_, level_ + 1)) break;
-      if (!empty_element_parsed_guard_(builder_, "namePatternPart", pos_)) break;
+      if (!empty_element_parsed_guard_(builder_, "namePatternPart_0", pos_)) break;
     }
-    exit_section_(builder_, level_, marker_, result_, false, null);
+    exit_section_(builder_, marker_, null, result_);
+    return result_;
+  }
+
+  // {'|' namePatternItem+}*
+  private static boolean namePatternPart_1(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "namePatternPart_1")) return false;
+    while (true) {
+      int pos_ = current_position_(builder_);
+      if (!namePatternPart_1_0(builder_, level_ + 1)) break;
+      if (!empty_element_parsed_guard_(builder_, "namePatternPart_1", pos_)) break;
+    }
+    return true;
+  }
+
+  // '|' namePatternItem+
+  private static boolean namePatternPart_1_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "namePatternPart_1_0")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, T_ALTERNATION);
+    result_ = result_ && namePatternPart_1_0_1(builder_, level_ + 1);
+    exit_section_(builder_, marker_, null, result_);
+    return result_;
+  }
+
+  // namePatternItem+
+  private static boolean namePatternPart_1_0_1(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "namePatternPart_1_0_1")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = namePatternItem(builder_, level_ + 1);
+    while (result_) {
+      int pos_ = current_position_(builder_);
+      if (!namePatternItem(builder_, level_ + 1)) break;
+      if (!empty_element_parsed_guard_(builder_, "namePatternPart_1_0_1", pos_)) break;
+    }
+    exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 
@@ -593,9 +668,10 @@ public class PointcutParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // [namespaceName|'$this'] '->' namePatternPart
+  // (namespaceName | '$this') '->' namePatternPart
   public static boolean pointcutReference(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "pointcutReference")) return false;
+    if (!nextTokenIs(builder_, "<pointcut reference>", T_NAME_PART, T_THIS)) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, POINTCUT_REFERENCE, "<pointcut reference>");
     result_ = pointcutReference_0(builder_, level_ + 1);
@@ -605,16 +681,9 @@ public class PointcutParser implements PsiParser, LightPsiParser {
     return result_;
   }
 
-  // [namespaceName|'$this']
+  // namespaceName | '$this'
   private static boolean pointcutReference_0(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "pointcutReference_0")) return false;
-    pointcutReference_0_0(builder_, level_ + 1);
-    return true;
-  }
-
-  // namespaceName|'$this'
-  private static boolean pointcutReference_0_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "pointcutReference_0_0")) return false;
     boolean result_;
     result_ = namespaceName(builder_, level_ + 1);
     if (!result_) result_ = consumeToken(builder_, T_THIS);
@@ -622,83 +691,95 @@ public class PointcutParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // returnTypeAtomPart {'\' returnTypeAtomPart}*
-  static boolean returnTypeAtom(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "returnTypeAtom")) return false;
+  // namespaceName {'&' namespaceName}*
+  static boolean returnTypeMember(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "returnTypeMember")) return false;
+    if (!nextTokenIs(builder_, T_NAME_PART)) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = returnTypeAtomPart(builder_, level_ + 1);
-    result_ = result_ && returnTypeAtom_1(builder_, level_ + 1);
+    result_ = namespaceName(builder_, level_ + 1);
+    result_ = result_ && returnTypeMember_1(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 
-  // {'\' returnTypeAtomPart}*
-  private static boolean returnTypeAtom_1(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "returnTypeAtom_1")) return false;
+  // {'&' namespaceName}*
+  private static boolean returnTypeMember_1(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "returnTypeMember_1")) return false;
     while (true) {
       int pos_ = current_position_(builder_);
-      if (!returnTypeAtom_1_0(builder_, level_ + 1)) break;
-      if (!empty_element_parsed_guard_(builder_, "returnTypeAtom_1", pos_)) break;
+      if (!returnTypeMember_1_0(builder_, level_ + 1)) break;
+      if (!empty_element_parsed_guard_(builder_, "returnTypeMember_1", pos_)) break;
     }
     return true;
   }
 
-  // '\' returnTypeAtomPart
-  private static boolean returnTypeAtom_1_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "returnTypeAtom_1_0")) return false;
+  // '&' namespaceName
+  private static boolean returnTypeMember_1_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "returnTypeMember_1_0")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, T_NS_SEPARATOR);
-    result_ = result_ && returnTypeAtomPart(builder_, level_ + 1);
+    result_ = consumeToken(builder_, T_AMPERSAND);
+    result_ = result_ && namespaceName(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 
   /* ********************************************************** */
-  // '**' | '*' | T_NAME_PART
-  static boolean returnTypeAtomItem(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "returnTypeAtomItem")) return false;
-    boolean result_;
-    result_ = consumeToken(builder_, T_DOUBLE_ASTERISK);
-    if (!result_) result_ = consumeToken(builder_, T_ASTERISK);
-    if (!result_) result_ = consumeToken(builder_, T_NAME_PART);
-    return result_;
-  }
-
-  /* ********************************************************** */
-  // returnTypeAtomItem+
-  static boolean returnTypeAtomPart(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "returnTypeAtomPart")) return false;
-    boolean result_;
-    Marker marker_ = enter_section_(builder_);
-    result_ = returnTypeAtomItem(builder_, level_ + 1);
-    while (result_) {
-      int pos_ = current_position_(builder_);
-      if (!returnTypeAtomItem(builder_, level_ + 1)) break;
-      if (!empty_element_parsed_guard_(builder_, "returnTypeAtomPart", pos_)) break;
-    }
-    exit_section_(builder_, marker_, null, result_);
-    return result_;
-  }
-
-  /* ********************************************************** */
-  // '?'? returnTypeAtom
+  // ('?' namespaceName) | (returnTypeMember {'|' returnTypeMember}*)
   public static boolean returnTypePattern(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "returnTypePattern")) return false;
+    if (!nextTokenIs(builder_, "<return type pattern>", T_NAME_PART, T_QUESTION_MARK)) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, RETURN_TYPE_PATTERN, "<return type pattern>");
     result_ = returnTypePattern_0(builder_, level_ + 1);
-    result_ = result_ && returnTypeAtom(builder_, level_ + 1);
+    if (!result_) result_ = returnTypePattern_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
     return result_;
   }
 
-  // '?'?
+  // '?' namespaceName
   private static boolean returnTypePattern_0(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "returnTypePattern_0")) return false;
-    consumeToken(builder_, T_QUESTION_MARK);
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, T_QUESTION_MARK);
+    result_ = result_ && namespaceName(builder_, level_ + 1);
+    exit_section_(builder_, marker_, null, result_);
+    return result_;
+  }
+
+  // returnTypeMember {'|' returnTypeMember}*
+  private static boolean returnTypePattern_1(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "returnTypePattern_1")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = returnTypeMember(builder_, level_ + 1);
+    result_ = result_ && returnTypePattern_1_1(builder_, level_ + 1);
+    exit_section_(builder_, marker_, null, result_);
+    return result_;
+  }
+
+  // {'|' returnTypeMember}*
+  private static boolean returnTypePattern_1_1(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "returnTypePattern_1_1")) return false;
+    while (true) {
+      int pos_ = current_position_(builder_);
+      if (!returnTypePattern_1_1_0(builder_, level_ + 1)) break;
+      if (!empty_element_parsed_guard_(builder_, "returnTypePattern_1_1", pos_)) break;
+    }
     return true;
+  }
+
+  // '|' returnTypeMember
+  private static boolean returnTypePattern_1_1_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "returnTypePattern_1_1_0")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, T_ALTERNATION);
+    result_ = result_ && returnTypeMember(builder_, level_ + 1);
+    exit_section_(builder_, marker_, null, result_);
+    return result_;
   }
 
   /* ********************************************************** */
@@ -710,9 +791,10 @@ public class PointcutParser implements PsiParser, LightPsiParser {
   //   | annotatedWithinPointcut
   //   | initializationPointcut
   //   | staticInitializationPointcut
+  //   | matchInheritedPointcut
+  //   | matchReturningByReferencePointcut
   //   | cflowbelowPointcut
   //   | dynamicExecutionPointcut
-  //   | matchInheritedPointcut
   //   | pointcutReference
   public static boolean singlePointcut(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "singlePointcut")) return false;
@@ -726,9 +808,10 @@ public class PointcutParser implements PsiParser, LightPsiParser {
     if (!result_) result_ = annotatedWithinPointcut(builder_, level_ + 1);
     if (!result_) result_ = initializationPointcut(builder_, level_ + 1);
     if (!result_) result_ = staticInitializationPointcut(builder_, level_ + 1);
+    if (!result_) result_ = matchInheritedPointcut(builder_, level_ + 1);
+    if (!result_) result_ = matchReturningByReferencePointcut(builder_, level_ + 1);
     if (!result_) result_ = cflowbelowPointcut(builder_, level_ + 1);
     if (!result_) result_ = dynamicExecutionPointcut(builder_, level_ + 1);
-    if (!result_) result_ = matchInheritedPointcut(builder_, level_ + 1);
     if (!result_) result_ = pointcutReference(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
     return result_;

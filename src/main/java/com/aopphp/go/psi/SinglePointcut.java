@@ -35,6 +35,9 @@ public interface SinglePointcut extends PsiElement {
   MatchInheritedPointcut getMatchInheritedPointcut();
 
   @Nullable
+  MatchReturningByReferencePointcut getMatchReturningByReferencePointcut();
+
+  @Nullable
   PointcutReference getPointcutReference();
 
   @Nullable

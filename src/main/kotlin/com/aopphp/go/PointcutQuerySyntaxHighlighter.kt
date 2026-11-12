@@ -33,7 +33,8 @@ class PointcutQuerySyntaxHighlighter : SyntaxHighlighterBase() {
         PointcutTypes.T_OBJECT_ACCESS,
         PointcutTypes.T_SUBNAMESPACE_SIGN,
         PointcutTypes.T_COLON,
-        PointcutTypes.T_QUESTION_MARK -> arrayOf(SEPARATOR)
+        PointcutTypes.T_QUESTION_MARK,
+        PointcutTypes.T_AMPERSAND -> arrayOf(SEPARATOR)
 
         PointcutTypes.ACCESS,
         PointcutTypes.EXECUTION,
@@ -42,7 +43,8 @@ class PointcutQuerySyntaxHighlighter : SyntaxHighlighterBase() {
         PointcutTypes.STATICINITIALIZATION,
         PointcutTypes.CFLOWBELOW,
         PointcutTypes.DYNAMIC,
-        PointcutTypes.MATCHINHERITED -> arrayOf(KEYWORD)
+        PointcutTypes.MATCHINHERITED,
+        PointcutTypes.MATCHRETURNINGBYREFERENCE -> arrayOf(KEYWORD)
 
         PointcutTypes.T_LEFT_PAREN,
         PointcutTypes.T_RIGHT_PAREN -> arrayOf(PARENTHESIS)
@@ -50,7 +52,10 @@ class PointcutQuerySyntaxHighlighter : SyntaxHighlighterBase() {
         PointcutTypes.PRIVATE,
         PointcutTypes.PROTECTED,
         PointcutTypes.PUBLIC,
-        PointcutTypes.FINAL -> arrayOf(MEMBER_MODIFIER)
+        PointcutTypes.FINAL,
+        PointcutTypes.READONLY,
+        PointcutTypes.PRIVATE_SET,
+        PointcutTypes.PROTECTED_SET -> arrayOf(MEMBER_MODIFIER)
 
         PointcutTypes.T_COMMENT -> arrayOf(COMMENT)
         TokenType.BAD_CHARACTER -> arrayOf(BAD_CHARACTER)

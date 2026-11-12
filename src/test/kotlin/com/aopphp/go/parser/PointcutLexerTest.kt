@@ -1,6 +1,5 @@
 package com.aopphp.go.parser
 
-import com.aopphp.go.parser.PointcutLexer
 import com.intellij.lexer.FlexAdapter
 import com.intellij.testFramework.LexerTestCase
 
@@ -147,6 +146,27 @@ class PointcutLexerTest : LexerTestCase() {
             "PointcutTokenType.* ('*')\n" +
             "PointcutTokenType.) (')')\n" +
             "PointcutTokenType.) (')')"
+        )
+    }
+
+    fun testGoAop4Tokens() {
+        doTest(
+            "matchReturningByReference readonly private(set) protected(set) private & && ?",
+            "PointcutTokenType.matchReturningByReference ('matchReturningByReference')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.readonly ('readonly')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.private(set) ('private(set)')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.protected(set) ('protected(set)')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.private ('private')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.& ('&')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.&& ('&&')\n" +
+            "WHITE_SPACE (' ')\n" +
+            "PointcutTokenType.? ('?')"
         )
     }
 }

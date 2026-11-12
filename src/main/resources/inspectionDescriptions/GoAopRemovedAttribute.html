@@ -1,0 +1,11 @@
+<html>
+<body>
+Reports attributes removed in Go! AOP 4.0:
+<ul>
+  <li><code>#[Go\Lang\Attribute\Aspect]</code>: the framework never read it, aspects are identified by implementing
+    <code>Go\Aop\Aspect</code>. The quick-fix removes the attribute.</li>
+  <li><code>#[Go\Lang\Attribute\DeclareError]</code>: emit the warning or throw the exception from a
+    <code>#[Before]</code> or <code>#[Around]</code> advice instead.</li>
+</ul>
+</body>
+</html>
