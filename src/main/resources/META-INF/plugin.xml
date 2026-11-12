@@ -8,6 +8,10 @@
     <depends>com.jetbrains.php</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <!-- Indexed by the Marketplace Feature Extractor: lets the IDE suggest this plugin for projects
+             that require goaop/framework in composer.json, once it collects Composer dependencies -->
+        <dependencySupport kind="php" coordinate="goaop/framework" displayName="Go! AOP Framework"/>
+
         <fileType name="Go! AOP Pointcut"
                   implementationClass="com.aopphp.go.GoAopFileType"
                   fieldName="INSTANCE"

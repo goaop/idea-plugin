@@ -19,6 +19,7 @@ Support for [Go! AOP Framework 4.0](https://github.com/goaop/framework/blob/mast
 - Inspection *Invalid advice method*: advice methods must be public (quick-fix: make public), and a method carries at most one advice attribute
 - Inspection *Attribute removed in Go! AOP 4.0*: `#[Aspect]` (quick-fix: remove) and `#[DeclareError]`
 - Inspection *Advised method returns by reference*: such methods can not be woven, exclude them with `&& !matchReturningByReference()`
+- The plugin declares support for the `goaop/framework` Composer package, so that the IDE can suggest it for projects requiring the framework; the README explains how to mark the plugin as required for a project ([#93](https://github.com/goaop/idea-plugin/issues/93))
 
 ### Changed
 - Pointcut matching follows the Go! AOP 4.0 semantics: `*` also matches an empty string (`set*` matches `set`), `Foo+` matches `Foo` itself, classes using the trait `Foo` and every interface in the hierarchy, and `@execution`/`@access`/`@within` match subclasses of the attribute

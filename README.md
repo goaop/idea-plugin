@@ -54,6 +54,26 @@ Download the [latest release](https://github.com/goaop/intellij-idea-goaop-plugi
 
 <kbd>Settings</kbd> > <kbd>Plugins</kbd> > <kbd>⚙</kbd> > <kbd>Install Plugin from Disk…</kbd>
 
+**Suggest the plugin to everyone working on your project**
+
+The plugin declares support for the `goaop/framework` Composer package, so the IDE can suggest it for projects that
+require the framework once PhpStorm collects Composer dependencies for plugin suggestions.
+
+To have the IDE prompt for the plugin today, mark it as required for your project: <kbd>Settings</kbd> >
+<kbd>Appearance & Behavior</kbd> > <kbd>Required Plugins</kbd> > <kbd>+</kbd> > **Go! AOP Framework**, or
+commit `.idea/externalDependencies.xml` with:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalDependencies">
+    <plugin id="com.aopphp.go.framework" />
+  </component>
+</project>
+```
+
+Anyone who opens the project without the plugin then gets a notification with a one-click install.
+
 ## Development
 
 ### Build & Run
