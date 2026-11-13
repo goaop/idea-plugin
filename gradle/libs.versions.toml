@@ -10,7 +10,6 @@ changelog = "2.5.0"
 intellijPlatformGradle = "2.20.1"
 qodana = "2026.2.2"
 kover = "0.9.11"
-grammarkit = "2023.3.0.4"
 
 [libraries]
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
@@ -28,4 +27,4 @@ intellijPlatformGradle = { id = "org.jetbrains.intellij.platform", version.ref =
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 qodana = { id = "org.jetbrains.qodana", version.ref = "qodana" }
-grammarkit = { id = "org.jetbrains.grammarkit", version.ref = "grammarkit" }
+intellijPlatformGrammarKit = { id = "org.jetbrains.intellij.platform.grammarkit", version.ref = "intellijPlatformGradle" }
