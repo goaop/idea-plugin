@@ -9,10 +9,10 @@ plugins {
     id("java")
     alias(libs.plugins.kotlin)
     alias(libs.plugins.intellijPlatformGradle)
+    alias(libs.plugins.intellijPlatformGrammarKit)
     alias(libs.plugins.changelog)
     alias(libs.plugins.qodana)
     alias(libs.plugins.kover)
-    alias(libs.plugins.grammarkit)
 }
 
 group = properties("pluginGroup").get()
@@ -87,70 +87,49 @@ kover {
     }
 }
 
-// GrammarKit 2023.3.x has a bug in its classpath wiring (apply$1$3$2 passes null
-// to classpath()), so we cannot add to the classpath — we must replace it entirely
-// after task creation to include the project's compiled PSI util classes.
-afterEvaluate {
-    tasks.named<org.jetbrains.grammarkit.tasks.GenerateParserTask>("generateParser") {
-        // Use plain file() to avoid creating a task dependency on compileJava
-        // (mustRunAfter constraints would otherwise create a circular chain)
-        classpath = files(
-            configurations.getByName("compileClasspath"),
-            file("$buildDir/classes/java/main"),
-            file("$buildDir/classes/kotlin/main")
-        )
-    }
-
-    // GrammarKit 2023.3.0.3 puts @Override on accept(Visitor) which doesn't
-    // override any supertype method — strip the annotation after generation.
-    tasks.named("generateParser") {
-        doLast {
-            fileTree("src/main/java/com/aopphp/go/psi/impl").matching {
-                include("*.java")
-            }.forEach { f ->
-                f.writeText(f.readText().replace("@Override\n  public void accept", "public void accept"))
-            }
-        }
-    }
-}
-
 tasks {
     wrapper {
         gradleVersion = properties("gradleVersion").get()
     }
 
-    // Clean regeneration: deletes old PSI then regenerates fresh.
-    // Run after compiling so PointcutPsiUtil is on the classpath:
-    //   ./gradlew compileJava compileKotlin regenerateParser generateLexer
-    register("regenerateParser") {
-        group = "grammarkit"
-        description = "Clean-regenerates parser and lexer from scratch"
-        doFirst {
-            delete(file("src/main/java/com/aopphp/go/psi"))
-        }
-        finalizedBy(generateParser, generateLexer)
-    }
-
+    // The lexer, parser and PSI are generated into src/main/java and committed: PointcutPsiUtil (psiImplUtilClass)
+    // must be compiled before GrammarKit can generate the PSI that uses it, and it depends on that PSI itself.
+    // Regenerate after changing the grammar (compile first, then generate, in two separate runs):
+    //   ./gradlew compileJava compileKotlin
+    //   ./gradlew generateParser generateLexer
     generateParser {
-        sourceFile.set(file("src/main/java/com/aopphp/go/parser/pointcut.bnf"))
-        targetRootOutputDir.set(layout.projectDirectory.dir("src/main/java"))
-        pathToParser.set("/com/aopphp/go/parser/PointcutParser.java")
-        pathToPsiRoot.set("/com/aopphp/go/psi")
-        purgeOldFiles.set(false)
+        sourceFile = file("src/main/java/com/aopphp/go/parser/pointcut.bnf")
+        // Shared-root mode: only the parser class and the PSI root below src/main/java are outputs (and purged)
+        targetRootOutputDir = layout.projectDirectory.dir("src/main/java")
+        pathToParser = "com/aopphp/go/parser/PointcutParser.java"
+        pathToPsiRoot = "com/aopphp/go/psi"
+        purgeOldFiles = true
+
+        // GrammarKit resolves the psiImplUtilClass methods by reflection, so the compiled classes of the plugin
+        // (and the PHP plugin they reference) must be on its classpath. Plain files: no task dependency on compileJava.
+        classpath(
+            configurations.compileClasspath,
+            layout.buildDirectory.dir("classes/java/main"),
+            layout.buildDirectory.dir("classes/kotlin/main"),
+        )
+
+        // GrammarKit puts @Override on accept(Visitor), which doesn't override any supertype method
+        val psiImplDir = layout.projectDirectory.dir("src/main/java/com/aopphp/go/psi/impl")
+        doLast {
+            psiImplDir.asFileTree.matching { include("*.java") }.forEach { f ->
+                f.writeText(f.readText().replace("@Override\n  public void accept", "public void accept"))
+            }
+        }
     }
 
     generateLexer {
-        sourceFile.set(file("src/main/java/com/aopphp/go/parser/PointcutLexer.flex"))
-        targetOutputDir.set(layout.projectDirectory.dir("src/main/java/com/aopphp/go/parser"))
-        purgeOldFiles.set(false)
-        mustRunAfter(generateParser)
+        sourceFile = file("src/main/java/com/aopphp/go/parser/PointcutLexer.flex")
+        // Shared-root mode: only the lexer class below src/main/java is an output (and purged)
+        targetRootOutputDir = layout.projectDirectory.dir("src/main/java")
+        pathToClass = "com/aopphp/go/parser/PointcutLexer.java"
+        purgeOldFiles = true
     }
 
-    // generateParser/generateLexer are NOT wired as automatic compile dependencies because
-    // GrammarKit cannot locate the compiled psiImplUtilClass at generation time
-    // (chicken-and-egg: the util class depends on the generated PSI files).
-    // Run ./gradlew generateParser generateLexer only after manually ensuring the util class
-    // is compiled, or use IntelliJ's "Generate Parser Code" action which compiles first.
     compileJava {
         mustRunAfter(generateLexer, generateParser)
     }
