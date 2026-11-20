@@ -25,6 +25,7 @@ Support for [Go! AOP Framework 4.0](https://github.com/goaop/framework/blob/mast
 - Pointcut matching follows the Go! AOP 4.0 semantics: `*` also matches an empty string (`set*` matches `set`), `Foo+` matches `Foo` itself, classes using the trait `Foo` and every interface in the hierarchy, and `@execution`/`@access`/`@within` match subclasses of the attribute
 - The pointcut language is injected only into the expression of Go! AOP attributes (`Before`, `After`, `AfterThrowing`, `Around`, `Pointcut`, `DeclareParents`, positional or `expression:` argument) and into the first argument of `PointcutBuilder` calls; other string arguments, like the interface name of `#[DeclareParents]`, are left alone
 - `$this->` completion lists only `#[Pointcut]` methods, inherited ones included
+- The lexer and parser are generated with the Grammar-Kit subplugin of the IntelliJ Platform Gradle Plugin (`org.jetbrains.intellij.platform.grammarkit`) instead of the archived Gradle Grammar-Kit Plugin ([#92](https://github.com/goaop/idea-plugin/issues/92))
 - Line markers skip the properties Go! AOP 4.0 never intercepts: static, readonly and already-hooked properties, and class constants
 - Go! AOP 4.0 proxies and `*OriginalTrait` traits from the AOP cache are hidden from completion and navigation
 

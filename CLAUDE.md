@@ -47,11 +47,16 @@ of the Go! AOP framework (`src/Aop/Pointcut/` in goaop/framework, currently 4.0)
 3. `parser/PointcutLexer.java` / `PointcutParser.java` and `psi/` — **generated** files; do not edit directly
 4. `PointcutQueryParserDefinition` — wires lexer + parser into IntelliJ's language framework
 
-After changing the grammar, regenerate the lexer/parser (PointcutPsiUtil must be compiled first; the configuration-cache
-error printed at the end is harmless, the files are generated):
+The `generateParser`/`generateLexer` tasks come from the `org.jetbrains.intellij.platform.grammarkit` subplugin of the
+IntelliJ Platform Gradle Plugin (Grammar-Kit and JFlex versions are provided by it). They write into `src/main/java`
+in shared-root mode and purge only their own outputs (the parser class, the `psi/` root and the lexer class); the
+generated files are committed and not wired into compilation, because `PointcutPsiUtil` (the `psiImplUtilClass`) must
+be compiled before the PSI that uses it can be generated. After changing the grammar, compile first, then regenerate,
+in two separate runs:
 
 ```bash
-./gradlew compileJava compileKotlin regenerateParser generateLexer
+./gradlew compileJava compileKotlin
+./gradlew generateParser generateLexer
 ```
 
 `dynamic(...)` and `cflowbelow(...)` were removed in Go! AOP 4.0 but are still parsed, so that `PointcutAnnotator`
