@@ -8,7 +8,7 @@ mockitoKotlin = "6.4.0"
 kotlin = "2.4.21"
 changelog = "2.5.0"
 intellijPlatformGradle = "2.20.1"
-qodana = "2026.2.2"
+qodana = "2026.3.1"
 kover = "0.9.11"
 grammarkit = "2023.3.0.4"
 
